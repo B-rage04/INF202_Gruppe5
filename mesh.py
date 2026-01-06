@@ -1,17 +1,6 @@
-import matplotlib.pyplot as plt
-import meshio
-import numpy as np
-
 class Mesh:
-    def __init__(self, file):
-        self.mesh = meshio.read(file)
-
-        self.points = self.mesh.points
-        self.triangles = self.mesh.cells_dict["triangle"]
-    
-    def show(self):
-        plt.triplot(self.points[:, 0], self.points[:, 1], self.triangles)
-        plt.show()
-
-mesh1 = Mesh("bay.msh")
-mesh1.show()
+    def __init__(self):
+        import meshio
+        self.msh = meshio.read("bay.msh")
+        self.cells = self.msh.cells[8:12] #Do not include the vortex cells
+        self.points = self.msh.points
