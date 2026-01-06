@@ -6,6 +6,7 @@ class Cell:
         self.ngb = [] #neigbours
         self.id = str(n)
         self.cords = msh.cells[3].data[n]
+        self.on = np.array()
 
     def neigbor_calculate(self, cell):
         if self.cords[0] in cell.cords and self.cords[1] in cell.cords:
@@ -25,4 +26,8 @@ class Cell:
     def area(self):
         return 0.5 * abs((self.cords[0][0] - self.cords[2][0])(self.cords[1][1] - self.cords[0][1]) - (self.cords[0][0] - self.cords[1][0])(self.cords[2][1] - self.cords[0][1]))
     
-jeff = Cell(Mesh)
+    def flux(self, a, b, u, v):
+    if dot(v,u) > 0:
+        return a * dot(v, u)
+    else:
+        return b * dot(v,u)
