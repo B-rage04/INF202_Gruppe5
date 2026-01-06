@@ -13,6 +13,3 @@ class Mesh:
 
         plt.triplot(points[:, 0], points[:, 1], triangles)
         plt.show()
-
-mashimash = Mesh("bay.msh")
-mashimash.visialize()
