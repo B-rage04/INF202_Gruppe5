@@ -1,4 +1,5 @@
 from mesh import Mesh
+import numpy as np
 
 class Cell:
     def __init__(self, msh, n):
@@ -7,6 +8,7 @@ class Cell:
         self.id = str(n)
         self.cords = msh.cells[3].data[n]
         self.on = np.array()
+        self.center_point = Mesh.triangle_mid(self.cords)
 
     def neigbor_calculate(self, cell):
         if self.cords[0] in cell.cords and self.cords[1] in cell.cords:
@@ -27,7 +29,12 @@ class Cell:
         return 0.5 * abs((self.cords[0][0] - self.cords[2][0])(self.cords[1][1] - self.cords[0][1]) - (self.cords[0][0] - self.cords[1][0])(self.cords[2][1] - self.cords[0][1]))
     
     def flux(self, a, b, u, v):
-    if dot(v,u) > 0:
-        return a * dot(v, u)
-    else:
-        return b * dot(v,u)
+        if np.dot(v,u) > 0:
+            return a * np.dot(v, u)
+        else:
+            return b * np.dot(v,u)
+    
+    def v(self):
+        vx = self.center_point[1] - 0.2*self.point[0]
+        vy = -1* self.point[0]
+        return vx, vy
