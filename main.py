@@ -4,7 +4,7 @@ from src.visualize import Visualizer
 msh = Mesh("bay.msh")
 
 cells = []
-for i in range( len(msh.triangles)):
+for i in range(len(msh.triangles)):
     cells.append(Cell(msh, i))
 
 
