@@ -18,7 +18,7 @@ class Cell:
         elif self.cords[0] in cell.cords and self.cords[2] in cell.cords:
             self.ngb.append(cell)
 
-    def neighbor_chech(self, msh):
+    def neighbor_check(self, msh):
         if len(self.cords) == len(self.ngb):
             return self.ngb
         else:
