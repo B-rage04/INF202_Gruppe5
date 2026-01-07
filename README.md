@@ -10,9 +10,15 @@ pip install -r requirements.txt
 
 How to comit to code destined for dev:
 
+
+- run: 
+pre-commit run --all-files
+
+- if failed:
+
 pytest -q --maxfail=1  
 tox 
 isort .  
 black . 
-pre-commit run --all-files
+
 
