@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = ""
+version = ""
+description = "A collection of useful Python tools"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Gabriel Røer", email = "NorgeSkiFollo@gmail.com" }]
+requires-python = ">=3.14"
+dependencies = [
+  "matplotlib>=3.10.6,<3.11",
+  "PyYAML>=6.0.2,<7.0",
+]
+
+[project.optional-dependencies]
+testing = [
+  "pytest>=8.0",
+  "pytest-cov",
+  "coverage",
+]
+
+dev = [
+  "pre-commit",
+  "black",
+  "isort",
+  "mypy",
+  "flake8",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/NorgeSkiFollo/GabesPythonToolBox"
+"Repository" = "https://github.com/NorgeSkiFollo/GabesPythonToolBox.git"
+
+[tool.setuptools.packages.find]
+where = ["GabesPythonToolBox"]
+exclude = ["tests*", "docs*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
