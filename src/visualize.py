@@ -27,7 +27,7 @@ class Visualizer:
         points = self.mesh.points
         triangles = self.mesh.triangles
 
-        #plt.triplot(points[:, 0], points[:, 1], triangles, color="blue")
+        # plt.triplot(points[:, 0], points[:, 1], triangles, color="blue")
         plt.colorbar(label="Oil concentration")
         plt.show()
 

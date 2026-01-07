@@ -1,6 +1,7 @@
 class Mesh:
     def __init__(self, file):
         import meshio
+
         self.mesh = meshio.read(file)
         self.triangles = self.mesh.cells_dict["triangle"]
         self.points = self.mesh.points
