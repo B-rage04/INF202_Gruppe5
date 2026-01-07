@@ -1,11 +1,12 @@
-from src.mesh import Mesh
 import numpy as np
+
+from src.mesh import Mesh
 
 
 class Cell:
     def __init__(self, msh, n):
-        self.oc = 0 #oil-count
-        self.ngb = [] #neigbours
+        self.oc = 0  # oil-count
+        self.ngb = []  # neigbours
         self.id = str(n)
         self.cords = msh.cells[3].data[n]
         self.on = np.array()
@@ -19,22 +20,21 @@ class Cell:
                         continue
                     else:
                         self.ngb.append(cell)
-        
+
     def neighbor_check(self, msh):
         if len(self.cords) == len(self.ngb):
             return self.ngb
         else:
             for c in msh.cells:
-                self.neigbor_calculate(self,c)
+                self.neigbor_calculate(self, c)
 
-    
     def flux(self, a, b, u, v):
-        if np.dot(v,u) > 0:
+        if np.dot(v, u) > 0:
             return a * np.dot(v, u)
         else:
-            return b * np.dot(v,u)
-    
+            return b * np.dot(v, u)
+
     def v(self):
-        vx = self.center_point[1] - 0.2*self.point[0]
-        vy = -1* self.point[0]
+        vx = self.center_point[1] - 0.2 * self.point[0]
+        vy = -1 * self.point[0]
         return vx, vy
