@@ -1,3 +1,2 @@
 include README.md
 include CHANGELOG.md
-recursive-include GabesPythonToolBox *.py *.md
