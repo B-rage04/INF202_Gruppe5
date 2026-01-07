@@ -2,7 +2,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.mesh import Mesh
+from mesh import Mesh
 
 
 class Visualizer:
@@ -12,7 +12,7 @@ class Visualizer:
     def plotting(self, u, filename=None):
 
         custom_cmap = mcolors.LinearSegmentedColormap.from_list(
-            "blarm", ["cadetblue", "black"]
+            "blarm", ["cadetblue", "darkcyan", "black"]
         )
         plt.figure()
         plt.tripcolor(
@@ -21,7 +21,7 @@ class Visualizer:
             self.mesh.triangles,
             u,
             shading="flat",
-            cmap=custom_cmap,
+            cmap="viridis",
         )
 
         points = self.mesh.points
