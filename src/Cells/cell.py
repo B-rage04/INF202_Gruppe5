@@ -1,40 +1,35 @@
-from src.mesh import Mesh
+from mesh import Mesh
 import numpy as np
 
 
 class Cell:
     def __init__(self, msh, n):
-        self.oc = 0 #oil-count
+        #self.oil = np.exp(-(( - self.x_star)**2 + (y - self.y_star)**2)/0.01)
         self.ngb = [] #neigbours
-        self.id = str(n)
-        self.cords = msh.cells[3].data[n]
-        self.on = np.array()
-        self.center_point = Mesh.triangle_mid(self.cords)
+        self.cords = []
+        for i in range(3):
+            self.cords.append(msh.points[msh.triangles[n][i]])
 
-    def neigbor_calculate(self, cell):
-        for i in range(len(self.cords)):
-            for j in range(len(cell.cords)):
-                if self.cords[i] in cell.cords and self.cords[j] in cell.cords:
-                    if cell in self.ngb:
-                        continue
-                    else:
-                        self.ngb.append(cell)
-        
-    def neighbor_check(self, msh):
-        if len(self.cords) == len(self.ngb):
-            return self.ngb
-        else:
-            for c in msh.cells:
-                self.neigbor_calculate(self,c)
+        self.center_point = np.array([
+            (self.cords[0][0] + self.cords[1][0] + self.cords[2][0]) / 3,
+            (self.cords[0][1] + self.cords[1][1] + self.cords[2][1]) / 3,
+            (self.cords[0][2] + self.cords[1][2] + self.cords[2][2]) / 3
+        ])
+        self.area = 0.5 * abs((self.cords[0][0] - self.cords[2][0]) * (self.cords[1][1] - self.cords[0][1]) - (self.cords[0][0] - self.cords[1][0]) * (self.cords[2][1] - self.cords[0][1]))
+        self.flow = np.array([self.center_point[1] - self.center_point[0] * 0.2, -self.center_point[0]])
 
-    
-    def flux(self, a, b, u, v):
-        if np.dot(v,u) > 0:
-            return a * np.dot(v, u)
-        else:
-            return b * np.dot(v,u)
-    
-    def v(self):
-        vx = self.center_point[1] - 0.2*self.point[0]
-        vy = -1* self.point[0]
-        return vx, vy
+        self.oil =np.exp(-(np.linalg.norm(np.array([self.center_point[0], self.center_point[1], self.center_point[2]]) - np.array([0.35, 0.45, 0]))**2)/0.01)
+
+
+
+"""        
+msh = Mesh("bay.msh")
+
+cell = Cell(msh, 1)
+
+print(cell.cords)
+print(cell.center_point)
+print(cell.area)
+print(cell.oil)
+
+"""

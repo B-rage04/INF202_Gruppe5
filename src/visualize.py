@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from src.mesh import Mesh
+from mesh import Mesh
 import numpy as np
 
 class Visualizer:
@@ -9,7 +9,7 @@ class Visualizer:
     
     def plotting(self, u, filename = None):
 
-        custom_cmap = mcolors.LinearSegmentedColormap.from_list("blarm", ["cadetblue", "black"])
+        custom_cmap = mcolors.LinearSegmentedColormap.from_list("blarm", ["cadetblue", "gray", "black"])
         plt.figure()
         plt.tripcolor(
                     self.mesh.points[:,0],
@@ -23,7 +23,7 @@ class Visualizer:
         points = self.mesh.points
         triangles = self.mesh.triangles
 
-        plt.triplot(points[:, 0], points[:, 1], triangles, color="black")
+        #plt.triplot(points[:, 0], points[:, 1], triangles, color="blue")
         plt.colorbar(label="Oil concentration")
         plt.show()
 
@@ -31,7 +31,3 @@ class Visualizer:
             pass
         else:
             plt.show()
-
-vs = Visualizer(Mesh("bay.msh"))
-n_cells = len(vs.mesh.triangles)
-vs.plotting(u = np.random.rand(n_cells))
