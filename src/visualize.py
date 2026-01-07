@@ -27,7 +27,7 @@ class Visualizer:
         points = self.mesh.points
         triangles = self.mesh.triangles
 
-        plt.triplot(points[:, 0], points[:, 1], triangles, color="black")
+        # plt.triplot(points[:, 0], points[:, 1], triangles, color="blue")
         plt.colorbar(label="Oil concentration")
         plt.show()
 
@@ -35,8 +35,3 @@ class Visualizer:
             pass
         else:
             plt.show()
-
-
-vs = Visualizer(Mesh("bay.msh"))
-n_cells = len(vs.mesh.triangles)
-vs.plotting(u=np.random.rand(n_cells))
