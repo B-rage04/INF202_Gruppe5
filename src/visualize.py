@@ -2,7 +2,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 
-from mesh import Mesh
+from .mesh import Mesh
 
 
 class Visualizer:

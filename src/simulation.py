@@ -1,6 +1,7 @@
-from src.Cells.cell import Cell
-from src.mesh import Mesh
-from src.visualize import Visualizer
+from .Cells.cell import Cell
+from .mesh import Mesh
+from .visualize import Visualizer
+
 
 class Simulation:
     def __init__(self, msh):
@@ -8,6 +9,6 @@ class Simulation:
         self.oil_vals = [cell.oil for cell in self.cells]
         self.vs = Visualizer(msh)
         self.time = 0
+
     def run_sim(self):
         self.vs.plotting(self.oil_vals)
-        
