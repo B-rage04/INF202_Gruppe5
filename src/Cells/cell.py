@@ -1,7 +1,6 @@
 from mesh import Mesh
 import numpy as np
 
-
 class Cell:
     def __init__(self, msh, n):
         #self.oil = np.exp(-(( - self.x_star)**2 + (y - self.y_star)**2)/0.01)
