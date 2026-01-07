@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from mesh import Mesh
+from src.mesh import Mesh
 import numpy as np
 
 class Visualizer:

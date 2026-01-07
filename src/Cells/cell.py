@@ -1,4 +1,4 @@
-from mesh import Mesh
+from src.mesh import Mesh
 import numpy as np
 
 class Cell:
