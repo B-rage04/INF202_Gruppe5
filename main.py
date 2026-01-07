@@ -1,6 +1,6 @@
 from src.Cells.cell import Cell
-from src.visualize import Visualizer
 from src.mesh import Mesh
+from src.visualize import Visualizer
 
 msh = Mesh("bay.msh")
 
