@@ -11,14 +11,15 @@ class Cell:
         self.center_point = Mesh.triangle_mid(self.cords)
 
     def neigbor_calculate(self, cell):
-        if self.cords[0] in cell.cords and self.cords[1] in cell.cords:
-            self.ngb.append(cell)
-        elif self.cords[1] in cell.cords and self.cords[2] in cell.cords:
-            self.ngb.append(cell)
-        elif self.cords[0] in cell.cords and self.cords[2] in cell.cords:
-            self.ngb.append(cell)
-
-    def neighbor_chech(self, msh):
+        for i in range(len(self.cords)):
+            for j in range(len(cell.cords)):
+                if self.cords[i] in cell.cords and self.cords[j] in cell.cords:
+                    if cell in self.ngb:
+                        continue
+                    else:
+                        self.ngb.append(cell)
+        
+    def neighbor_check(self, msh):
         if len(self.cords) == len(self.ngb):
             return self.ngb
         else:
