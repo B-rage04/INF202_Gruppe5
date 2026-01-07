@@ -19,6 +19,3 @@ class Mesh:
     def common_data(self):
         print(self.triangles[0])
         print(self.points[0])
-
-maa = Mesh("bay.msh")
-maa.common_data()
