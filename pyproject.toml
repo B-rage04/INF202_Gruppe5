@@ -7,16 +7,15 @@ name = "Oil_spil_gruppe5"
 version = "1.0.0"
 description = "A simulation of an oil spil on a lake"
 readme = "README.md"
-license = { text = "MIT" }
 authors = [{ name = "Gabriel Røer", email = "NorgeSkiFollo@gmail.com" }
           ,{ name = "Lasse Lindholm", email = "lasse.lindholm@nmbu.no" }
           ,{ name = "Oskar Nerheim", email = "oskar.nerheim@nmbu.no" }
           ,{ name = "Brage Bromset Bestvold", email = "brage.bromset.bestvold@nmbu.no" }
           ]
   
-requires-python = ">=3.14"
+requires-python = ">=3.11"
 dependencies = [
-  "meshio=5.3.5",
+  "meshio==5.3.5",
   "pytest>=8.0",
   "pytest-cov",
   "tox"
@@ -35,13 +34,7 @@ license = "MIT"
 license-files = ["LICEN[CS]E*"]
 
 [tool.setuptools]
-script-files = ["Examples/jupiter.ipynb",
-                "test/test_Endpoint.py",
-                "test/test_graf.py",
-                "test/test_Sim_Manager.py",
-                "test/test_Startpoint.py",
-                "test/test_Student.py",
-                "test/test_World.py"]
+script-files = []
 
 [tool.tox]
 requires = ["tox>=4.32"]
