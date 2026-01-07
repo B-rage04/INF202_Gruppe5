@@ -3,46 +3,57 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = ""
-version = ""
-description = "A collection of useful Python tools"
+name = "Oil_spil_gruppe5"
+version = "1.0.0"
+description = "A simulation of an oil spil on a lake"
 readme = "README.md"
 license = { text = "MIT" }
-authors = [{ name = "Gabriel Røer", email = "NorgeSkiFollo@gmail.com" }]
+authors = [{ name = "Gabriel Røer", email = "NorgeSkiFollo@gmail.com" }
+          ,{ name = "Lasse Lindholm", email = "lasse.lindholm@nmbu.no" }
+          ,{ name = "Oskar Nerheim", email = "oskar.nerheim@nmbu.no" }
+          ,{ name = "Brage Bromset Bestvold", email = "brage.bromset.bestvold@nmbu.no" }
+          ]
+  
 requires-python = ">=3.14"
 dependencies = [
-  "matplotlib>=3.10.6,<3.11",
-  "PyYAML>=6.0.2,<7.0",
-]
-
-[project.optional-dependencies]
-testing = [
+  "meshio=5.3.5",
   "pytest>=8.0",
   "pytest-cov",
-  "coverage",
+  "tox"
 ]
 
-dev = [
-  "pre-commit",
-  "black",
-  "isort",
-  "mypy",
-  "flake8",
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Topic :: Simulation :: Simulation"
 ]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 
-[project.urls]
-"Homepage" = "https://github.com/NorgeSkiFollo/GabesPythonToolBox"
-"Repository" = "https://github.com/NorgeSkiFollo/GabesPythonToolBox.git"
+[tool.setuptools]
+script-files = ["Examples/jupiter.ipynb",
+                "test/test_Endpoint.py",
+                "test/test_graf.py",
+                "test/test_Sim_Manager.py",
+                "test/test_Startpoint.py",
+                "test/test_Student.py",
+                "test/test_World.py"]
 
-[tool.setuptools.packages.find]
-where = ["GabesPythonToolBox"]
-exclude = ["tests*", "docs*"]
+[tool.tox]
+requires = ["tox>=4.32"]
+env_list = ["format", "3.14"]
 
-[tool.black]
-line-length = 88
-target-version = ["py312"]
+[tool.tox.env_run_base]
+deps = ["pytest", "pytest-cov"]
+description = "Run test under {base_python}"
+commands = [["pytest", "--cov", "student_sim"]]
 
-[tool.isort]
-profile = "black"
-line_length = 88
-
+[tool.tox.env.format]
+deps = ["flake8"]
+description = "Check code style using flake8"
+skip_install = false
+commands = [["flake8", "--max-line-length", "120", "src", "test", "Examples"]]
