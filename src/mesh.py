@@ -1,7 +1,8 @@
 from .Cells.cell import Cell
 
+
 class Mesh:
-    def __init__(self, file : str):
+    def __init__(self, file: str):
         mesh = self.read_mesh(file)
         self.cells = self.cell_factory(mesh)
 
@@ -10,6 +11,7 @@ class Mesh:
         Reads Mesh file
         """
         import meshio
+
         return meshio.read(file)
 
     def cell_factory(self, mesh):
@@ -29,5 +31,6 @@ class Cell_factory:
         Creates cells
         """
         print(mesh)
+
 
 maa = Mesh("bay.msh")
