@@ -1,17 +1,15 @@
 import numpy as np
-#from src.mesh import Mesh
 from abc import ABC, abstractmethod
 
 class Cell(ABC):
-    def __init__(self, msh, n):
+    def __init__(self, msh, cell_points, cell_id):
         self.type = None
-        self.id = n
-        self.cords = [msh.points[i] for i in n]
+        self.id = cell_id
+        self.cords = [msh.points[i] for i in cell_points]
         self.midpoint = self.find_midpoint()
         self.area = self.find_area()
         self.scaled_normal = []
         self.ngb = []
-        self.ngb = self.find_ngb(msh)
         self.flow = self.find_flow()
         self.oil = self.find_oil()
         self.new_oil = None
@@ -28,32 +26,36 @@ class Cell(ABC):
     def find_scaled_normales(self):
         pass
 
-    def find_ngb(self, msh):
-        if len(self.cords) == len(self.ngb):
-            return self.ngb
-        else:
-            for c in msh.cells:
-                if c in self.ngb:
-                    continue
-                for i in range(len(self.cords)):
-                    for j in range(len(c.cords)):
-                        if self.cords[i] in c.cords and self.cords[j] in c.cords:
-                            if c in self.ngb:
-                                print(c + " was already in list of NGB")
-                                continue
-                            else:
-                                self.ngb.append(c)
-                                if self in c.ngb:
-                                    continue
-                                else:
-                                    c.ngb.append(self)
+    def find_ngb(self, all_cells):
+        for other in all_cells:
+            if other.id == self.id:
+                continue
+            # Check for shared points
+            shared = set(tuple(p) for p in self.cords) & set(tuple(p) for p in other.cords)
+            if len(shared) >= 2:  # For 2D, share at least 2 points
+                if other not in self.ngb:
+                    self.ngb.append(other)
+                if self not in other.ngb:
+                    other.ngb.append(self)
                                 
     def find_flow(self):
         return np.array([self.midpoint[1]-self.midpoint[0]*0.2, -self.midpoint[0]])
     
     def find_oil(self):
-        return np.exp(-(np.linalg.norm(np.array([self.center_point[0],self.center_point[1],self.center_point[2],]) - np.array([0.35, 0.45, 0]))** 2)/ 0.01)
+        return np.exp(-(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0]))** 2)/ 0.01)
 
+    def update_oil(self):
+        
+        for ngb in self.ngb:
+            self.new_oil = self.oil 
+            
+
+    def flux(self, ngb):
+        flow_avg = (self.flow + ngb.flow) / 2
+        if np.dot(flow_avg, self.scaled_normal) > 0:
+            return self.oil * np.dot(flow_avg, self.scaled_normal)
+        else:
+            return ngb.oil * np.dot(flow_avg, self.scaled_normal)
 
 def cell_factory(msh):
     """
@@ -64,13 +66,19 @@ def cell_factory(msh):
     from .triangle import Triangle
     cell_list = []
     
-    for cell in msh.cells:
-        match cell.type:
-            case "triangle":
-                triangles = msh.cells_dict["triangle"]
-                for n in range(len(triangles)):
-                    cell_list.append(Triangle(msh, triangles[n]))
-            case "line":
-                lines = msh.cells_dict["line"]
-                for n in range(len(lines)):
-                    cell_list.append(Line(msh, lines[n]))
+    # msh.cells is a list of CellBlock objects
+    for cell_block in msh.cells:
+        cell_type = cell_block.type
+        cells_array = cell_block.data
+        if cell_type == "triangle":
+            for idx, cell_points in enumerate(cells_array):
+                cell_list.append(Triangle(msh, cell_points, idx))
+        elif cell_type == "line":
+            for idx, cell_points in enumerate(cells_array):
+                cell_list.append(Line(msh, cell_points, idx))
+    
+    # Now populate neighbors
+    for cell in cell_list:
+        cell.find_ngb(cell_list)
+    
+    return cell_list
