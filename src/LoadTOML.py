@@ -1,5 +1,6 @@
 import tomllib as toml
 
+
 class LoadTOML:
     def load_toml_file(file_path: str) -> dict:
         """
@@ -9,13 +10,13 @@ class LoadTOML:
             config = toml.load(toml_file)
         return config
 
-
     def load_sim_configs(sysConfig):
         # if directory load all sim configs in dir if single file load that file
-        
+
         simConfigs = []
         simConfigPath = sysConfig["settings"]["pathToSimConfig"]
         import os
+
         if os.path.isdir(simConfigPath):
             for file_name in os.listdir(simConfigPath):
                 if file_name.endswith(".toml"):
