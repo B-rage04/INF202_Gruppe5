@@ -5,7 +5,7 @@ class Cell(ABC):
     def __init__(self, msh, n):
         self.type = None
         self.id = n
-        self.cords = [msh.points[msh.triangles[n][i]] for i in range(3)]
+        self.cords = [msh.msh.points[msh.msh.cells[n][i]] for i in range(len[msh.msh.points])]
         self.midpoint = self.find_midpoint()
         self.area = self.find_area()
         self.scaled_normal = []
