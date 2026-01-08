@@ -1,4 +1,4 @@
-from .cell import Cell
+from src.Cells.cell import Cell
 
 class Line(Cell):
     def __init__(self, msh, cell_points, cell_id):

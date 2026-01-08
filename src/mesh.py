@@ -1,4 +1,4 @@
-from .Cells.cell import cell_factory
+from src.Cells.cell import cell_factory
 
 class Mesh:
     def __init__(self, file : str):

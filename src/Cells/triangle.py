@@ -1,4 +1,4 @@
-from .cell import Cell
+from src.Cells.cell import Cell
 
 
 class Triangle(Cell):
