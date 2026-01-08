@@ -1,10 +1,9 @@
 import numpy as np
-from src.mesh import Mesh
-
 from abc import ABC, abstractmethod
 
 class Cell(ABC):
     def __init__(self, msh, n):
+        from src.mesh import Mesh
         self.type = None
         self.id = n
         self.cords = [msh.msh.points[msh.msh.cells[n][i]] for i in range(len[msh.msh.points])]
@@ -58,14 +57,26 @@ class Cell(ABC):
     def find_oil(self):
         return np.exp(-(np.linalg.norm(np.array([self.center_point[0],self.center_point[1],self.center_point[2],]) - np.array([0.35, 0.45, 0]))** 2)/ 0.01)
 
+    def update_oil(self):
+        
+        for ngb in self.ngb:
+            self.new_oil = self.oil 
+            
+
+    def flux(self, ngb.oil, ngb.flow):
+        flow_avg = (self.flow + ngb.flow) / 2
+        if np.dot(flow_avg, self.scaled_normal) > 0:
+            return self.oil * np.dot(flow_avg, self.scaled_normal)
+        else:
+            return ngb.oil * np.dot(flow_avg, self.scaled_normal)
 
 def cell_factory(mesh):
     """
     Creates cells with data from the mesh and returns as a list
     """
     
-    from line import Line
-    from triangle import Triangle
+    from src.Cells.line import Line
+    from src.Cells.triangle import Triangle
     cell_list = []
     
     for cell in mesh.cells:
@@ -76,5 +87,6 @@ def cell_factory(mesh):
                     cell_list.append(Triangle(mesh, triangles[n]))
             case "line":
                 lines = mesh.cells_dict["line"]
-                for n in range(len(lines)):
-                    cell_list.append(Line(mesh, lines[n]))
+                for line in lines:
+                    for n in range(len(line)):
+                        cell_list.append(Line(mesh, line[n]))
