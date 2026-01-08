@@ -33,10 +33,10 @@ class Cell(ABC):
             # Check for shared points
             shared = set(tuple(p) for p in self.cords) & set(tuple(p) for p in other.cords)
             if len(shared) >= 2: 
-                if other not in self.ngb:
-                    self.ngb.append(other)
-                if self not in other.ngb:
-                    other.ngb.append(self)
+                if other.id not in self.ngb:
+                    self.ngb.append(other.id)
+                if self.id not in other.ngb:
+                    other.ngb.append(self.id)
                                 
     def find_flow(self):
         return np.array([self.midpoint[1]-self.midpoint[0]*0.2, -self.midpoint[0]])
@@ -56,29 +56,3 @@ class Cell(ABC):
             return self.oil * np.dot(flow_avg, self.scaled_normal)
         else:
             return ngb.oil * np.dot(flow_avg, self.scaled_normal)
-
-def cell_factory(msh):
-    """
-    Creates cells with data from the mesh and returns as a list
-    """
-    
-    from .line import Line
-    from .triangle import Triangle
-    cell_list = []
-    
-    # msh.cells is a list of CellBlock objects
-    for cell_block in msh.cells:
-        cell_type = cell_block.type
-        cells_array = cell_block.data
-        if cell_type == "triangle":
-            for idx, cell_points in enumerate(cells_array):
-                cell_list.append(Triangle(msh, cell_points, idx))
-        elif cell_type == "line":
-            for idx, cell_points in enumerate(cells_array):
-                cell_list.append(Line(msh, cell_points, idx))
-    
-    # find neighbors
-    for cell in cell_list:
-        cell.find_ngb(cell_list)
-    
-    return cell_list
