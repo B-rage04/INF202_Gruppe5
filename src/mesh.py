@@ -1,9 +1,10 @@
-from .Cells.cell import Cell
+from .Cells.triangle import Triangle
+from .Cells.line import Line
 
 class Mesh:
     def __init__(self, file : str):
-        mesh = self.read_mesh(file)
-        self.cells = self.cell_factory(mesh)
+        self.mesh = self.read_mesh(file)
+        self.cells = self.cell_factory(self.mesh)
 
     def read_mesh(self, file: str):
         """
@@ -18,16 +19,29 @@ class Mesh:
         then assigns all static variables
         """
 
-        cells = Cell_factory.cell_factory(mesh)
+        cells = cell_factory(mesh)
 
         return cells
 
 
-class Cell_factory:
-    def cell_factory(mesh):
-        """
-        Creates cells
-        """
-        print(mesh)
+def cell_factory(mesh):
+    """
+    Creates cells with data from the mesh and returns as a list
+    """
+
+    cell_list = []
+    
+    for cell in mesh.cells:
+        match cell.type:
+            case "triangle":
+                triangles = mesh.cells_dict["triangle"]
+                for n in range(len(triangles)):
+                    cell_list.append(Triangle(mesh, triangles[n]))
+            case "line":
+                lines = mesh.cells_dict["line"]
+                for n in range(len(lines)):
+                    cell_list.append(Line(mesh, lines[n]))
+
 
 maa = Mesh("bay.msh")
+print(maa.cells)

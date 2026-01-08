@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-        <mxGraphModel dx="704" dy="524" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="504" dy="464" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="WIyWlLk6GJQsqaUBKTNV-0"/>
                 <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0"/>
@@ -128,17 +128,20 @@
                         <mxRectangle x="230" y="140" width="160" height="26" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="80oU_3AhQhcbCB6zEnsC-33" value="Cells [list]" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" parent="80oU_3AhQhcbCB6zEnsC-32" vertex="1">
+                <mxCell id="80oU_3AhQhcbCB6zEnsC-33" value="Cells : List" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" parent="80oU_3AhQhcbCB6zEnsC-32" vertex="1">
                     <mxGeometry y="26" width="160" height="26" as="geometry"/>
                 </mxCell>
+                <mxCell id="2" value="mesh : Mesh" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" vertex="1" parent="80oU_3AhQhcbCB6zEnsC-32">
+                    <mxGeometry y="52" width="160" height="26" as="geometry"/>
+                </mxCell>
                 <mxCell id="80oU_3AhQhcbCB6zEnsC-34" value="" style="line;html=1;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="80oU_3AhQhcbCB6zEnsC-32" vertex="1">
-                    <mxGeometry y="52" width="160" height="8" as="geometry"/>
+                    <mxGeometry y="78" width="160" height="8" as="geometry"/>
                 </mxCell>
                 <mxCell id="80oU_3AhQhcbCB6zEnsC-111" value="read_mesh" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" parent="80oU_3AhQhcbCB6zEnsC-32" vertex="1">
-                    <mxGeometry y="60" width="160" height="26" as="geometry"/>
+                    <mxGeometry y="86" width="160" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="80oU_3AhQhcbCB6zEnsC-112" value="cell_factory" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" parent="80oU_3AhQhcbCB6zEnsC-32" vertex="1">
-                    <mxGeometry y="86" width="160" height="26" as="geometry"/>
+                    <mxGeometry y="112" width="160" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="80oU_3AhQhcbCB6zEnsC-136" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=none;endFill=0;startArrow=diamond;startFill=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="80oU_3AhQhcbCB6zEnsC-36" target="80oU_3AhQhcbCB6zEnsC-121" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -193,10 +196,10 @@
                 <mxCell id="80oU_3AhQhcbCB6zEnsC-106" value="find_ngb" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" parent="80oU_3AhQhcbCB6zEnsC-36" vertex="1">
                     <mxGeometry y="376" width="160" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="0" value="find_flow" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" vertex="1" parent="80oU_3AhQhcbCB6zEnsC-36">
+                <mxCell id="0" value="find_flow" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" parent="80oU_3AhQhcbCB6zEnsC-36" vertex="1">
                     <mxGeometry y="402" width="160" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="1" value="find_oil" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" vertex="1" parent="80oU_3AhQhcbCB6zEnsC-36">
+                <mxCell id="1" value="find_oil" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rounded=0;shadow=0;html=0;" parent="80oU_3AhQhcbCB6zEnsC-36" vertex="1">
                     <mxGeometry y="428" width="160" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="80oU_3AhQhcbCB6zEnsC-43" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;General&lt;/h1&gt;&lt;p&gt;Sim en tar inn data fra sys config og sim config.&amp;nbsp;&lt;/p&gt;&lt;p&gt;den vil levere en timelapse i mp4 format per sim etter spec sim conf&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
