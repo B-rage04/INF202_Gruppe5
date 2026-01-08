@@ -20,7 +20,7 @@ class Mesh:
         then assigns all static variables
         """
 
-        cells = Cell_factory.cell_factory(mesh)
+        cells = cell_factory(mesh)
 
         return cells
 

@@ -1,10 +1,11 @@
-from src.Cells.cell import Cell
+from .cell import Cell
 
 
 class Triangle(Cell):
-    def __init__(self, msh, n):
-        super().__init__(msh, n)
-
+    def __init__(self, msh, cell_points, cell_id):
+        super().__init__(msh, cell_points, cell_id)
+        self.type = "triangle"
+    
     def find_area(self):
         area = 0.5 * abs(
             (self.cords[0][0] - self.cords[2][0])
