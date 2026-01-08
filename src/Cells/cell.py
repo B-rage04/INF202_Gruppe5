@@ -1,12 +1,10 @@
 import numpy as np
-from mesh import Mesh
+from ..mesh import Mesh
 
-class Cell:
-    def __init__(self, msh: Mesh, n):
 from abc import ABC, abstractmethod
 
 class Cell(ABC):
-    def __init__(self, msh, n):
+    def __init__(self, msh: Mesh, n):
         self.type = None
         self.id = n
         self.cords = [msh.msh.points[msh.msh.cells[n][i]] for i in range(len[msh.msh.points])]
