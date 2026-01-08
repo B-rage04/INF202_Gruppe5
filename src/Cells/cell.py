@@ -57,4 +57,24 @@ class Cell(ABC):
     
     def find_oil(self):
         return np.exp(-(np.linalg.norm(np.array([self.center_point[0],self.center_point[1],self.center_point[2],]) - np.array([0.35, 0.45, 0]))** 2)/ 0.01)
+
+
+def cell_factory(mesh):
+    """
+    Creates cells with data from the mesh and returns as a list
+    """
     
+    from line import Line
+    from triangle import Triangle
+    cell_list = []
+    
+    for cell in mesh.cells:
+        match cell.type:
+            case "triangle":
+                triangles = mesh.cells_dict["triangle"]
+                for n in range(len(triangles)):
+                    cell_list.append(Triangle(mesh, triangles[n]))
+            case "line":
+                lines = mesh.cells_dict["line"]
+                for n in range(len(lines)):
+                    cell_list.append(Line(mesh, lines[n]))

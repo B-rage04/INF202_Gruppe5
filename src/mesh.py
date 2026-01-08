@@ -1,5 +1,4 @@
-from .Cells.triangle import Triangle
-from .Cells.line import Line
+from .Cells.cell import cell_factory
 
 class Mesh:
     def __init__(self, file : str):
@@ -22,26 +21,6 @@ class Mesh:
         cells = cell_factory(mesh)
 
         return cells
-
-
-def cell_factory(mesh):
-    """
-    Creates cells with data from the mesh and returns as a list
-    """
-
-    cell_list = []
-    
-    for cell in mesh.cells:
-        match cell.type:
-            case "triangle":
-                triangles = mesh.cells_dict["triangle"]
-                for n in range(len(triangles)):
-                    cell_list.append(Triangle(mesh, triangles[n]))
-            case "line":
-                lines = mesh.cells_dict["line"]
-                for n in range(len(lines)):
-                    cell_list.append(Line(mesh, lines[n]))
-
 
 maa = Mesh("bay.msh")
 print(maa.cells)
