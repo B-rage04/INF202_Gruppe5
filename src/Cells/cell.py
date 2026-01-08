@@ -1,11 +1,13 @@
 import numpy as np
+from src.mesh import Mesh
+
 from abc import ABC, abstractmethod
 
 class Cell(ABC):
     def __init__(self, msh, n):
         self.type = None
         self.id = n
-        self.cords = [msh.points[msh.triangles[n][i]] for i in range(3)]
+        self.cords = [msh.msh.points[msh.msh.cells[n][i]] for i in range(len[msh.msh.points])]
         self.midpoint = self.find_midpoint()
         self.area = self.find_area()
         self.scaled_normal = []
@@ -30,9 +32,26 @@ class Cell(ABC):
     def find_scaled_normales(self):
         pass
 
-    def find_ngb(self):
-        pass
-
+    def find_ngb(self, msh: Mesh):
+        if len(self.cords) == len(self.ngb):
+            return self.ngb
+        else:
+            for c in msh.cells:
+                if c in self.ngb:
+                    continue
+                for i in range(len(self.cords)):
+                    for j in range(len(c.cords)):
+                        if self.cords[i] in c.cords and self.cords[j] in c.cords:
+                            if c in self.ngb:
+                                print(c + " was already in list of NGB")
+                                continue
+                            else:
+                                self.ngb.append(c)
+                                if self in c.ngb:
+                                    continue
+                                else:
+                                    c.ngb.append(self)
+                                
     def find_flow(self):
         return np.array([self.midpoint[1]-self.midpoint[0]*0.2, -self.midpoint[0]])
     
