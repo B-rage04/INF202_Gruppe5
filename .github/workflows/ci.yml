@@ -46,6 +46,18 @@ jobs:
       - name: Ensure repo on PYTHONPATH (optional)
         run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
+      - name: Debug Python path and import package
+        run: |
+          python - <<'PY'
+          import sys, importlib
+          print("=== sys.path ===")
+          for p in sys.path:
+              print(" -", p)
+          print("=== Import package ===")
+
+      - name: Run tests with coverage
+        run: pytest --cov --cov-report=xml
+
       - name: Upload coverage to artifact
         uses: actions/upload-artifact@v4
         with:
