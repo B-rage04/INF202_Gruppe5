@@ -44,10 +44,10 @@ class Cell(ABC):
     def find_oil(self):
         return np.exp(-(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0]))** 2)/ 0.01)
 
-    def update_oil(self):
+    def update_oil(self, ngb):
         
         for ngb in self.ngb:
-            self.new_oil = self.oil 
+            self.new_oil = self.oil - delta_time / self.area * flux(ngb)
             
 
     def flux(self, ngb):
