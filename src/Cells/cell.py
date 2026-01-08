@@ -1,8 +1,6 @@
 import numpy as np
-from mesh import Mesh
+from src.mesh import Mesh
 
-class Cell:
-    def __init__(self, msh: Mesh, n):
 from abc import ABC, abstractmethod
 
 class Cell(ABC):
@@ -31,22 +29,8 @@ class Cell(ABC):
             ]
         )
 
-        self.oil = np.exp(
-            -(
-                np.linalg.norm(
-                    np.array(
-                        [
-                            self.center_point[0],
-                            self.center_point[1],
-                            self.center_point[2],
-                        ]
-                    )
-                    - np.array([0.35, 0.45, 0])
-                )
-                ** 2
-            )
-            / 0.01
-        )
+    def find_scaled_normales(self):
+        pass
 
     def find_ngb(self, msh: Mesh):
         if len(self.cords) == len(self.ngb):
@@ -68,12 +52,6 @@ class Cell(ABC):
                                 else:
                                     c.ngb.append(self)
                                 
-    def find_scaled_normales(self):
-        pass
-
-    def find_ngb(self):
-        pass
-
     def find_flow(self):
         return np.array([self.midpoint[1]-self.midpoint[0]*0.2, -self.midpoint[0]])
     
