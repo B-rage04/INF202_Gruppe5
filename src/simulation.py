@@ -1,6 +1,7 @@
-from src.Cells.cell import Cell
-from src.mesh import Mesh
-from src.visualize import Visualizer
+from .Cells.cell import Cell
+from .mesh import Mesh
+from .visualize import Visualizer
+
 
 
 class Simulation:

@@ -1,6 +1,6 @@
 import numpy as np
 
-from mesh import Mesh
+from ..mesh import Mesh
 
 
 class Cell:
