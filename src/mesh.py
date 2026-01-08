@@ -23,6 +23,3 @@ class Mesh:
         cells = cell_factory(mesh)
 
         return cells
-
-#maa = Mesh("bay.msh")
-#print(maa.cells)

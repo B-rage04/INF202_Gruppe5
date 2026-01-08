@@ -32,7 +32,7 @@ class Cell(ABC):
                 continue
             # Check for shared points
             shared = set(tuple(p) for p in self.cords) & set(tuple(p) for p in other.cords)
-            if len(shared) >= 2:  # For 2D, share at least 2 points
+            if len(shared) >= 2: 
                 if other not in self.ngb:
                     self.ngb.append(other)
                 if self not in other.ngb:
@@ -77,7 +77,7 @@ def cell_factory(msh):
             for idx, cell_points in enumerate(cells_array):
                 cell_list.append(Line(msh, cell_points, idx))
     
-    # Now populate neighbors
+    # find neighbors
     for cell in cell_list:
         cell.find_ngb(cell_list)
     
