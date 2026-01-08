@@ -1,17 +1,17 @@
 import numpy as np
-from src.mesh import Mesh
-
+#from src.mesh import Mesh
 from abc import ABC, abstractmethod
 
 class Cell(ABC):
     def __init__(self, msh, n):
         self.type = None
         self.id = n
-        self.cords = [msh.msh.points[msh.msh.cells[n][i]] for i in range(len[msh.msh.points])]
+        self.cords = [msh.points[i] for i in n]
         self.midpoint = self.find_midpoint()
         self.area = self.find_area()
         self.scaled_normal = []
-        self.ngb = self.find_ngb()
+        self.ngb = []
+        self.ngb = self.find_ngb(msh)
         self.flow = self.find_flow()
         self.oil = self.find_oil()
         self.new_oil = None
@@ -21,18 +21,14 @@ class Cell(ABC):
         pass
 
     def find_midpoint(self):
-        return np.array(
-            [
-                (self.cords[0][0] + self.cords[1][0] + self.cords[2][0]) / 3,
-                (self.cords[0][1] + self.cords[1][1] + self.cords[2][1]) / 3,
-                (self.cords[0][2] + self.cords[1][2] + self.cords[2][2]) / 3
-            ]
-        )
+        if len(self.cords) == 0:
+            return np.array([0, 0, 0])
+        return np.mean(self.cords, axis=0)
 
     def find_scaled_normales(self):
         pass
 
-    def find_ngb(self, msh: Mesh):
+    def find_ngb(self, msh):
         if len(self.cords) == len(self.ngb):
             return self.ngb
         else:
@@ -59,22 +55,22 @@ class Cell(ABC):
         return np.exp(-(np.linalg.norm(np.array([self.center_point[0],self.center_point[1],self.center_point[2],]) - np.array([0.35, 0.45, 0]))** 2)/ 0.01)
 
 
-def cell_factory(mesh):
+def cell_factory(msh):
     """
     Creates cells with data from the mesh and returns as a list
     """
     
-    from line import Line
-    from triangle import Triangle
+    from .line import Line
+    from .triangle import Triangle
     cell_list = []
     
-    for cell in mesh.cells:
+    for cell in msh.cells:
         match cell.type:
             case "triangle":
-                triangles = mesh.cells_dict["triangle"]
+                triangles = msh.cells_dict["triangle"]
                 for n in range(len(triangles)):
-                    cell_list.append(Triangle(mesh, triangles[n]))
+                    cell_list.append(Triangle(msh, triangles[n]))
             case "line":
-                lines = mesh.cells_dict["line"]
+                lines = msh.cells_dict["line"]
                 for n in range(len(lines)):
-                    cell_list.append(Line(mesh, lines[n]))
+                    cell_list.append(Line(msh, lines[n]))

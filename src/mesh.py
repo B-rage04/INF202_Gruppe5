@@ -2,8 +2,8 @@ from .Cells.cell import cell_factory
 
 class Mesh:
     def __init__(self, file : str):
-        self.mesh = self.read_mesh(file)
-        self.cells = self.cell_factory(self.mesh)
+        self.msh = self.read_mesh(file)
+        self.cells = self.cell_factory(self.msh)
 
     def read_mesh(self, file: str):
         """
@@ -22,5 +22,5 @@ class Mesh:
 
         return cells
 
-maa = Mesh("bay.msh")
-print(maa.cells)
+#maa = Mesh("bay.msh")
+#print(maa.cells)
