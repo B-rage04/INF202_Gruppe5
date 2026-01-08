@@ -1,22 +1,33 @@
+from .Cells.cell import Cell
+
 class Mesh:
-    def __init__(self, file):
+    def __init__(self, file : str):
+        mesh = self.read_mesh(file)
+        self.cells = self.cell_factory(mesh)
+
+    def read_mesh(self, file: str):
+        """
+        Reads Mesh file
+        """
         import meshio
+        return meshio.read(file)
 
-        self.mesh = meshio.read(file)
-        self.triangles = self.mesh.cells_dict["triangle"]
-        self.points = self.mesh.points
+    def cell_factory(self, mesh):
+        """
+        Uses the Cell Factory class to make new cells
+        then assigns all static variables
+        """
 
-    def triangle_mid(self):
-        pts = self.points[self.cells]
-        return pts.mean(axis=1)
+        cells = Cell_factory.cell_factory(mesh)
 
-    def triangle_area(self):
-        point = self.points[self.triangles]
-        x1, y1 = point[:, 0, 0], point[:, 0, 1]
-        x2, y2 = point[:1, 0], point[:, 1, 1]
-        x3, y3 = point[:2, 0], point[:, 2, 1]
-        return 0.5 * abs((x1 - x3) * (y2 - y1) - (x1 - x2) * (y3 - y1))
+        return cells
 
-    def common_data(self):
-        print(self.triangles[0])
-        print(self.points[0])
+
+class Cell_factory:
+    def cell_factory(mesh):
+        """
+        Creates cells
+        """
+        print(mesh)
+
+maa = Mesh("bay.msh")
