@@ -19,13 +19,19 @@ class Simulation:
 
     def update_oil(self):
         for cell in self.cells:
-            if cell.type == "triangle":
-                for i, ngb in enumerate(cell.ngb):
-                    if self.cells[ngb].type == "triangles":
-                        cell.new_oil = cell.oil - (self.dt / cell.area) * self.flux(i, cell, ngb)
+            if cell.type != "triangle":
+                continue    
+            for i, ngb in enumerate(cell.ngb):
+                if self.cells[ngb].type != "triangle":
+                    continue
+                cell.new_oil = cell.oil - (self.dt / cell.area) * self.flux(i, cell, ngb)
         
         for cell in self.cells:
-            cell.oil = cell.new_oil
+            if cell.new_oil is not None:
+                cell.oil = cell.new_oil
+            else:
+                print(f"Warning: Cell, {cell.id}, was None") #TODO: try except
+                cell.oil = cell.oil
  
 
 
