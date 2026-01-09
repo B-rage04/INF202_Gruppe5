@@ -1,10 +1,12 @@
-from .Cells.cell import Cell
+from src.Cells.cell_factory import Cell_factory
 
 
 class Mesh:
     def __init__(self, file: str):
-        mesh = self.read_mesh(file)
-        self.cells = self.cell_factory(mesh)
+        self.msh = self.read_mesh(file)
+        self.points = self.msh.points
+        self.triangles = self.msh.cells_dict["triangle"]
+        self.cells = Cell_factory(self.msh)
 
     def read_mesh(self, file: str):
         """
@@ -13,24 +15,3 @@ class Mesh:
         import meshio
 
         return meshio.read(file)
-
-    def cell_factory(self, mesh):
-        """
-        Uses the Cell Factory class to make new cells
-        then assigns all static variables
-        """
-
-        cells = cell_factory(mesh)
-
-        return cells
-
-
-class Cell_factory:
-    def cell_factory(mesh):
-        """
-        Creates cells
-        """
-        print(mesh)
-
-
-maa = Mesh("bay.msh")
