@@ -1,6 +1,6 @@
 from src.Cells.cell_factory import Cell_factory
 
- 
+
 class Mesh:
     def __init__(self, file: str):
         self.msh = self.read_mesh(file)

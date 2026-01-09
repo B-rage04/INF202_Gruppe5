@@ -3,7 +3,7 @@ import numpy.testing as npt
 import pytest
 
 from src.mesh import Mesh
- 
+
 
 class DummyMeshIO:
     def __init__(self):

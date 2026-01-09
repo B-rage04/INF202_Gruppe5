@@ -1,6 +1,6 @@
 from src.Cells.line import Line
 from src.Cells.triangle import Triangle
- 
+
 
 def Cell_factory(msh):
     """

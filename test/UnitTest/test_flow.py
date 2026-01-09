@@ -6,7 +6,7 @@ import pytest
 
 from src.flow import Flow
 
- 
+
 def test_u0_center():
     f = Flow()
     val = f.u0(f.x_star, f.y_star)

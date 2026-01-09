@@ -36,13 +36,11 @@ class Cell(ABC):
             if other.id == self.id:
                 continue
 
-            
             other_point_set = getattr(other, "_point_set", None)
             if other_point_set is None:
                 other_point_set = set(tuple(p) for p in other.cords)
                 other._point_set = other_point_set
 
-             
             if len(self._point_set & other_point_set) >= 2:
                 if other.id not in self.ngb:
                     self.ngb.append(other.id)
