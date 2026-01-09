@@ -55,10 +55,10 @@ class Cell(ABC):
             -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
         )
 
-    def update_oil(self, ngb):
+    def update_oil(self, ngb, delta_time):
 
         for ngb in self.ngb:
-            self.new_oil = self.oil - delta_time / self.area * flux(ngb)
+            self.new_oil = self.oil - delta_time / self.area * self.flux(ngb)
 
     def flux(self, ngb):
         flow_avg = (self.flow + ngb.flow) / 2
