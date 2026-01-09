@@ -8,9 +8,9 @@ import numpy as np
 ti_ngh = time.time()
 
 sim = Simulation(Mesh("bay.msh"), "Exsample/SimConfig/BaseSimConfig.toml")
-print(sim.cells[2000].oil)
+
 sim.run_sim()
-print(sim.cells[2000].oil)
+
 """
 print(sim.config)
 print(sim.time_end)
