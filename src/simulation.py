@@ -1,7 +1,6 @@
-from src.Cells.cell import Cell
 from src.visualize import Visualizer
 from src.LoadTOML import LoadTOML
-
+import numpy as np
 class Simulation:
     def __init__(self, msh, config):
         self.config = LoadTOML.load_toml_file(config)
@@ -9,16 +8,30 @@ class Simulation:
         self.triangle_cells = [cell for cell in self.cells if cell.type == "triangle"]
         self.oil_vals = [cell.oil for cell in self.triangle_cells]
         self.vs = Visualizer(msh)
+        self.ct = 0
         self.time_start = 0
         self.time_end = self.config["settings"]["tEnd"]
         self.nSteps = self.config["settings"]["nSteps"]
         self.dt = (self.time_end - self.time_start)/self.nSteps
-    def run_sim(msh, self):
 
-        
+    def update_oil(self):
         for cell in self.cells:
             if cell.type == "triangle":
-                cell.update_oil(msh ,self.dt)
+                for i, ngb in enumerate(cell.ngb):
+                    cell.new_oil = cell.oil - self.dt / cell.area * self.flux(i, cell, ngb)
 
 
-        self.vs.plotting(self.oil_vals)
+
+    def flux(self, i, cell, ngb):
+        flow_avg = (cell.flow + self.cells[ngb].flow) / 2
+        if np.dot(flow_avg, cell.scaled_normal[i]) > 0:
+            return cell.oil * np.dot(flow_avg, cell.scaled_normal[i])
+        else:
+            return ngb.oil * np.dot(flow_avg, cell.scaled_normal[i])
+        
+
+    def run_sim(self):
+        while self.ct <= self.time_end:
+            self.update_oil()
+            self.vs.plotting(self.oil_vals)
+            self.ct += self.dt
