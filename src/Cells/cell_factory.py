@@ -23,7 +23,6 @@ def Cell_factory(msh):
                 IDx += 1
         else:
             IDx += 1
-        print(f"Created {len(cells_array)} cells of type {cell_type} with ID {IDx}")
 
     # find neighbors
     for cell in cell_list:
