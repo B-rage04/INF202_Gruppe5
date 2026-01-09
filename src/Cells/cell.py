@@ -1,4 +1,3 @@
-import numpy as np
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -32,28 +31,40 @@ class Cell(ABC):
         pass
 
     def find_ngb(self, all_cells):
+        if not hasattr(self, "_point_set") or self._point_set is None:
+            self._point_set = set(tuple(p) for p in self.cords)
+
         for other in all_cells:
             if other.id == self.id:
                 continue
-            # Check for shared points
-            shared = set(tuple(p) for p in self.cords) & set(tuple(p) for p in other.cords)
-            if len(shared) >= 2: 
-                if other not in self.ngb:
-                    self.ngb.append(other)
-                if self not in other.ngb:
-                    other.ngb.append(self)
-                                
+
+            
+            other_point_set = getattr(other, "_point_set", None)
+            if other_point_set is None:
+                other_point_set = set(tuple(p) for p in other.cords)
+                other._point_set = other_point_set
+
+            
+            if len(self._point_set & other_point_set) >= 2:
+                if other.id not in self.ngb:
+                    self.ngb.append(other.id)
+                if self.id not in other.ngb:
+                    other.ngb.append(self.id)
+
     def find_flow(self):
         return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
 
+        return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
+
     def find_oil(self):
-        return np.exp(-(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0]))** 2)/ 0.01)
+        return np.exp(
+            -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
+        )
 
     def update_oil(self, ngb):
-        
+
         for ngb in self.ngb:
             self.new_oil = self.oil - delta_time / self.area * flux(ngb)
-            
 
     def flux(self, ngb):
         flow_avg = (self.flow + ngb.flow) / 2
@@ -61,29 +72,3 @@ class Cell(ABC):
             return self.oil * np.dot(flow_avg, self.scaled_normal)
         else:
             return ngb.oil * np.dot(flow_avg, self.scaled_normal)
-
-def cell_factory(msh):
-    """
-    Creates cells with data from the mesh and returns as a list
-    """
-    
-    from .line import Line
-    from .triangle import Triangle
-    cell_list = []
-    
-    # msh.cells is a list of CellBlock objects
-    for cell_block in msh.cells:
-        cell_type = cell_block.type
-        cells_array = cell_block.data
-        if cell_type == "triangle":
-            for idx, cell_points in enumerate(cells_array):
-                cell_list.append(Triangle(msh, cell_points, idx))
-        elif cell_type == "line":
-            for idx, cell_points in enumerate(cells_array):
-                cell_list.append(Line(msh, cell_points, idx))
-    
-    # find neighbors
-    for cell in cell_list:
-        cell.find_ngb(cell_list)
-    
-    return cell_list

@@ -1,5 +1,5 @@
-from .Cells.cell import Cell
-from .visualize import Visualizer
+from src.Cells.cell import Cell
+from src.visualize import Visualizer
 
 
 class Simulation:
