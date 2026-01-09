@@ -1,5 +1,7 @@
-from src.Cells.cell import Cell
 import numpy as np
+
+from src.Cells.cell import Cell
+
 
 class Triangle(Cell):
     def __init__(self, msh, cell_points, cell_id):
@@ -14,26 +16,25 @@ class Triangle(Cell):
             * (self.cords[2][1] - self.cords[0][1])
         )
         return area
-    
+
     def find_scaled_normales(self, all_cells=None):
         if not all_cells or not self.ngb:
             self.scaled_normal = []
             return self.scaled_normal
-        
 
         cells_dict = {cell.id: cell for cell in all_cells}
         walls = []
-        
+
         for ngb_id in self.ngb:
             if ngb_id not in cells_dict:
                 continue
-            
+
             ngb_cell = cells_dict[ngb_id]
-            
+
             self_points = set(tuple(p) for p in self.cords)
             ngb_points = set(tuple(p) for p in ngb_cell.cords)
             shared_points = list(self_points & ngb_points)
-            
+
             if len(shared_points) >= 2:
                 A = np.array(shared_points[0])
                 B = np.array(shared_points[1])
@@ -49,7 +50,6 @@ class Triangle(Cell):
                 n = -n
 
             scaled_normals.append(n)
-        
+
         self.scaled_normal = scaled_normals
         return self.scaled_normal
-
