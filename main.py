@@ -1,4 +1,5 @@
 import time
+
 ti_bib = time.time()
 from src.mesh import Mesh
 from src.simulation import Simulation

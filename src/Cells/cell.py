@@ -61,7 +61,7 @@ class Cell(ABC):
         for ngb in self.ngb:
             self.new_oil = self.oil - delta_time / self.area * self.flux(msh, ngb)
 
-    def flux(self,msh, ngb):
+    def flux(self, msh, ngb):
         flow_avg = (self.flow + msh.cells[ngb].flow) / 2
         if np.dot(flow_avg, self.scaled_normal) > 0:
             return self.oil * np.dot(flow_avg, self.scaled_normal)

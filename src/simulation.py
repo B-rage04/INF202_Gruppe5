@@ -1,6 +1,9 @@
-from src.visualize import Visualizer
-from src.LoadTOML import LoadTOML
 import numpy as np
+
+from src.LoadTOML import LoadTOML
+from src.visualize import Visualizer
+
+
 class Simulation:
     def __init__(self, msh, config):
         self.config = LoadTOML.load_toml_file(config)
@@ -12,7 +15,7 @@ class Simulation:
         self.time_start = 0
         self.time_end = self.config["settings"]["tEnd"]
         self.nSteps = self.config["settings"]["nSteps"]
-        self.dt = (self.time_end - self.time_start)/self.nSteps
+        self.dt = (self.time_end - self.time_start) / self.nSteps
 
     def update_oil(self):
         for cell in self.cells:
