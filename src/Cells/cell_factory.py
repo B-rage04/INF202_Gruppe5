@@ -21,10 +21,6 @@ def Cell_factory(msh):
             for cell_points in cells_array:
                 cell_list.append(Line(msh, cell_points, IDx))
                 IDx += 1
-        else:
-            IDx += 1
-        print(f"Created {len(cells_array)} cells of type {cell_type} with ID {IDx}")
-
     # find neighbors
     for cell in cell_list:
         cell.find_ngb(cell_list)
