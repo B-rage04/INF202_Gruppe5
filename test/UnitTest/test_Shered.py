@@ -20,6 +20,9 @@ class MockMesh:
         # Single triangle using all three points
         self.triangles = np.array([[0, 1, 2]])
 
+        # Provide ready-made cells for Simulation (list of Cell objects)
+        self.cells = [Triangle(self, self.triangles[0], 0)]
+
 
 @pytest.fixture
 def mesh():
@@ -28,12 +31,12 @@ def mesh():
 
 @pytest.fixture
 def cell(mesh):
-    return Cell(mesh, 0)
+    return Cell(mesh, mesh.triangles[0], 0)
 
 
 @pytest.fixture
 def triangle(mesh):
-    return Triangle(mesh, 0)
+    return Triangle(mesh, mesh.triangles[0], 0)
 
 
 def test_triangle_coordinates(triangle):

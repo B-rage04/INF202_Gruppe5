@@ -2,25 +2,29 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from .test_Shered import cell, mesh
+from src.Cells.triangle import Triangle
 
 
-def test_flow(cell):
-    cx, cy = cell.center_point[0], cell.center_point[1]
-    expected_flow = np.array(
-        [
-            cy - cx * 0.2,
-            -cx,
-        ]
-    )
-
-    npt.assert_allclose(cell.flow, expected_flow)
+class DummyMesh:
+    def __init__(self):
+        self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+        self.triangles = np.array([[0, 1, 2]])
 
 
-def test_oil(cell):
-    center = cell.center_point
+@pytest.fixture
+def triangle():
+    msh = DummyMesh()
+    return Triangle(msh, msh.triangles[0], 0)
+
+
+def test_flow(triangle):
+    cx, cy = triangle.midpoint[0], triangle.midpoint[1]
+    expected_flow = np.array([cy - cx * 0.2, -cx])
+    npt.assert_allclose(triangle.flow, expected_flow)
+
+
+def test_oil(triangle):
+    center = triangle.midpoint
     reference = np.array([0.35, 0.45, 0.0])
-
     expected_oil = np.exp(-(np.linalg.norm(center - reference) ** 2) / 0.01)
-
-    assert cell.oil == pytest.approx(expected_oil)
+    assert triangle.oil == pytest.approx(expected_oil)
