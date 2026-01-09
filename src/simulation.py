@@ -45,10 +45,8 @@ class Simulation:
 
     def run_sim(self, run_number=None, create_video=True, video_fps=60, **kwargs):
         step_idx = 0
-        # initial state
         self.vs.plotting(self.oil_vals, run=run_number, step=step_idx, **kwargs)
 
-        # Create progress bar
         with tqdm(total=self.nSteps, desc="Simulation progress", unit="steps") as pbar:
             while self.ct <= self.time_end:
                 self.update_oil()
@@ -57,8 +55,7 @@ class Simulation:
                 self.oil_vals = [cell.oil for cell in self.triangle_cells]
                 self.vs.plotting(self.oil_vals, run=run_number, step=step_idx, **kwargs)
                 pbar.update(1)
-        
-        # Create video after simulation completes
+
         if create_video and run_number is not None:
             print(f"Creating video for run {run_number}...")
             video_creator = VideoCreator(fps=video_fps)

@@ -1,6 +1,4 @@
 from pathlib import Path
-
-import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 
 
@@ -16,9 +14,7 @@ class Visualizer:
             self.vmin = min(oil)
             self.vmax = max(oil)
         
-        custom_cmap = mcolors.LinearSegmentedColormap.from_list(
-            "blarm", ["cadetblue", "darkcyan", "black"]
-        )
+        cmap = plt.cm.get_cmap("viridis")
 
         fig = plt.figure()
         plt.tripcolor(
@@ -27,7 +23,7 @@ class Visualizer:
             self.mesh.triangles,
             oil,
             shading="flat",
-            cmap=custom_cmap,
+            cmap=cmap,
             vmin=self.vmin,
             vmax=self.vmax,
         )
