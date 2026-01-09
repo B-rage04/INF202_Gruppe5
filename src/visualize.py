@@ -1,6 +1,7 @@
+from pathlib import Path
+
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
-from pathlib import Path
 
 
 class Visualizer:

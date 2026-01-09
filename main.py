@@ -6,7 +6,7 @@ from src.simulation import Simulation
 
 sim = Simulation(Mesh("bay.msh"), "Exsample/SimConfig/BaseSimConfig.toml")
 
-sim.run_sim(filepath=None, run_number=1) #TODO vise barre enkelte graffer
+sim.run_sim(filepath=None, run_number=1)  # TODO vise barre enkelte graffer
 
 """
 print(sim.config)

@@ -20,21 +20,19 @@ class Simulation:
     def update_oil(self):
         for cell in self.cells:
             if cell.type != "triangle":
-                continue    
+                continue
             for i, ngb in enumerate(cell.ngb):
                 if self.cells[ngb].type != "triangle":
                     continue
-                cell.new_oil.append(- (self.dt / cell.area) * self.flux(i, cell, ngb))
-        
+                cell.new_oil.append(-(self.dt / cell.area) * self.flux(i, cell, ngb))
+
         for cell in self.cells:
             if cell.new_oil is not None:
                 cell.oil += sum(cell.new_oil)
                 cell.new_oil.clear()
             else:
-                print(f"Warning: Cell, {cell.id}, was None") #TODO: try except
+                print(f"Warning: Cell, {cell.id}, was None")  # TODO: try except
                 cell.oil = cell.oil
- 
-
 
     def flux(self, i, cell, ngb):
         flow_avg = (cell.flow + self.cells[ngb].flow) / 2
@@ -42,7 +40,6 @@ class Simulation:
             return cell.oil * np.dot(flow_avg, cell.scaled_normal[i])
         else:
             return self.cells[ngb].oil * np.dot(flow_avg, cell.scaled_normal[i])
-        
 
     def run_sim(self, run_number=None, **kwargs):
         step_idx = 0
@@ -55,4 +52,3 @@ class Simulation:
             step_idx += 1
             self.oil_vals = [cell.oil for cell in self.triangle_cells]
             self.vs.plotting(self.oil_vals, run=run_number, step=step_idx, **kwargs)
-        
