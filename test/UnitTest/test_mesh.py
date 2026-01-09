@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -9,6 +11,7 @@ class DummyMeshIO:
     def __init__(self):
         self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
         self.cells_dict = {"triangle": np.array([[0, 1, 2]])}
+        self.cells = [SimpleNamespace(type="triangle", data=np.array([[0, 1, 2]]))]
 
 
 @pytest.fixture
