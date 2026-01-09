@@ -8,3 +8,7 @@ class Line(Cell):
 
     def find_area(self):
         return None
+    
+    def find_scaled_normales(self, all_cells=None):
+        self.scaled_normal = []
+        return self.scaled_normal

@@ -24,5 +24,6 @@ def Cell_factory(msh):
     # find neighbors
     for cell in cell_list:
         cell.find_ngb(cell_list)
+        cell.find_scaled_normales(cell_list)
 
     return cell_list

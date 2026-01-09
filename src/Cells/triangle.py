@@ -15,7 +15,7 @@ class Triangle(Cell):
         )
         return area
     
-    def find_scaled_normales(self, all_cells=None):
+    def find_scaled_normales(self, all_cells):
         if not all_cells or not self.ngb:
             self.scaled_normal = []
             return self.scaled_normal
