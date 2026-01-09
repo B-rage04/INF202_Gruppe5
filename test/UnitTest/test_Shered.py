@@ -5,7 +5,7 @@ import pytest
 from src.Cells.cell import Cell
 from src.Cells.triangle import Triangle
 
-
+ 
 class MockMesh:
     def __init__(self):
         # Define 3 points forming a right triangle in the XY plane
