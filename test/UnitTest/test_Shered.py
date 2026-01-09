@@ -54,3 +54,15 @@ class DummyVisualizer:
 
     def plotting(self, oil_vals):
         self.last_plotted = list(oil_vals)
+
+
+class MockMeshTriangles:
+    def __init__(self):
+        self.points = np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [1.0, 1.0, 0.0],
+                [0.0, 1.0, 0.0],
+            ]
+        )
