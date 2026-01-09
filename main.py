@@ -5,13 +5,12 @@ from src.simulation import Simulation
 
 ti_ngh = time.time()
 
-sim = Simulation(Mesh("bay.msh"))
-#sim.run_sim()
-print(sim.cells[-5].id)
-print(sim.cells[-5].ngb)
-print(sim.cells[3615].id)
-print(sim.cells[3615].ngb)
-
+sim = Simulation(Mesh("bay.msh"), "Exsample/SimConfig/BaseSimConfig.toml")
+sim.run_sim()
+print(sim.config)
+print(sim.time_end)
+print(sim.nSteps)
+print(sim.dt)
 tf = time.time()
 print("Time elapsed bib:", tf - ti_bib)
 print("Time elapsed ngh:", tf - ti_ngh)
