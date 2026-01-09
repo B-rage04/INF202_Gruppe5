@@ -15,5 +15,3 @@ print(sim.nSteps)
 print(sim.dt)
 """
 tf = time.time()
-#print("Time elapsed bib:", tf - ti_bib)
-#print("Time elapsed ngh:", tf - ti_ngh)

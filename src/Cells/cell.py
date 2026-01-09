@@ -14,13 +14,7 @@ class Cell(ABC):
         self.ngb = []
         self.flow = self.find_flow()
         self.oil = self.find_oil()
-        self.new_oil = 0.0
-    
-    def __str__(self):
-        return (f"Cell(id={self.id}, type={self.type}, midpoint={self.midpoint}, "
-                f"area={self.area:.4f}, flow={self.flow}, oil={self.oil:.4f}, "
-                f"new_oil={self.new_oil:.4f}, neighbors={self.ngb}, "
-                f"scaled_normal={self.scaled_normal})")
+        self.new_oil = []
 
     @abstractmethod
     def find_area(self):
@@ -55,9 +49,16 @@ class Cell(ABC):
                     other.ngb.append(self.id)
 
     def find_flow(self):
-        return np.array([self.midpoint[1] - (self.midpoint[0] * 0.2), -self.midpoint[0]])
+        return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
 
     def find_oil(self):
         return np.exp(
             -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
         )
+
+    def flux(self, ngb):
+        flow_avg = (self.flow + ngb.flow) / 2
+        if np.dot(flow_avg, self.scaled_normal) > 0:
+            return self.oil * np.dot(flow_avg, self.scaled_normal)
+        else:
+            return ngb.oil * np.dot(flow_avg, self.scaled_normal)

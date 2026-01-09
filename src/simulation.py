@@ -24,11 +24,12 @@ class Simulation:
             for i, ngb in enumerate(cell.ngb):
                 if self.cells[ngb].type != "triangle":
                     continue
-                cell.new_oil = cell.oil - (self.dt / cell.area) * self.flux(i, cell, ngb)
+                cell.new_oil.append(- (self.dt / cell.area) * self.flux(i, cell, ngb))
         
         for cell in self.cells:
             if cell.new_oil is not None:
-                cell.oil = cell.new_oil
+                cell.oil += sum(cell.new_oil)
+                cell.new_oil.clear()
             else:
                 print(f"Warning: Cell, {cell.id}, was None") #TODO: try except
                 cell.oil = cell.oil
