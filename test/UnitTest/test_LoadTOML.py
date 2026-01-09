@@ -1,5 +1,6 @@
 import os
 import tomllib
+
 import pytest
 
 from src.LoadTOML import LoadTOML
@@ -44,7 +45,7 @@ def test_load_sim_config_with_directory(tmp_path):
     # create a directory with multiple toml files
     d = tmp_path / "sims"
     d.mkdir()
-   
+
     p = d / f"sim.toml"
     write_toml(p, "[sim]\nid = 42\n")
 
@@ -53,6 +54,7 @@ def test_load_sim_config_with_directory(tmp_path):
 
     assert isinstance(sims, list) and len(sims) == 1
     assert sims[0]["sim"]["id"] == 42
+
 
 def test_load_sim_configs_with_directory(tmp_path):
     # create a directory with multiple toml files

@@ -1,6 +1,7 @@
+import time
+
 from src.mesh import Mesh
 from src.simulation import Simulation
-import time
 
 ti = time.time()
 sim = Simulation(Mesh("bay.msh"))
