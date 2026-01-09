@@ -25,8 +25,9 @@ class Cell(ABC):
             return np.array([0, 0, 0])
         return np.mean(self.cords, axis=0)
 
-    def find_scaled_normales(self):
-        pass
+    def find_scaled_normales(self, all_cells=None):
+        self.scaled_normal = []
+        return self.scaled_normal
 
     def find_ngb(self, all_cells):
         if not hasattr(self, "_point_set") or self._point_set is None:
