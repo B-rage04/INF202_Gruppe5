@@ -20,6 +20,8 @@ class Visualizer:
             oil,
             shading="flat",
             cmap="viridis",
+            vmin=0.0,
+            vmax=1.0,
         )
 
         plt.colorbar(label="Oil concentration")

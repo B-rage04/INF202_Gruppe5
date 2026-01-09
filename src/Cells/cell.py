@@ -55,7 +55,7 @@ class Cell(ABC):
                     other.ngb.append(self.id)
 
     def find_flow(self):
-        return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
+        return np.array([self.midpoint[1] - (self.midpoint[0] * 0.2), -self.midpoint[0]])
 
     def find_oil(self):
         return np.exp(
