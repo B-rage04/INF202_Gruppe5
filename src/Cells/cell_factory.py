@@ -1,25 +1,32 @@
 from src.Cells.line import Line
 from src.Cells.triangle import Triangle
 
+
 def Cell_factory(msh):
     """
     Creates cells with data from the mesh and returns as a list
     """
     cell_list = []
-    
+
     # msh.cells is a list of CellBlock objects
-    for idx, cell_block in enumerate(msh.cells):
+    IDx = 0
+    for _, cell_block in enumerate(msh.cells):
         cell_type = cell_block.type
         cells_array = cell_block.data
         if cell_type == "triangle":
-            for cell_points in (cells_array):
-                cell_list.append(Triangle(msh, cell_points, idx))
+            for cell_points in cells_array:
+                cell_list.append(Triangle(msh, cell_points, IDx))
+                IDx += 1
         elif cell_type == "line":
-            for cell_points in (cells_array):
-                cell_list.append(Line(msh, cell_points, idx))
-    
+            for cell_points in cells_array:
+                cell_list.append(Line(msh, cell_points, IDx))
+                IDx += 1
+        else:
+            IDx += 1
+        print(f"Created {len(cells_array)} cells of type {cell_type} with ID {IDx}")
+
     # find neighbors
     for cell in cell_list:
         cell.find_ngb(cell_list)
-    
+
     return cell_list

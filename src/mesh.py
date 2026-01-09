@@ -1,7 +1,8 @@
 from src.Cells.cell_factory import Cell_factory
 
+
 class Mesh:
-    def __init__(self, file : str):
+    def __init__(self, file: str):
         self.msh = self.read_mesh(file)
         self.points = self.msh.points
         self.triangles = self.msh.cells_dict["triangle"]
@@ -12,4 +13,5 @@ class Mesh:
         Reads Mesh file
         """
         import meshio
+
         return meshio.read(file)

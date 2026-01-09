@@ -1,5 +1,7 @@
-import numpy as np
 from abc import ABC, abstractmethod
+
+import numpy as np
+
 
 class Cell(ABC):
     def __init__(self, msh, cell_points, cell_id):
@@ -31,24 +33,27 @@ class Cell(ABC):
             if other.id == self.id:
                 continue
             # Check for shared points
-            shared = set(tuple(p) for p in self.cords) & set(tuple(p) for p in other.cords)
-            if len(shared) >= 2: 
+            shared = set(tuple(p) for p in self.cords) & set(
+                tuple(p) for p in other.cords
+            )
+            if len(shared) >= 2:
                 if other.id not in self.ngb:
                     self.ngb.append(other.id)
                 if self.id not in other.ngb:
                     other.ngb.append(self.id)
-                                
+
     def find_flow(self):
-        return np.array([self.midpoint[1]-self.midpoint[0]*0.2, -self.midpoint[0]])
-    
+        return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
+
     def find_oil(self):
-        return np.exp(-(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0]))** 2)/ 0.01)
+        return np.exp(
+            -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
+        )
 
     def update_oil(self, ngb):
-        
+
         for ngb in self.ngb:
             self.new_oil = self.oil - delta_time / self.area * flux(ngb)
-            
 
     def flux(self, ngb):
         flow_avg = (self.flow + ngb.flow) / 2
