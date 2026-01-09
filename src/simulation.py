@@ -43,11 +43,15 @@ class Simulation:
             return self.cells[ngb].oil * np.dot(flow_avg, cell.scaled_normal[i])
         
 
-    def run_sim(self):
-        self.vs.plotting(self.oil_vals) 
+    def run_sim(self, run_number=None):
+        step_idx = 0
+        # initial state
+        self.vs.plotting(self.oil_vals, run=run_number, step=step_idx)
+
         while self.ct <= self.time_end:
             self.update_oil()
             self.ct += self.dt
+            step_idx += 1
             self.oil_vals = [cell.oil for cell in self.triangle_cells]
-        self.vs.plotting(self.oil_vals)    
+            self.vs.plotting(self.oil_vals, run=run_number, step=step_idx)
         
