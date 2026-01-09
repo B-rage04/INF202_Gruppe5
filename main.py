@@ -1,8 +1,10 @@
 import time
+
 ti_bib = time.time()
+import numpy as np
+
 from src.mesh import Mesh
 from src.simulation import Simulation
-import numpy as np
 
 ti_ngh = time.time()
 
