@@ -16,7 +16,7 @@ def test_center_point(triangle):
         ]
     )
 
-    npt.assert_allclose(triangle.center_point, expected_center)
+    npt.assert_allclose(triangle.midpoint, expected_center)
 
 
 def test_area(triangle):
