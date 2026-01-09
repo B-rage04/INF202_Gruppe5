@@ -7,8 +7,15 @@ import matplotlib.pyplot as plt
 class Visualizer:
     def __init__(self, mesh):
         self.mesh = mesh
+        self.vmin = None
+        self.vmax = None
 
     def plotting(self, oil, filepath="Output/images/", run=None, step=None):
+        # Set vmin and vmax on first call
+        if self.vmin is None or self.vmax is None:
+            self.vmin = min(oil)
+            self.vmax = max(oil)
+        
         custom_cmap = mcolors.LinearSegmentedColormap.from_list(
             "blarm", ["cadetblue", "darkcyan", "black"]
         )
@@ -21,6 +28,8 @@ class Visualizer:
             oil,
             shading="flat",
             cmap=custom_cmap,
+            vmin=self.vmin,
+            vmax=self.vmax,
         )
 
         plt.colorbar(label="Oil concentration")

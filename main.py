@@ -6,7 +6,8 @@ from src.simulation import Simulation
 
 sim = Simulation(Mesh("bay.msh"), "Exsample/SimConfig/BaseSimConfig.toml")
 
-sim.run_sim(run_number=1)  # TODO vise barre enkelte graffer
+print("Running simulation...")
+sim.run_sim(run_number=1, create_video=True, video_fps=60)  # TODO vise barre enkelte graffer
 
 """
 print(sim.config)
@@ -15,3 +16,4 @@ print(sim.nSteps)
 print(sim.dt)
 """
 tf = time.time()
+print(f"Total execution time: {tf - ti_bib:.2f} seconds")
