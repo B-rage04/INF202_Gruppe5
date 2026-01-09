@@ -1,6 +1,6 @@
 from src.Cells.cell import Cell
 from src.visualize import Visualizer
-
+ 
 
 class Simulation:
     def __init__(self, msh):

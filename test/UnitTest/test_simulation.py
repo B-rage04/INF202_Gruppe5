@@ -5,7 +5,7 @@ from src.Cells.cell import Cell
 from src.simulation import Simulation
 
 from .test_Shered import DummyVisualizer, MockMesh
-
+ 
 
 def test_simulation_runs_and_calls_visualizer(monkeypatch):
     mesh = MockMesh()

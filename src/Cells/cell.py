@@ -42,7 +42,7 @@ class Cell(ABC):
                 other_point_set = set(tuple(p) for p in other.cords)
                 other._point_set = other_point_set
 
-            
+             
             if len(self._point_set & other_point_set) >= 2:
                 if other.id not in self.ngb:
                     self.ngb.append(other.id)

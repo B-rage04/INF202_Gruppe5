@@ -1,7 +1,7 @@
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 
-
+ 
 class Visualizer:
     def __init__(self, mesh):
         self.mesh = mesh
