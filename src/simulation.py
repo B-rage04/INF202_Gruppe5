@@ -44,9 +44,10 @@ class Simulation:
         
 
     def run_sim(self):
+        self.vs.plotting(self.oil_vals) 
         while self.ct <= self.time_end:
             self.update_oil()
             self.ct += self.dt
             self.oil_vals = [cell.oil for cell in self.triangle_cells]
-            self.vs.plotting(self.oil_vals)
+        self.vs.plotting(self.oil_vals)    
         
