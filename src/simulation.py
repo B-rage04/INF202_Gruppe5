@@ -18,8 +18,12 @@ class Simulation:
         for cell in self.cells:
             if cell.type == "triangle":
                 for i, ngb in enumerate(cell.ngb):
-                    cell.new_oil = cell.oil - self.dt / cell.area * self.flux(i, cell, ngb)
-
+                    if self.cells[ngb].type == "triangles":
+                        cell.new_oil = cell.oil - (self.dt / cell.area) * self.flux(i, cell, ngb)
+        
+        for cell in self.cells:
+            cell.oil = cell.new_oil
+ 
 
 
     def flux(self, i, cell, ngb):
@@ -27,11 +31,18 @@ class Simulation:
         if np.dot(flow_avg, cell.scaled_normal[i]) > 0:
             return cell.oil * np.dot(flow_avg, cell.scaled_normal[i])
         else:
-            return ngb.oil * np.dot(flow_avg, cell.scaled_normal[i])
+            print(self.cells[ngb].oil)
+            print(self.cells[ngb])
+            return self.cells[ngb].oil * np.dot(flow_avg, cell.scaled_normal[i])
         
 
     def run_sim(self):
+        self.vs.plotting(self.oil_vals)
+        c = 0
         while self.ct <= self.time_end:
             self.update_oil()
-            self.vs.plotting(self.oil_vals)
+            if c < 15:
+                print(f"Oljeverdi: {self.cells[673].oil}, Newoilverdi: {self.cells[673].new_oil}")
+                c+=1
             self.ct += self.dt
+        self.vs.plotting(self.oil_vals)
