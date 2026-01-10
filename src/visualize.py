@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 
 
@@ -8,12 +9,16 @@ class Visualizer:
         self.vmin = None
         self.vmax = None
 
-    def plotting(self, oil, filepath="Output/images/", run=None, step=None):
+    def plotting(self, oil, filepath="Output/images/", run=None, step=None, plot=True):
         # Set vmin and vmax on first call
+
+        if not plot:
+            return None
+
         if self.vmin is None or self.vmax is None:
             self.vmin = min(oil)
             self.vmax = max(oil)
-        
+
         cmap = plt.cm.get_cmap("viridis")
 
         fig = plt.figure()

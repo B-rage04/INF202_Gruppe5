@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import cv2
 import numpy as np
 
@@ -11,13 +12,12 @@ class VideoCreator:
 
     def create_video_from_run(self, run_number, output_path=None):
         run_dir = self.image_dir / f"run{run_number}"
-        
+
         if not run_dir.exists():
             raise FileNotFoundError(f"Run directory {run_dir} does not exist")
 
         image_files = sorted(
-            run_dir.glob("oil_step*.png"),
-            key=lambda x: int(x.stem.split("step")[1])
+            run_dir.glob("oil_step*.png"), key=lambda x: int(x.stem.split("step")[1])
         )
 
         if not image_files:
@@ -34,12 +34,9 @@ class VideoCreator:
         first_image = cv2.imread(str(image_files[0]))
         height, width, _ = first_image.shape
 
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         video_writer = cv2.VideoWriter(
-            str(output_path),
-            fourcc,
-            self.fps,
-            (width, height)
+            str(output_path), fourcc, self.fps, (width, height)
         )
 
         for image_file in image_files:
@@ -61,12 +58,9 @@ class VideoCreator:
         first_image = cv2.imread(str(image_files[0]))
         height, width, _ = first_image.shape
 
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         video_writer = cv2.VideoWriter(
-            str(output_path),
-            fourcc,
-            self.fps,
-            (width, height)
+            str(output_path), fourcc, self.fps, (width, height)
         )
 
         for image_file in image_files:
@@ -88,16 +82,19 @@ class VideoCreator:
             run_dir = self.image_dir / f"run{run_num}"
             if not run_dir.exists():
                 raise FileNotFoundError(f"Run directory {run_dir} does not exist")
-            
+
             images = sorted(
                 run_dir.glob("oil_step*.png"),
-                key=lambda x: int(x.stem.split("step")[1])
+                key=lambda x: int(x.stem.split("step")[1]),
             )
             all_run_images.append(images)
             max_steps = max(max_steps, len(images))
 
         if output_path is None:
-            output_path = self.image_dir / f"comparison_runs_{'_'.join(map(str, run_numbers))}.mp4"
+            output_path = (
+                self.image_dir
+                / f"comparison_runs_{'_'.join(map(str, run_numbers))}.mp4"
+            )
         else:
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -109,25 +106,22 @@ class VideoCreator:
         cols = min(2, num_runs)
         rows = (num_runs + cols - 1) // cols
 
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         video_writer = cv2.VideoWriter(
-            str(output_path),
-            fourcc,
-            self.fps,
-            (width * cols, height * rows)
+            str(output_path), fourcc, self.fps, (width * cols, height * rows)
         )
 
         for step in range(max_steps):
             combined_frame = np.zeros((height * rows, width * cols, 3), dtype=np.uint8)
-            
+
             for idx, images in enumerate(all_run_images):
                 if step < len(images):
                     frame = cv2.imread(str(images[step]))
                     row = idx // cols
                     col = idx % cols
                     combined_frame[
-                        row * height:(row + 1) * height,
-                        col * width:(col + 1) * width
+                        row * height : (row + 1) * height,
+                        col * width : (col + 1) * width,
                     ] = frame
 
             video_writer.write(combined_frame)

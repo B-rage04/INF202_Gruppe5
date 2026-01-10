@@ -2,8 +2,8 @@ import numpy as np
 from tqdm import tqdm
 
 from src.LoadTOML import LoadTOML
-from src.visualize import Visualizer
 from src.video import VideoCreator
+from src.visualize import Visualizer
 
 
 class Simulation:
@@ -17,6 +17,7 @@ class Simulation:
         self.time_start = 0
         self.time_end = self.config["settings"]["tEnd"]
         self.nSteps = self.config["settings"]["nSteps"]
+        self.writeFrequency = self.config["IO"]["writeFrequency"]
         self.dt = (self.time_end - self.time_start) / self.nSteps
 
     def update_oil(self):
@@ -53,7 +54,11 @@ class Simulation:
                 self.ct += self.dt
                 step_idx += 1
                 self.oil_vals = [cell.oil for cell in self.triangle_cells]
-                self.vs.plotting(self.oil_vals, run=run_number, step=step_idx, **kwargs)
+
+                if step_idx % self.writeFrequency == 0:  # TODO fix edje cases
+                    self.vs.plotting(
+                        self.oil_vals, run=run_number, step=step_idx, **kwargs
+                    )
                 pbar.update(1)
 
         if create_video and run_number is not None:

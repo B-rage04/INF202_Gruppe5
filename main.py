@@ -7,7 +7,9 @@ from src.simulation import Simulation
 sim = Simulation(Mesh("bay.msh"), "Exsample/SimConfig/BaseSimConfig.toml")
 
 print("Running simulation...")
-sim.run_sim(run_number=1, create_video=True, video_fps=60)  # TODO vise barre enkelte graffer
+sim.run_sim(
+    run_number=2, create_video=True, video_fps=60
+)  # TODO vise barre enkelte graffer
 
 """
 print(sim.config)
