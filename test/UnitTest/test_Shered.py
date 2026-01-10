@@ -55,7 +55,7 @@ class DummyVisualizer:
         self.msh = msh
         self.last_plotted = None
 
-    def plotting(self, oil_vals):
+    def plotting(self, oil_vals, run=None, step=None, **kwargs):
         self.last_plotted = list(oil_vals)
 
 
