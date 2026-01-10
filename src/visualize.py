@@ -9,12 +9,8 @@ class Visualizer:
         self.vmin = None
         self.vmax = None
 
-    def plotting(self, oil, filepath="Output/images/", run=None, step=None, plot=True):
+    def plotting(self, oil, filepath="Output/images/", run=None, step=None):
         # Set vmin and vmax on first call
-
-        if not plot:
-            return None
-
         if self.vmin is None or self.vmax is None:
             self.vmin = min(oil)
             self.vmax = max(oil)
@@ -22,6 +18,11 @@ class Visualizer:
         cmap = plt.cm.get_cmap("viridis")
 
         fig = plt.figure()
+
+        print(
+            f"len: {len(oil)}, mesh points: {len(self.mesh.points)}, mesh triangles: {len(self.mesh.triangles)}"
+        )  # TODO remove
+
         plt.tripcolor(
             self.mesh.points[:, 0],
             self.mesh.points[:, 1],

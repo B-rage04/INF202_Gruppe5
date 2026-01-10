@@ -14,7 +14,7 @@ def test_simulation_runs_and_calls_visualizer(monkeypatch):
 
     monkeypatch.setattr(sim_mod, "Visualizer", DummyVisualizer)
 
-    s = Simulation(mesh, config="Exsample/SimConfig/BaseSimConfig.toml")
+    s = Simulation(mesh, config="Exsample/Globalconfig/SysConfig.toml")
     assert s.vs.last_plotted is None
 
     s.run_sim()

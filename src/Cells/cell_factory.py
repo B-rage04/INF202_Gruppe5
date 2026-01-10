@@ -1,4 +1,5 @@
 from src.Cells.line import Line
+from src.Cells.quad import Quad
 from src.Cells.triangle import Triangle
 
 
@@ -16,6 +17,10 @@ def Cell_factory(msh):
         if cell_type == "triangle":
             for cell_points in cells_array:
                 cell_list.append(Triangle(msh, cell_points, IDx))
+                IDx += 1
+        elif cell_type == "quad" or cell_type == "quadrilateral":
+            for cell_points in cells_array:
+                cell_list.append(Quad(msh, cell_points, IDx))
                 IDx += 1
         elif cell_type == "line":
             for cell_points in cells_array:

@@ -1,35 +1,38 @@
 import numpy as np
 from tqdm import tqdm
 
-from src.LoadTOML import LoadTOML
+from src.mesh import Mesh
 from src.video import VideoCreator
 from src.visualize import Visualizer
 
 
 class Simulation:
-    def __init__(self, msh, config):
-        self.config = LoadTOML.load_toml_file(config)
-        self.cells = msh.cells
-        self.triangle_cells = [cell for cell in self.cells if cell.type == "triangle"]
-        self.oil_vals = [cell.oil for cell in self.triangle_cells]
-        self.vs = Visualizer(msh)
-        self.ct = 0
-        self.time_start = 0
+    def __init__(self, config):
+        self.config = config
+        self.msh = Mesh(config["geometry"]["meshName"])
+
+        self.oil_vals = self.getOilVals()
+        self.vs = Visualizer(self.msh)
+        self.CurrentStep = 0
+        self.time_start = self.config["settings"]["tStart"]
         self.time_end = self.config["settings"]["tEnd"]
         self.nSteps = self.config["settings"]["nSteps"]
         self.writeFrequency = self.config["IO"]["writeFrequency"]
-        self.dt = (self.time_end - self.time_start) / self.nSteps
+        self.dt = self.time_end / self.nSteps
+
+    def getOilVals(self):
+        return [cell.oil for cell in self.msh.cells if cell.type == "triangle"]
 
     def update_oil(self):
-        for cell in self.cells:
+        for cell in self.msh.cells:
             if cell.type != "triangle":
                 continue
             for i, ngb in enumerate(cell.ngb):
-                if self.cells[ngb].type != "triangle":
+                if self.msh.cells[ngb].type != "triangle":
                     continue
                 cell.new_oil.append(-(self.dt / cell.area) * self.flux(i, cell, ngb))
 
-        for cell in self.cells:
+        for cell in self.msh.cells:
             if cell.new_oil is not None:
                 cell.oil += sum(cell.new_oil)
                 cell.new_oil.clear()
@@ -38,22 +41,22 @@ class Simulation:
                 cell.oil = cell.oil
 
     def flux(self, i, cell, ngb):
-        flow_avg = (cell.flow + self.cells[ngb].flow) / 2
+        flow_avg = (cell.flow + self.msh.cells[ngb].flow) / 2
         if np.dot(flow_avg, cell.scaled_normal[i]) > 0:
             return cell.oil * np.dot(flow_avg, cell.scaled_normal[i])
         else:
-            return self.cells[ngb].oil * np.dot(flow_avg, cell.scaled_normal[i])
+            return self.msh.cells[ngb].oil * np.dot(flow_avg, cell.scaled_normal[i])
 
     def run_sim(self, run_number=None, create_video=True, video_fps=60, **kwargs):
         step_idx = 0
         self.vs.plotting(self.oil_vals, run=run_number, step=step_idx, **kwargs)
 
         with tqdm(total=self.nSteps, desc="Simulation progress", unit="steps") as pbar:
-            while self.ct <= self.time_end:
+            while self.CurrentStep <= self.time_end:
                 self.update_oil()
-                self.ct += self.dt
+                self.CurrentStep += self.dt
                 step_idx += 1
-                self.oil_vals = [cell.oil for cell in self.triangle_cells]
+                self.oil_vals = self.getOilVals()
 
                 if step_idx % self.writeFrequency == 0:  # TODO fix edje cases
                     self.vs.plotting(
