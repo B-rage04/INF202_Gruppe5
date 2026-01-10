@@ -1,4 +1,12 @@
 repos:
+  - repo: local
+    hooks:
+      - id: pytestCoverage
+        name: pytest with coverage
+        entry: python tools/checkCoverage.py
+        language: system
+        pass_filenames: false
+        always_run: true
   - repo: https://github.com/psf/black
     rev: 24.1.0
     hooks:
@@ -7,3 +15,6 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
+  
+
+
