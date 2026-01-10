@@ -54,7 +54,13 @@ jobs:
           print("=== Import package ===")
 
       - name: Run tests with coverage
-        run: pytest --cov=src --cov-report=xml --cov-fail-under=98
+        run: pytest --cov=src --cov-report=xml
+
+      - name: Enforce coverage threshold
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          python tools/ci_check_coverage.py "$BRANCH"
 
       - name: Upload coverage to artifact
         uses: actions/upload-artifact@v4
