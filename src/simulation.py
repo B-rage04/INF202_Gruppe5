@@ -1,5 +1,5 @@
-from typing import Any, Dict, List, Optional
 import logging
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from tqdm import tqdm
@@ -32,7 +32,6 @@ class Simulation:
 
         self._oilVals: List[float] = self.getOilVals()
 
-
     @staticmethod
     def _validateConfig(config: Dict[str, Any]) -> None:
         required = [
@@ -46,7 +45,7 @@ class Simulation:
             if section not in config or key not in config[section]:
                 raise KeyError(f"Missing required config entry: {section}.{key}")
 
-    #getters/setters
+    # getters/setters
     @property
     def config(self) -> Dict[str, Any]:
         return self._config
@@ -74,18 +73,19 @@ class Simulation:
         # return a copy to avoid accidental external mutation
         return list(self._oilVals)
 
-
-    def getOilVals(self) -> List[float]: #TODO: ikke barre tiangle
+    def getOilVals(self) -> List[float]:  # TODO: ikke barre tiangle
         return [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
 
-    def _computeFlux(self, i: int, cell: Any, ngb: int) -> float: #TODO: andre formler fra config
+    def _computeFlux(
+        self, i: int, cell: Any, ngb: int
+    ) -> float:  # TODO: andre formler fra config
         neighbor = self._msh.cells[ngb]
         flowAvg = (cell.flow + neighbor.flow) / 2.0
         dot = float(np.dot(flowAvg, cell.scaled_normal[i]))
         source_oil = cell.oil if dot > 0 else neighbor.oil
         return source_oil * dot
 
-    def updateOil(self) -> None: #TODO: ikke barre tiangle
+    def updateOil(self) -> None:  # TODO: ikke barre tiangle
         for cell in self._msh.cells:
             if cell.type != "triangle":
                 continue
@@ -103,7 +103,9 @@ class Simulation:
                 cell.oil += sum(cell.newOil)
                 cell.newOil.clear()
             else:
-                logger.debug("Cell %s had no pending oil updates", getattr(cell, "id", "?"))
+                logger.debug(
+                    "Cell %s had no pending oil updates", getattr(cell, "id", "?")
+                )
 
     def run_sim(self, runNumber: Optional[int] = None, **kwargs) -> Optional[str]:
 
@@ -121,7 +123,9 @@ class Simulation:
                 self._oilVals = self.getOilVals()
 
                 if stepIdx % self._writeFrequency == 0:
-                    self._visualizer.plotting(self.oilVals, run=runNumber, step=stepIdx, **kwargs)
+                    self._visualizer.plotting(
+                        self.oilVals, run=runNumber, step=stepIdx, **kwargs
+                    )
                 pbar.update(1)
 
         videoPath: Optional[str] = None
@@ -132,4 +136,3 @@ class Simulation:
             logger.info("Video created successfully: %s", videoPath)
 
         return videoPath
-

@@ -1,6 +1,6 @@
-from typing import Any, List
 import logging
 import os
+from typing import Any, List
 
 from src.Cells.cellFactory import CellFactory
 
@@ -18,7 +18,9 @@ class Mesh:
         self._msh: Any = self._read_mesh(file)
 
         self._points: List[Any] = getattr(self._msh, "points", [])
-        self._triangles: List[Any] = getattr(self._msh, "cells_dict", {}).get("triangle", [])
+        self._triangles: List[Any] = getattr(self._msh, "cells_dict", {}).get(
+            "triangle", []
+        )
         self._cells = CellFactory(self._msh)
 
     def _read_mesh(self, file: str) -> Any:
@@ -37,7 +39,7 @@ class Mesh:
         return self._points
 
     @property
-    def triangles(self) -> List[Any]: ##TODO: ikke barre tiangle
+    def triangles(self) -> List[Any]:  ##TODO: ikke barre tiangle
         return list(self._triangles)
 
     @property
@@ -56,4 +58,3 @@ class Mesh:
         self._points = getattr(self._msh, "points", [])
         self._triangles = getattr(self._msh, "cells_dict", {}).get("triangle", [])
         self._cells = CellFactory(self._msh)
-

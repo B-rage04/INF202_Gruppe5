@@ -92,8 +92,7 @@ class VideoCreator:
 
         if outputPath is None:
             outputPath = (
-                self.imageDir
-                / f"comparison_runs_{'_'.join(map(str, runNumbers))}.mp4"
+                self.imageDir / f"comparison_runs_{'_'.join(map(str, runNumbers))}.mp4"
             )
         else:
             outputPath = Path(outputPath)
