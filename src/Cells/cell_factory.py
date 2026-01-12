@@ -1,6 +1,18 @@
 from src.Cells.line import Line
-from src.Cells.quad import Quad
 from src.Cells.triangle import Triangle
+
+class Cell_factory:
+    def __init__(self):
+        self.cell_types = {"triangle": Triangle, "line": Line}
+
+    def register(self, key, ctype):
+        if key not in self.cell_types:
+            self.cell_types[key] = ctype
+
+    def __call__(self, cell):
+        key = cell.type
+        return self.cell_types 
+
 
 
 def Cell_factory(msh):
