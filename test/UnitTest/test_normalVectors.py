@@ -38,7 +38,7 @@ class TestFindScaledNormales:
         tri3 = Triangle(msh, [0, 2, 4], cell_id=2)
 
         all_cells = [tri1, tri2, tri3]
-        tri1.find_ngb(all_cells)
+        tri1.findNGB(all_cells)
         tri1.findScaledNormales(all_cells)
 
         assert len(tri1.scaledNormal) == len(
@@ -52,7 +52,7 @@ class TestFindScaledNormales:
         tri2 = Triangle(msh, [1, 3, 2], cell_id=1)
 
         all_cells = [tri1, tri2]
-        tri1.find_ngb(all_cells)
+        tri1.findNGB(all_cells)
         tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
@@ -86,7 +86,7 @@ class TestFindScaledNormales:
         tri2 = Triangle(msh, [1, 3, 2], cell_id=1)
 
         all_cells = [tri1, tri2]
-        tri1.find_ngb(all_cells)
+        tri1.findNGB(all_cells)
         tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
@@ -122,7 +122,7 @@ class TestFindScaledNormales:
         tri2 = Triangle(msh, [1, 3, 2], cell_id=1)
 
         all_cells = [tri1, tri2]
-        tri1.find_ngb(all_cells)
+        tri1.findNGB(all_cells)
         tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
@@ -159,7 +159,7 @@ class TestFindScaledNormales:
         tri3 = Triangle(msh, [0, 2, 4], cell_id=2)
 
         all_cells = [tri1, tri2, tri3]
-        tri1.find_ngb(all_cells)
+        tri1.findNGB(all_cells)
         tri1.findScaledNormales(all_cells)
 
         # Verify that each normal corresponds to its neighbor in order
@@ -185,7 +185,7 @@ class TestFindScaledNormales:
         """Test that Line cells return empty normals."""
         msh = MockMesh()
         line = Line(msh, [0, 1], cell_id=0)
-        result = line.findScaledNormales(all_cells=[line])
+        result = line.findScaledNormales(allCells=[line])
 
         assert result == [], "Line cell should return empty normals"
         assert line.scaledNormal == [], "Line cell scaledNormal should be empty"
@@ -197,8 +197,8 @@ class TestFindScaledNormales:
         tri2 = Triangle(msh, [1, 3, 2], cell_id=1)
 
         all_cells = [tri1, tri2]
-        tri1.find_ngb(all_cells)
-        tri2.find_ngb(all_cells)
+        tri1.findNGB(all_cells)
+        tri2.findNGB(all_cells)
         tri1.findScaledNormales(all_cells)
         tri2.findScaledNormales(all_cells)
 

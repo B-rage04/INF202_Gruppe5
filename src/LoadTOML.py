@@ -2,15 +2,15 @@ import tomllib as toml
 
 
 class LoadTOML:
-    def load_toml_file(self, file_path) -> dict:
+    def loadTomlFile(self, filePath) -> dict:
         """
         Loads a TOML file and returns its contents as a dictionary.
         """
-        with open(file_path, "rb") as toml_file:
-            config = toml.load(toml_file)
+        with open(filePath, "rb") as tomlFile:
+            config = toml.load(tomlFile)
         return config
 
-    def load_sim_configs(self, sysConfig) -> list[dict]:
+    def loadSimConfigs(self, sysConfig) -> list[dict]:
         """ """
 
         # if directory load all sim configs in dir if single file load that file
@@ -20,11 +20,11 @@ class LoadTOML:
         import os
 
         if os.path.isdir(simConfigPath):
-            for file_name in os.listdir(simConfigPath):
-                if file_name.endswith(".toml"):
-                    full_path = os.path.join(simConfigPath, file_name)
-                    simConfigs.append(self.load_toml_file(full_path))
+            for fileName in os.listdir(simConfigPath):
+                if fileName.endswith(".toml"):
+                    fullPath = os.path.join(simConfigPath, fileName)
+                    simConfigs.append(self.loadTomlFile(fullPath))
         else:
-            simConfigs.append(self.load_toml_file(simConfigPath))
+            simConfigs.append(self.loadTomlFile(simConfigPath))
 
         return simConfigs

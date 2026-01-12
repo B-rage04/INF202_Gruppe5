@@ -4,10 +4,9 @@ import numpy as np
 
 
 class Cell(ABC):
-
     """
     General parent class for all cell types
-    
+
     stores all values each cell needs
     """
 
@@ -15,12 +14,12 @@ class Cell(ABC):
         self.type = None
         self.id = cell_id
         self.cords = [msh.points[i] for i in cell_points]
-        self.midpoint = self._find_midpoint()
-        self.area = self._find_area()
+        self.midpoint = self.findMidpoint()
+        self.area = self.findArea()
         self.scaledNormal = []
         self.ngb = []
-        self.flow = self._find_flow()
-        self.oil = self._find_oil()
+        self.flow = self.findFlow()
+        self.oil = self.findOil()
         self.newOil = []
 
     @property
@@ -57,7 +56,7 @@ class Cell(ABC):
     @property
     def area(self):
         if self._area is None:
-            self._area = self.find_area()
+            self._area = self.findArea()
         return self._area
 
     @property
@@ -81,7 +80,7 @@ class Cell(ABC):
     @property
     def flow(self):
         if self._flow is None:
-            self._flow = np.array(self.find_flow())
+            self._flow = np.array(self.findFlow())
         return self._flow
 
     @flow.setter
@@ -91,7 +90,7 @@ class Cell(ABC):
     @property
     def oil(self):
         if self._oil is None:
-            self._oil = self.find_oil()
+            self._oil = self.findOil()
         return self._oil
 
     @oil.setter
@@ -99,15 +98,12 @@ class Cell(ABC):
         self._oil = value
 
     @abstractmethod
-    def _find_area(self):
+    def findArea(self):
         pass
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
-    def _find_midpoint(self):  # TODO: get midpoint
-        """
-        Find the midpoint of cell
-        """
+    def findMidpoint(self):  # TODO: get midpoint
         if len(self.cords) == 0:
             return np.array([0, 0, 0])
         return np.mean(self.cords, axis=0)
