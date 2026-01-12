@@ -8,7 +8,7 @@ class Triangle(Cell):
         super().__init__(msh, cell_points, cell_id)
         self.type = "triangle"
 
-    def find_area(self):
+    def findArea(self):
         area = 0.5 * abs(
             (self.cords[0][0] - self.cords[2][0])
             * (self.cords[1][1] - self.cords[0][1])
@@ -17,9 +17,9 @@ class Triangle(Cell):
         )
         return area
 
-    def find_scaled_normales(self, all_cells=None):
+    def findScaledNormales(self, allCells=None):
         """Compatibility wrapper for callers using snake_case name."""
-        return self.findScaledNormales(all_cells)
+        return self.findScaledNormales(allCells)
 
     def findScaledNormales(self, allCells=None):
         if not allCells or not self.ngb:
@@ -29,20 +29,20 @@ class Triangle(Cell):
         cellsDict = {cell.id: cell for cell in allCells}
         walls = []
 
-        for ngb_id in self.ngb:
-            if ngb_id not in cellsDict:
+        for ngbId in self.ngb:
+            if ngbId not in cellsDict:
                 continue
 
-            ngb_cell = cellsDict[ngb_id]
+            ngbCell = cellsDict[ngbId]
 
             # prefer cached point sets when available
-            self_points = getattr(self, "_pointSet", None) or set(
+            selfPoints = getattr(self, "_pointSet", None) or set(
                 tuple(p) for p in self.cords
             )
-            ngb_points = getattr(ngb_cell, "_pointSet", None) or set(
-                tuple(p) for p in ngb_cell.cords
+            ngbPoints = getattr(ngbCell, "_pointSet", None) or set(
+                tuple(p) for p in ngbCell.cords
             )
-            sharedPoints = list(self_points & ngb_points)
+            sharedPoints = list(selfPoints & ngbPoints)
 
             if len(sharedPoints) >= 2:
                 A = np.array(sharedPoints[0])

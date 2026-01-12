@@ -8,12 +8,12 @@ class Cell(ABC):
         self.type = None
         self.id = cell_id
         self.cords = [msh.points[i] for i in cell_points]
-        self.midpoint = self.find_midpoint()
-        self.area = self.find_area()
+        self.midpoint = self.findMidpoint()
+        self.area = self.findArea()
         self.scaledNormal = []
         self.ngb = []
-        self.flow = self.find_flow()
-        self.oil = self.find_oil()
+        self.flow = self.findFlow()
+        self.oil = self.findOil()
         self.newOil = []
 
     @property
@@ -50,7 +50,7 @@ class Cell(ABC):
     @property
     def area(self):
         if self._area is None:
-            self._area = self.find_area()
+            self._area = self.findArea()
         return self._area
 
     @property
@@ -74,7 +74,7 @@ class Cell(ABC):
     @property
     def flow(self):
         if self._flow is None:
-            self._flow = np.array(self.find_flow())
+            self._flow = np.array(self.findFlow())
         return self._flow
 
     @flow.setter
@@ -84,7 +84,7 @@ class Cell(ABC):
     @property
     def oil(self):
         if self._oil is None:
-            self._oil = self.find_oil()
+            self._oil = self.findOil()
         return self._oil
 
     @oil.setter
@@ -92,12 +92,12 @@ class Cell(ABC):
         self._oil = value
 
     @abstractmethod
-    def find_area(self):
+    def findArea(self):
         pass
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
-    def find_midpoint(self):  # TODO: get midpoint
+    def findMidpoint(self):  # TODO: get midpoint
         if len(self.cords) == 0:
             return np.array([0, 0, 0])
         return np.mean(self.cords, axis=0)
@@ -112,7 +112,7 @@ class Cell(ABC):
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
-    def find_ngb(self, allCells):
+    def findNGB(self, allCells):
 
         for other in allCells:
             if other.id == self.id:
@@ -128,23 +128,23 @@ class Cell(ABC):
                 if self.id not in other._ngb:
                     other._ngb.append(self.id)
 
-    def find_flow(self):  # TODO: add ability to set flow function
+    def findFlow(self):  # TODO: add ability to set flow function
         return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
 
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
-    def find_oil(self):  # TODO: add ability to set oil function
+    def findOil(self):  # TODO: add ability to set oil function
         return np.exp(
             -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
         )
 
     def flux(self, ngb):  # TODO: add ability to set flux function
-        flow_avg = (self.flow + ngb.flow) / 2
-        if np.dot(flow_avg, self.scaledNormal) > 0:
-            return self.oil * np.dot(flow_avg, self.scaledNormal)
+        flowAvg = (self.flow + ngb.flow) / 2
+        if np.dot(flowAvg, self.scaledNormal) > 0:
+            return self.oil * np.dot(flowAvg, self.scaledNormal)
         else:
-            return ngb.oil * np.dot(flow_avg, self.scaledNormal)
+            return ngb.oil * np.dot(flowAvg, self.scaledNormal)
 
     def toDict(self):
         return {

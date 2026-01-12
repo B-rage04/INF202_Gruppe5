@@ -10,8 +10,8 @@ def main(
     """Load global config and run simulations defined by it."""
     config_loader = LoadTOML()
 
-    globalConfig: Dict[str, Any] = config_loader.load_toml_file(globalConfigPath)
-    simConfigs: List[Dict[str, Any]] = config_loader.load_sim_configs(globalConfig)
+    globalConfig: Dict[str, Any] = config_loader.loadTomlFile(globalConfigPath)
+    simConfigs: List[Dict[str, Any]] = config_loader.loadSimConfigs(globalConfig)
 
     videoPaths: List[str] = []
 

@@ -17,8 +17,8 @@ class Simulation:
         self._validateConfig(config)
         self._config: Dict[str, Any] = config
 
-        mesh_name = self._config["geometry"]["meshName"]
-        self._msh = Mesh(mesh_name)
+        meshName = self._config["geometry"]["meshName"]
+        self._msh = Mesh(meshName)
 
         self._visualizer = Visualizer(self._msh)
 
@@ -109,15 +109,15 @@ class Simulation:
 
     def run_sim(self, runNumber: Optional[int] = None, **kwargs) -> Optional[str]:
 
-        create_video: bool = self._config.get("video", {}).get("createVideo", False)
+        createVideo: bool = self._config.get("video", {}).get("createVideo", False)
         videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
 
-        total_steps = self._nSteps
+        totalSteps = self._nSteps
 
         self._visualizer.plotting(self.oilVals, run=runNumber, step=0, **kwargs)
 
-        with tqdm(total=total_steps, desc="Simulation progress", unit="steps") as pbar:
-            for stepIdx in range(1, total_steps + 1):
+        with tqdm(total=totalSteps, desc="Simulation progress", unit="steps") as pbar:
+            for stepIdx in range(1, totalSteps + 1):
                 self.updateOil()
                 self._currentTime = self._timeStart + stepIdx * self._dt
                 self._oilVals = self.getOilVals()
@@ -129,10 +129,10 @@ class Simulation:
                 pbar.update(1)
 
         videoPath: Optional[str] = None
-        if create_video and runNumber is not None:
+        if createVideo and runNumber is not None:
             logger.info("Creating video for run %s", runNumber)
             videoCreator = VideoCreator(fps=videoFps)
-            videoPath = videoCreator.create_video_from_run(runNumber)
+            videoPath = videoCreator.createVideoFromRun(runNumber)
             logger.info("Video created successfully: %s", videoPath)
 
         return videoPath

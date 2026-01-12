@@ -10,23 +10,23 @@ class VideoCreator:
         self.imageDir = Path(imageDir)
         self.fps = fps
 
-    def create_video_from_run(self, run_number, outputPath=None):
-        run_dir = self.imageDir / f"run{run_number}"
+    def createVideoFromRun(self, runNumber, outputPath=None):
+        runDir = self.imageDir / f"run{runNumber}"
 
-        if not run_dir.exists():
-            raise FileNotFoundError(f"Run directory {run_dir} does not exist")
+        if not runDir.exists():
+            raise FileNotFoundError(f"Run directory {runDir} does not exist")
 
         image_files = sorted(
-            run_dir.glob("oil_step*.png"), key=lambda x: int(x.stem.split("step")[1])
+            runDir.glob("oilStep*.png"), key=lambda x: int(x.stem.split("Step")[1])
         )
 
         if not image_files:
-            raise ValueError(f"No images found in {run_dir}")
+            raise ValueError(f"No images found in {runDir}")
 
         if outputPath is None:
             videosDir = self.imageDir.parent / "videos"
             videosDir.mkdir(parents=True, exist_ok=True)
-            outputPath = videosDir / f"run{run_number}_video.mp4"
+            outputPath = videosDir / f"run{runNumber}_video.mp4"
         else:
             outputPath = Path(outputPath)
             outputPath.parent.mkdir(parents=True, exist_ok=True)
@@ -46,24 +46,24 @@ class VideoCreator:
         videoWriter.release()
         return str(outputPath)
 
-    def create_video_from_images(self, imagePattern, outputPath):
-        image_files = sorted(self.imageDir.glob(imagePattern))
+    def createVideoFromImages(self, imagePattern, outputPath):
+        imageFiles = sorted(self.imageDir.glob(imagePattern))
 
-        if not image_files:
+        if not imageFiles:
             raise ValueError(f"No images found matching pattern {imagePattern}")
 
         outputPath = Path(outputPath)
         outputPath.parent.mkdir(parents=True, exist_ok=True)
 
-        first_image = cv2.imread(str(image_files[0]))
-        height, width, _ = first_image.shape
+        firstImage = cv2.imread(str(imageFiles[0]))
+        height, width, _ = firstImage.shape
 
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         videoWriter = cv2.VideoWriter(
             str(outputPath), fourcc, self.fps, (width, height)
         )
 
-        for imageFile in image_files:
+        for imageFile in imageFiles:
             frame = cv2.imread(str(imageFile))
             if frame is not None:
                 videoWriter.write(frame)
@@ -84,8 +84,8 @@ class VideoCreator:
                 raise FileNotFoundError(f"Run directory {runDir} does not exist")
 
             images = sorted(
-                runDir.glob("oil_step*.png"),
-                key=lambda x: int(x.stem.split("step")[1]),
+                runDir.glob("oilStep*.png"),
+                key=lambda x: int(x.stem.split("Step")[1]),
             )
             allRunImages.append(images)
             maxSteps = max(maxSteps, len(images))
@@ -106,7 +106,7 @@ class VideoCreator:
         rows = (numRuns + cols - 1) // cols
 
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        video_writer = cv2.VideoWriter(
+        videoWriter = cv2.VideoWriter(
             str(outputPath), fourcc, self.fps, (width * cols, height * rows)
         )
 
@@ -123,7 +123,7 @@ class VideoCreator:
                         col * width : (col + 1) * width,
                     ] = frame
 
-            video_writer.write(combinedFrame)
+            videoWriter.write(combinedFrame)
 
-        video_writer.release()
+        videoWriter.release()
         return str(outputPath)

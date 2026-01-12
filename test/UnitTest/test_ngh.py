@@ -14,7 +14,7 @@ def triangles():
 
     cells = [t0, t1]
     for c in cells:
-        c.find_ngb(cells)
+        c.findNGB(cells)
 
     return cells
 

@@ -40,14 +40,14 @@ class Visualizer:
                 runDir = outDir / f"run{run}"
                 runDir.mkdir(parents=True, exist_ok=True)
                 if step is not None:
-                    outPath = runDir / f"oil_step{step}.png"
+                    outPath = runDir / f"oilStep{step}.png"
                 else:
-                    outPath = runDir / f"oil_run{run}.png"
+                    outPath = runDir / f"oilRun{run}.png"
             else:
                 nextnr = 0
-                while (outDir / f"oil_{nextnr}.png").exists():
+                while (outDir / f"oil/{nextnr}.png").exists():
                     nextnr += 1
-                outPath = outDir / f"oil_{nextnr}.png"
+                outPath = outDir / f"oil/{nextnr}.png"
 
             plt.savefig(outPath)
             plt.close(fig)

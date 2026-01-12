@@ -15,7 +15,7 @@ class Mesh:
         if not os.path.exists(file):
             raise FileNotFoundError(f"Mesh file not found: {file}")
 
-        self._msh: Any = self._read_mesh(file)
+        self._msh: Any = self._readMesh(file)
 
         self._points: List[Any] = getattr(self._msh, "points", [])
         self._triangles: List[Any] = getattr(self._msh, "cells_dict", {}).get(
@@ -23,7 +23,7 @@ class Mesh:
         )
         self._cells = CellFactory(self._msh)
 
-    def _read_mesh(self, file: str) -> Any:
+    def _readMesh(self, file: str) -> Any:
         try:
             import meshio
 
@@ -54,7 +54,7 @@ class Mesh:
         if not os.path.exists(file):
             raise FileNotFoundError(f"Mesh file not found: {file}")
 
-        self._msh = self._read_mesh(file)
+        self._msh = self._readMesh(file)
         self._points = getattr(self._msh, "points", [])
         self._triangles = getattr(self._msh, "cells_dict", {}).get("triangle", [])
         self._cells = CellFactory(self._msh)
