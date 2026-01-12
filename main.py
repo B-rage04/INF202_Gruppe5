@@ -15,7 +15,5 @@ simConfig = ConfigLoader.load_sim_configs(globalConfig)
 sim = Simulation(simConfig[0])  # TODO velge riktig sim config hvis flere
 
 print("Running simulation...")
-sim.run_sim(
-    run_number=2, create_video=True, video_fps=60
-)  # TODO vise barre enkelte graffer
+sim.run_sim()  # run_number auto-generated
 print("Simulation complete.")

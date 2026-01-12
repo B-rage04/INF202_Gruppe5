@@ -2,12 +2,14 @@
 [settings]
 nSteps = 500 # Number of Total steps
 tStart = 0.0 # Start time of simulation
-tEnd = 0.5 # End time of simulation
+tEnd = 2 # End time of simulation
 
 [geometry]
 meshName = "Exsample/Geometry/bay.msh" # Path to mesh file
 borders = [[0, 0.45], [0, 0.2]] # Borders for Fish [x_min, y_min], [x_max, y_max]
+ship = [0.45, 0.4] # Oil collection ship position [x, y]
+source = [0.35, 0.45] # Oil source/injection position [x, y] (optional)
 
 [IO]
 logName = "log"
-writeFrequency = 20
+writeFrequency = 1
