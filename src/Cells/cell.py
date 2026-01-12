@@ -56,7 +56,7 @@ class Cell(ABC):
     @property
     def scaledNormal(self):
         if self._scaledNormal is None:
-            val = self.find_scaled_normales()
+            val = self.findScaledNormales()
             # ensure numpy array
             self._scaledNormal = np.array(val) if val is not None else np.zeros(3)
         return self._scaledNormal
@@ -105,7 +105,7 @@ class Cell(ABC):
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
-    def find_scaled_normales(self, all_cells=None):  # TODO: all_cells?
+    def findScaledNormales(self, all_cells=None):  # TODO: all_cells?
         self.scaledNormal = []
         return self.scaledNormal
 
@@ -170,4 +170,3 @@ class Cell(ABC):
             self.oil = data["oil"]
         if "newOil" in data:
             self.newOil = list(data["newOil"])
-

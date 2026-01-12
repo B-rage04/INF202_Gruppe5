@@ -18,31 +18,38 @@ class Triangle(Cell):
         return area
 
     def find_scaled_normales(self, all_cells=None):
-        if not all_cells or not self.ngb:
+        """Compatibility wrapper for callers using snake_case name."""
+        return self.findScaledNormales(all_cells)
+
+    def findScaledNormales(self, allCells=None):
+        if not allCells or not self.ngb:
             self._scaledNormal = []
             return self._scaledNormal
 
-        cells_dict = {cell.id: cell for cell in all_cells}
+        cellsDict = {cell.id: cell for cell in allCells}
         walls = []
 
         for ngb_id in self.ngb:
-            if ngb_id not in cells_dict:
+            if ngb_id not in cellsDict:
                 continue
 
-            ngb_cell = cells_dict[ngb_id]
+            ngb_cell = cellsDict[ngb_id]
 
-            self_points = set(
+            # prefer cached point sets when available
+            self_points = getattr(self, "_pointSet", None) or set(
                 tuple(p) for p in self.cords
-            )  # TODO: use _pointSet since we already have it
-            ngb_points = set(tuple(p) for p in ngb_cell.cords)
-            shared_points = list(self_points & ngb_points)
+            )
+            ngb_points = getattr(ngb_cell, "_pointSet", None) or set(
+                tuple(p) for p in ngb_cell.cords
+            )
+            sharedPoints = list(self_points & ngb_points)
 
-            if len(shared_points) >= 2:
-                A = np.array(shared_points[0])
-                B = np.array(shared_points[1])
+            if len(sharedPoints) >= 2:
+                A = np.array(sharedPoints[0])
+                B = np.array(sharedPoints[1])
                 walls.append((A, B))
 
-        scaled_normals = []
+        scaledNormals = []
         for A, B in walls:
             d = np.array([B[0] - A[0], B[1] - A[1]])
             n = np.array([d[1], -d[0]])
@@ -51,7 +58,7 @@ class Triangle(Cell):
             if np.dot(n, v) > 0:
                 n = -n
 
-            scaled_normals.append(n)
+            scaledNormals.append(n)
 
-        self._scaledNormal = scaled_normals
+        self._scaledNormal = scaledNormals
         return self._scaledNormal

@@ -25,7 +25,7 @@ class TestFindScaledNormales:
         """Test that normals are empty when no neighbors exist."""
         msh = MockMesh()
         tri = Triangle(msh, [0, 1, 2], cell_id=0)
-        result = tri.find_scaled_normales(all_cells=[tri])
+        result = tri.findScaledNormales(allCells=[tri])
 
         assert result == [], "Should return empty list when no neighbors"
         assert tri.scaledNormal == [], "scaledNormal should be empty"
@@ -39,7 +39,7 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2, tri3]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         assert len(tri1.scaledNormal) == len(
             tri1.ngb
@@ -53,7 +53,7 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
 
@@ -87,7 +87,7 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
 
@@ -123,7 +123,7 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
 
@@ -160,7 +160,7 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2, tri3]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         # Verify that each normal corresponds to its neighbor in order
         assert len(tri1.scaledNormal) == len(
@@ -185,7 +185,7 @@ class TestFindScaledNormales:
         """Test that Line cells return empty normals."""
         msh = MockMesh()
         line = Line(msh, [0, 1], cell_id=0)
-        result = line.find_scaled_normales(all_cells=[line])
+        result = line.findScaledNormales(all_cells=[line])
 
         assert result == [], "Line cell should return empty normals"
         assert line.scaledNormal == [], "Line cell scaledNormal should be empty"
@@ -199,8 +199,8 @@ class TestFindScaledNormales:
         all_cells = [tri1, tri2]
         tri1.find_ngb(all_cells)
         tri2.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
-        tri2.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
+        tri2.findScaledNormales(all_cells)
 
         # Each should have exactly one neighbor and one normal
         assert len(tri1.ngb) == 1, f"tri1 should have 1 neighbor, got {len(tri1.ngb)}"
