@@ -4,11 +4,11 @@ from src.Cells.cell import Cell
 
 
 class Quad(Cell):  # TODO:see mesh.py
-    def __init__(self, msh, cell_points, cell_id):
-        super().__init__(msh, cell_points, cell_id)
+    def __init__(self, msh, cellPoints, cellId):
+        super().__init__(msh, cellPoints, cellId)
         self.type = "quad"
 
-    def find_area(self):
+    def findArea(self):
         # polygon area (shoelace) on the xy components
         pts = np.array(self.cords)[:, :2]
         x = pts[:, 0]

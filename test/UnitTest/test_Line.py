@@ -11,7 +11,7 @@ def test_line_initialization_and_area():
     msh = DummyMesh()
     ln = Line(msh, [0, 1], 0)
     assert ln.type == "line"
-    assert ln.find_area() is None
+    assert ln.findArea() is None
     assert ln.area is None
 
 

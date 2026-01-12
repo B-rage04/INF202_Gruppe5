@@ -14,7 +14,7 @@ def triangles():
 
     cells = [t0, t1]
     for c in cells:
-        c.find_ngb(cells)
+        c.findNGB(cells)
 
     return cells
 
@@ -28,5 +28,5 @@ def test_triangles_are_neighbors(triangles):
     assert t0.ngb.count(t1.id) == 1
     assert t1.ngb.count(t0.id) == 1
 
-    assert hasattr(t0, "_point_set") and isinstance(t0._point_set, set)
-    assert hasattr(t1, "_point_set") and isinstance(t1._point_set, set)
+    assert hasattr(t0, "_pointSet") and isinstance(t0._pointSet, set)
+    assert hasattr(t1, "_pointSet") and isinstance(t1._pointSet, set)

@@ -1,6 +1,7 @@
 from src.Cells.line import Line
 from src.Cells.triangle import Triangle
 
+
 class Cell_factory:
     def __init__(self):
         self.cell_types = {"triangle": Triangle, "line": Line}
@@ -11,8 +12,7 @@ class Cell_factory:
 
     def __call__(self, cell):
         key = cell.type
-        return self.cell_types 
-
+        return self.cell_types
 
 
 def Cell_factory(msh):

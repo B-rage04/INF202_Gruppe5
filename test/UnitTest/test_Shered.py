@@ -51,12 +51,12 @@ def test_triangle_coordinates(triangle):
 
 
 class DummyVisualizer:
-    def __init__(self, msh):
-        self.msh = msh
+    def __init__(self, mesh):
+        self.mesh = mesh
         self.last_plotted = None
 
-    def plotting(self, oil_vals, run=None, step=None, **kwargs):
-        self.last_plotted = list(oil_vals)
+    def plotting(self, oilVals, run=None, step=None, **kwargs):
+        self.last_plotted = list(oilVals)
 
 
 class MockMeshTriangles:

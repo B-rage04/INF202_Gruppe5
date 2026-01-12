@@ -4,11 +4,15 @@ from src.Cells.cell import Cell
 
 
 class Triangle(Cell):
+    """
+    Cell of type "triangle"
+    """
+
     def __init__(self, msh, cell_points, cell_id):
         super().__init__(msh, cell_points, cell_id)
         self.type = "triangle"
 
-    def find_area(self):
+    def findArea(self):
         area = 0.5 * abs(
             (self.cords[0][0] - self.cords[2][0])
             * (self.cords[1][1] - self.cords[0][1])
@@ -17,41 +21,48 @@ class Triangle(Cell):
         )
         return area
 
-    def find_scaled_normales(self, all_cells=None):
-        if not all_cells or not self.ngb:
-            self.scaled_normal = []
-            return self.scaled_normal
+    def findScaledNormales(self, allCells=None):
+        """Compatibility wrapper for callers using snake_case name."""
+        return self.findScaledNormales(allCells)
 
-        cells_dict = {cell.id: cell for cell in all_cells}
+    def findScaledNormales(self, allCells=None):
+        if not allCells or not self.ngb:
+            self._scaledNormal = []
+            return self._scaledNormal
+
+        cellsDict = {cell.id: cell for cell in allCells}
         walls = []
 
-        for ngb_id in self.ngb:
-            if ngb_id not in cells_dict:
+        for ngbId in self.ngb:
+            if ngbId not in cellsDict:
                 continue
 
-            ngb_cell = cells_dict[ngb_id]
+            ngbCell = cellsDict[ngbId]
 
-            self_points = set(
+            # prefer cached point sets when available
+            selfPoints = getattr(self, "_pointSet", None) or set(
                 tuple(p) for p in self.cords
-            )  # TODO: use _point_set since we already have it
-            ngb_points = set(tuple(p) for p in ngb_cell.cords)
-            shared_points = list(self_points & ngb_points)
+            )
+            ngbPoints = getattr(ngbCell, "_pointSet", None) or set(
+                tuple(p) for p in ngbCell.cords
+            )
+            sharedPoints = list(selfPoints & ngbPoints)
 
-            if len(shared_points) >= 2:
-                A = np.array(shared_points[0])
-                B = np.array(shared_points[1])
+            if len(sharedPoints) >= 2:
+                A = np.array(sharedPoints[0])
+                B = np.array(sharedPoints[1])
                 walls.append((A, B))
 
-        scaled_normals = []
+        scaledNormals = []
         for A, B in walls:
             d = np.array([B[0] - A[0], B[1] - A[1]])
             n = np.array([d[1], -d[0]])
-            v = np.array([self.midpoint[0] - A[0], self.midpoint[1] - A[1]])
+            v = np.array([self.midPoint[0] - A[0], self.midPoint[1] - A[1]])
 
             if np.dot(n, v) > 0:
                 n = -n
 
-            scaled_normals.append(n)
+            scaledNormals.append(n)
 
-        self.scaled_normal = scaled_normals
-        return self.scaled_normal
+        self._scaledNormal = scaledNormals
+        return self._scaledNormal

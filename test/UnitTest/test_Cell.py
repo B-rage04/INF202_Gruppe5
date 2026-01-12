@@ -17,14 +17,14 @@ def triangle():
     return Triangle(msh, msh.triangles[0], 0)
 
 
-def test_flow(triangle):
-    cx, cy = triangle.midpoint[0], triangle.midpoint[1]
-    expected_flow = np.array([cy - cx * 0.2, -cx])
-    npt.assert_allclose(triangle.flow, expected_flow)
+def testFlow(triangle):
+    cx, cy = triangle.midPoint[0], triangle.midPoint[1]
+    expectedFlow = np.array([cy - cx * 0.2, -cx])
+    npt.assert_allclose(triangle.flow, expectedFlow)
 
 
-def test_oil(triangle):
-    center = triangle.midpoint
+def testOil(triangle):
+    center = triangle.midPoint
     reference = np.array([0.35, 0.45, 0.0])
-    expected_oil = np.exp(-(np.linalg.norm(center - reference) ** 2) / 0.01)
-    assert triangle.oil == pytest.approx(expected_oil)
+    expectedOil = np.exp(-(np.linalg.norm(center - reference) ** 2) / 0.01)
+    assert triangle.oil == pytest.approx(expectedOil)

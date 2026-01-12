@@ -11,9 +11,9 @@ class FakeCell:
         self.oil = oil
         self.area = area
         self.flow = np.array([1.0, 0.0])
-        self.scaled_normal = [np.array([1.0, 0.0])]
+        self.scaledNormal = [np.array([1.0, 0.0])]
         self.ngb = []
-        self.new_oil = []
+        self.newOil = []
 
 class FakeMesh:
     def __init__(self):
@@ -51,9 +51,9 @@ def test_sim_init(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
-    assert  sim.dt == 1.0
-    assert sim.CurrentStep == 0
-    assert len(sim.oil_vals) == 2
+    assert sim.dt == 1.0
+    assert sim.currentTime == 0.0
+    assert len(sim.oilVals) == 2
 
 
 def test_get_oil_vals(monkeypatch, config):
@@ -69,9 +69,9 @@ def test_flux_upwind(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
 
     sim = Simulation(config)
-    c0, c1 = sim.msh.cells
+    c0, c1 = sim.mesh.cells
 
-    f = sim.flux(0, c0, 1)
+    f = sim._computeFlux(0, c0, 1)
     assert f == c0.oil * 1.0
 
 def test_flux_downwind(monkeypatch, config):
@@ -79,11 +79,11 @@ def test_flux_downwind(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
 
     sim = Simulation(config)
-    c0, c1 = sim.msh.cells
+    c0, c1 = sim.mesh.cells
 
-    c0.scaled_normal = [np.array([-1.0, 0.0])]
+    c0.scaledNormal = [np.array([-1.0, 0.0])]
 
-    f = sim.flux(0, c0, 1)
+    f = sim._computeFlux(0, c0, 1)
     assert f == c1.oil * -1.0
 
 
@@ -92,10 +92,10 @@ def test_update_oil_changes_oil(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
 
     sim = Simulation(config)
-    before = [cell.oil for cell in sim.msh.cells]
+    before = [cell.oil for cell in sim.mesh.cells]
 
-    sim.update_oil()
-    after = [cell.oil for cell in sim.msh.cells]
+    sim.updateOil()
+    after = [cell.oil for cell in sim.mesh.cells]
 
     assert before != after
 
@@ -111,13 +111,9 @@ def test_run_sim_calls_plotting(monkeypatch, config):
 
 
     sim = Simulation(config)
-    sim.run_sim(run_number=1, create_video=False)
+    sim.run_sim(runNumber=1, createVideo=False)
 
     assert mock_vs.plotting.called
-
-
-<<<<<<< HEAD
-    assert True  # TODO fix test
 
 
 def test_ship_sink_reduces_oil():
@@ -128,7 +124,7 @@ def test_ship_sink_reduces_oil():
     config = {
         "settings": {"nSteps": 1, "tStart": 0.0, "tEnd": 0.5},
         "geometry": {
-            "meshName": "Exsample/Geometry/bay.msh",
+            "meshName": "Example/Geometry/bay.msh",
             "borders": [[0, 0.45], [0, 0.2]],
             "ship": [0.35, 0.45],
         },
@@ -140,10 +136,10 @@ def test_ship_sink_reduces_oil():
     # Identify cells within ship radius
     ship_xy = np.array(config["geometry"]["ship"])
     in_radius_ids = []
-    for cell in sim.msh.cells:
+    for cell in sim.mesh.cells:
         if cell.type != "triangle":
             continue
-        d = np.linalg.norm(np.array([cell.midpoint[0], cell.midpoint[1]]) - ship_xy)
+        d = np.linalg.norm(np.array([cell.midPoint[0], cell.midPoint[1]]) - ship_xy)
         if d <= 0.1:
             in_radius_ids.append(cell.id)
 
@@ -151,11 +147,9 @@ def test_ship_sink_reduces_oil():
     assert len(in_radius_ids) > 0
 
     # Snapshot oil, update once, and check reduced values in radius
-    before = {cell.id: cell.oil for cell in sim.msh.cells if cell.type == "triangle"}
-    sim.update_oil()
-    after = {cell.id: cell.oil for cell in sim.msh.cells if cell.type == "triangle"}
+    before = {cell.id: cell.oil for cell in sim.mesh.cells if cell.type == "triangle"}
+    sim.updateOil()
+    after = {cell.id: cell.oil for cell in sim.mesh.cells if cell.type == "triangle"}
 
     reduced = [after[i] < before[i] for i in in_radius_ids]
     assert any(reduced), "Expected some oil reduction within ship radius"
-=======
->>>>>>> tests_video_branch

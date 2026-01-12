@@ -57,25 +57,25 @@ class Visualizer:
             pass
 
         if filepath:
-            out_dir = Path(filepath)
-            out_dir.mkdir(parents=True, exist_ok=True)
+            outDir = Path(filepath)
+            outDir.mkdir(parents=True, exist_ok=True)
 
             if run is not None:
-                run_dir = out_dir / f"run{run}"
-                run_dir.mkdir(parents=True, exist_ok=True)
+                runDir = outDir / f"run{run}"
+                runDir.mkdir(parents=True, exist_ok=True)
                 if step is not None:
-                    out_path = run_dir / f"oil_step{step}.png"
+                    outPath = runDir / f"oil_step{step}.png"
                 else:
-                    out_path = run_dir / f"oil_run{run}.png"
+                    outPath = runDir / f"oilRun{run}.png"
             else:
                 nextnr = 0
-                while (out_dir / f"oil_{nextnr}.png").exists():
+                while (outDir / f"oil/{nextnr}.png").exists():
                     nextnr += 1
-                out_path = out_dir / f"oil_{nextnr}.png"
+                outPath = outDir / f"oil/{nextnr}.png"
 
-            plt.savefig(out_path)
+            plt.savefig(outPath)
             plt.close(fig)
-            return str(out_path)
+            return str(outPath)
         else:
             plt.show()
             plt.close(fig)

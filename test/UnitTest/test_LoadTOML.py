@@ -19,7 +19,7 @@ value = 42
 """
     write_toml(toml_path, toml_content)
 
-    cfg = LoadTOML().load_toml_file(str(toml_path))
+    cfg = LoadTOML().loadTomlFile(str(toml_path))
     assert "settings" in cfg
     assert cfg["settings"]["name"] == "test"
     assert cfg["settings"]["value"] == 42
@@ -36,7 +36,7 @@ desc = "single"
     write_toml(sim_file, sim_content)
 
     sysConfig = {"settings": {"pathToSimConfig": str(sim_file)}}
-    sims = LoadTOML().load_sim_configs(sysConfig)
+    sims = LoadTOML().loadSimConfigs(sysConfig)
     assert isinstance(sims, list) and len(sims) == 1
     assert sims[0]["sim"]["id"] == 1
 
@@ -50,7 +50,7 @@ def test_load_sim_config_with_directory(tmp_path):
     write_toml(p, "[sim]\nid = 42\n")
 
     sysConfig = {"settings": {"pathToSimConfig": str(d)}}
-    sims = LoadTOML().load_sim_configs(sysConfig)
+    sims = LoadTOML().loadSimConfigs(sysConfig)
 
     assert isinstance(sims, list) and len(sims) == 1
     assert sims[0]["sim"]["id"] == 42
@@ -65,7 +65,7 @@ def test_load_sim_configs_with_directory(tmp_path):
         write_toml(p, f"[sim]\nid = {i}\n")
 
     sysConfig = {"settings": {"pathToSimConfig": str(d)}}
-    sims = LoadTOML().load_sim_configs(sysConfig)
+    sims = LoadTOML().loadSimConfigs(sysConfig)
     # should have 3 configs (ordering of os.listdir is filesystem-dependent)
     assert isinstance(sims, list) and len(sims) == 3
     ids = {s["sim"]["id"] for s in sims}
