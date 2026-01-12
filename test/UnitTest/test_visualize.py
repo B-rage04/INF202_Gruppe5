@@ -70,14 +70,8 @@ def test_v_persist(visualizer, tmp_path):
 
 def test_plotting_file_incr(visualizer, tmp_path):
     oil = [0.1]
-
     (tmp_path / "oil_0.png").write_text("")
     (tmp_path / "oil_1.png").write_text("")
-    filepath = "test_images"
-
-    if not os.path.exists(filepath):
-        os.makedirs(filepath)
-
     result = visualizer.plotting(oil, filepath=tmp_path)
     assert "oil_2.png" in result
 

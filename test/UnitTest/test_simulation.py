@@ -115,4 +115,39 @@ def test_run_sim_calls_plotting(monkeypatch, config):
 
     assert mock_vs.plotting.called
 
+def test_run_sim_creates_video(monkeypatch, config):
+    monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
 
+    mock_vs = MagicMock()
+    monkeypatch.setattr("src.simulation.Visualizer", lambda _: mock_vs)
+
+    mock_video = MagicMock()
+    monkeypatch.setattr("src.simulation.VideoCreator", lambda fps: mock_video)
+    mock_video.create_video_from_run.return_value = "video.mp4"
+
+    monkeypatch.setattr("src.simulation.tqdm", DummyTqdm)
+
+    sim = Simulation(config)
+    sim.run_sim(run_number=1, create_video=True)
+
+    assert mock_video.create_video_from_run.called
+
+
+def test_update_oil_warn(monkeypatch, config, capsys):
+    class BadCell(FakeCell):
+        def __init__(self, cid, oil):
+            super().__init__(cid, oil)
+            self.new_oil = None  # trigger the warning
+
+    class BadMesh(FakeMesh):
+        def __init__(self):
+            self.cells = [BadCell(0, 1.0)]
+
+    monkeypatch.setattr("src.simulation.Mesh", lambda _: BadMesh())
+    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+
+    sim = Simulation(config)
+    sim.update_oil()
+
+    captured = capsys.readouterr()
+    assert "Warning: Cell, 0, was None" in captured.out
