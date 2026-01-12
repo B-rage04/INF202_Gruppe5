@@ -5,7 +5,7 @@ from src.simulation import Simulation
 
 
 def main(
-    globalConfigPath: str = "Exsample/Globalcofig/SysConfig.toml", **kwargs: Any
+    globalConfigPath: str = "Example/Globalcofig/SysConfig.toml", **kwargs: Any
 ) -> None:
     """Load global config and run simulations defined by it."""
     config_loader = LoadTOML()

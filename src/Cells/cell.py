@@ -15,13 +15,15 @@ class Cell(ABC):
     def __init__(self, msh, cell_points, cell_id):
         self.type = None
         self.id = cell_id
-        self.cords = [msh.points[i] for i in cell_points]
-        self.midpoint = self.findMidpoint()
-        self.area = self.findArea()
-        self.scaledNormal = []
-        self.ngb = []
-        self.flow = self.findFlow()
-        self.oil = self.findOil()
+        # set backing fields directly to avoid invoking property setters
+        self._cords = [msh.points[i] for i in cell_points]
+        self._midPoint = self.findMidpoint()
+        self._area = self.findArea()
+        self._scaledNormal = None
+        self._pointSet = None
+        self._ngb = []
+        self._flow = np.array(self.findFlow())
+        self._oil = self.findOil()
         self.newOil = []
 
     @property
@@ -114,37 +116,41 @@ class Cell(ABC):
         # TODO: else calculate it and set and return it
 
     def findScaledNormales(self, all_cells=None):  # TODO: all_cells?
-        self.scaledNormal = []
-        return self.scaledNormal
+        self._scaledNormal = []
+        return self._scaledNormal
 
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
     def findNGB(self, allCells):
-
         for other in allCells:
             if other.id == self.id:
                 continue
             otherPointSet = getattr(other, "_pointSet", None)
             if otherPointSet is None:
                 otherPointSet = set(tuple(p) for p in other.cords)
-                other.pointSet = otherPointSet
+                other._pointSet = otherPointSet
+            # ensure this cell has a point set cached
+            selfPointSet = getattr(self, "_pointSet", None)
+            if selfPointSet is None:
+                self._pointSet = set(tuple(p) for p in self.cords)
+                selfPointSet = self._pointSet
 
-            if len(self._pointSet & otherPointSet) >= 2:
+            if len(selfPointSet & otherPointSet) >= 2:
                 if other.id not in self._ngb:
                     self._ngb.append(other.id)
                 if self.id not in other._ngb:
                     other._ngb.append(self.id)
 
     def findFlow(self):  # TODO: add ability to set flow function
-        return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
+        return np.array([self.midPoint[1] - self.midPoint[0] * 0.2, -self.midPoint[0]])
 
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
     def findOil(self):  # TODO: add ability to set oil function
         return np.exp(
-            -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
+            -(np.linalg.norm(self.midPoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
         )
 
     def flux(self, ngb):  # TODO: add ability to set flux function
