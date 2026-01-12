@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 
 
 def compute_ship_sink(
@@ -15,7 +16,7 @@ def compute_ship_sink(
     ship_xy = np.array([ship_pos[0], ship_pos[1]])
     s_minus = {}
 
-    for cell in mesh.cells:
+    for cell in tqdm(mesh.cells, desc="Computing ship sink", unit="cells", leave=False):
         if getattr(cell, "type", None) != "triangle":
             continue
 
@@ -46,7 +47,7 @@ def compute_source(
     source_xy = np.array([source_pos[0], source_pos[1]])
     s_plus = {}
 
-    for cell in mesh.cells:
+    for cell in tqdm(mesh.cells, desc="Computing oil source", unit="cells", leave=False):
         if getattr(cell, "type", None) != "triangle":
             continue
 

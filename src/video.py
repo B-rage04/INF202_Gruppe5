@@ -2,6 +2,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 
 class VideoCreator:
@@ -17,7 +18,7 @@ class VideoCreator:
             raise FileNotFoundError(f"Run directory {runDir} does not exist")
 
         image_files = sorted(
-            runDir.glob("oilStep*.png"), key=lambda x: int(x.stem.split("Step")[1])
+            runDir.glob("oil_step*.png"), key=lambda x: int(x.stem.split("step")[1])
         )
 
         if not image_files:
@@ -39,7 +40,7 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width, height)
         )
 
-        for imageFile in image_files:
+        for imageFile in tqdm(image_files, desc="Creating video", unit="frames"):
             frame = cv2.imread(str(imageFile))
             videoWriter.write(frame)
 
@@ -63,7 +64,7 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width, height)
         )
 
-        for imageFile in imageFiles:
+        for imageFile in tqdm(imageFiles, desc="Creating video from images", unit="frames"):
             frame = cv2.imread(str(imageFile))
             if frame is not None:
                 videoWriter.write(frame)
@@ -78,7 +79,7 @@ class VideoCreator:
         allRunImages = []
         maxSteps = 0
 
-        for runNum in runNumbers:
+        for runNum in tqdm(runNumbers, desc="Loading run images", unit="runs"):
             runDir = self.imageDir / f"run{runNum}"
             if not runDir.exists():
                 raise FileNotFoundError(f"Run directory {runDir} does not exist")
@@ -110,7 +111,7 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width * cols, height * rows)
         )
 
-        for step in range(maxSteps):
+        for step in tqdm(range(maxSteps), desc="Creating comparison video", unit="frames"):
             combinedFrame = np.zeros((height * rows, width * cols, 3), dtype=np.uint8)
 
             for idx, images in enumerate(allRunImages):

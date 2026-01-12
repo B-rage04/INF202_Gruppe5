@@ -1,3 +1,4 @@
+from tqdm import tqdm
 from src.Cells.line import Line
 from src.Cells.triangle import Triangle
 
@@ -23,23 +24,23 @@ def Cell_factory(msh):
 
     # msh.cells is a list of CellBlock objects
     IDx = 0
-    for _, cell_block in enumerate(msh.cells):
+    for _, cell_block in tqdm(enumerate(msh.cells), desc="Processing cell blocks", total=len(msh.cells)):
         cell_type = cell_block.type
         cells_array = cell_block.data
         if cell_type == "triangle":
-            for cell_points in cells_array:
+            for cell_points in tqdm(cells_array, desc=f"Creating {cell_type} cells", leave=False):
                 cell_list.append(Triangle(msh, cell_points, IDx))
                 IDx += 1
         elif cell_type == "quad" or cell_type == "quadrilateral":
-            for cell_points in cells_array:
+            for cell_points in tqdm(cells_array, desc=f"Creating {cell_type} cells", leave=False):
                 cell_list.append(Quad(msh, cell_points, IDx))
                 IDx += 1
         elif cell_type == "line":
-            for cell_points in cells_array:
+            for cell_points in tqdm(cells_array, desc=f"Creating {cell_type} cells", leave=False):
                 cell_list.append(Line(msh, cell_points, IDx))
                 IDx += 1
     # find neighbors
-    for cell in cell_list:
+    for cell in tqdm(cell_list, desc="Finding cell neighbors", unit="cells"):
         cell.find_ngb(cell_list)
         cell.find_scaled_normales(cell_list)
 

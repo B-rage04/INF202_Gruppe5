@@ -137,9 +137,8 @@ class Simulation:
 
     def updateOil(self):
         # Accumulate flux contributions per cell
-        for cell in self._msh.cells:
-            if getattr(cell, "type", None) != "triangle":
-                continue
+        triangle_cells = [c for c in self._msh.cells if getattr(c, "type", None) == "triangle"]
+        for cell in triangle_cells:
             # initialize accumulation list
             cell.newOil = []
             for i, ngb in enumerate(cell.ngb):
@@ -150,9 +149,7 @@ class Simulation:
                 cell.newOil.append(delta)
 
         # Apply accumulated updates
-        for cell in self._msh.cells:
-            if getattr(cell, "type", None) != "triangle":
-                continue
+        for cell in triangle_cells:
             deltas = list(getattr(cell, "newOil", []))
             if deltas:
                 cell.oil = float(cell.oil) + float(sum(deltas))

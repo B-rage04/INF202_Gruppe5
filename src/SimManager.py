@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 
+from tqdm import tqdm
 from src.LoadTOML import LoadTOML
 from src.simulation import Simulation
 
@@ -15,7 +16,7 @@ def main(
 
     videoPaths: List[str] = []
 
-    for idx, simCFG in enumerate(simConfigs):
+    for idx, simCFG in tqdm(enumerate(simConfigs), desc="Running simulations", total=len(simConfigs), unit="sim"):
         sim = Simulation(simCFG)
 
         print(f"Running simulation {idx}...")
@@ -27,7 +28,8 @@ def main(
 
         print(f"Simulation {idx} complete.")
 
-    for path in videoPaths:
+    print("\n=== All videos created ===")
+    for path in tqdm(videoPaths, desc="Listing videos", unit="videos"):
         print(f"Video created at: {path}")
 
 
