@@ -85,7 +85,7 @@ class Simulation:
                 u_half = cell.oil
 
             # Sinks (ship) and sources per formula:
-            # u^{n+1}_i = u^{n+1/2}_i / (1 + dt*S^-_i - dt*S^+_i)
+            # u^{n+1}_i = (u^{n+1/2}_i + dt*S^+_i) / (1 + dt*S^-_i)
             s_minus = 0.0
             s_plus = 0.0
 
@@ -95,12 +95,13 @@ class Simulation:
             if getattr(self, "use_sources", True) and self.source_sink and cell.id in self.source_sink:
                 s_plus = self.source_sink[cell.id]
 
-            denom = 1.0 + self.dt * s_minus - self.dt * s_plus
+            numerator = u_half + self.dt * s_plus
+            denom = 1.0 + self.dt * s_minus
             # Prevent division by very small or negative denominators
             if denom <= 1e-12:
                 denom = 1e-12
 
-            cell.oil = u_half / denom
+            cell.oil = numerator / denom
 
     def flux(self, i, cell, ngb):
         flow_avg = (cell.flow + self.msh.cells[ngb].flow) / 2
@@ -113,6 +114,17 @@ class Simulation:
         # Allow enabling/disabling ship sink and sources from the run entry point
         self.use_ship_sink = bool(use_ship_sink)
         self.use_sources = bool(use_sources)
+        
+        # Auto-generate run_number if not provided
+        if run_number is None:
+            from pathlib import Path
+            output_dir = Path("Output/images")
+            if output_dir.exists():
+                existing_runs = [int(d.name.replace("run", "")) for d in output_dir.iterdir() if d.is_dir() and d.name.startswith("run") and d.name[3:].isdigit()]
+                run_number = max(existing_runs, default=0) + 1
+            else:
+                run_number = 1
+        
         step_idx = 0
         self.vs.plotting(self.oil_vals, run=run_number, step=step_idx, **kwargs)
 

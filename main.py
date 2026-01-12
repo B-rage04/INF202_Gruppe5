@@ -15,6 +15,5 @@ simConfig = ConfigLoader.load_sim_configs(globalConfig)
 sim = Simulation(simConfig[0])  # TODO velge riktig sim config hvis flere
 
 print("Running simulation...")
-sim.run_sim(run_number=1, use_ship_sink=True, use_sources=True)
-sim.run_sim(run_number=2, use_ship_sink=False, use_sources=False)  # neither
+sim.run_sim()  # run_number auto-generated
 print("Simulation complete.")
