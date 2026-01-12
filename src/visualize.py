@@ -18,6 +18,7 @@ class Visualizer:
         cmap = plt.cm.get_cmap("viridis")
 
         fig = plt.figure()
+        ax = plt.gca()
 
         plt.tripcolor(
             self.mesh.points[:, 0],
@@ -31,6 +32,29 @@ class Visualizer:
         )
 
         plt.colorbar(label="Oil concentration")
+
+        # Compute total oil amount (area-weighted sum over triangle cells)
+        try:
+            total_oil = 0.0
+            for cell in self.mesh.cells:
+                if getattr(cell, "type", None) == "triangle":
+                    total_oil += float(cell.oil) * float(cell.area)
+
+            # Annotate in the top-left corner of the axes
+            ax.text(
+                0.01,
+                0.99,
+                f"Total oil: {total_oil:.4f}",
+                transform=ax.transAxes,
+                ha="left",
+                va="top",
+                color="white",
+                bbox=dict(facecolor="black", alpha=0.5, boxstyle="round,pad=0.2"),
+                fontsize=10,
+            )
+        except Exception:
+            # In case of any unexpected issue, skip annotation gracefully
+            pass
 
         if filepath:
             out_dir = Path(filepath)
