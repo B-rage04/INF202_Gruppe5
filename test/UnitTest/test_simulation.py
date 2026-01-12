@@ -1,8 +1,10 @@
-import pytest
-import numpy as np
-
 from unittest.mock import MagicMock
+
+import numpy as np
+import pytest
+
 from src.simulation import Simulation
+
 
 class FakeCell:
     def __init__(self, cid, oil, area=1.0):
@@ -15,6 +17,7 @@ class FakeCell:
         self.ngb = []
         self.newOil = []
 
+
 class FakeMesh:
     def __init__(self):
         c0 = FakeCell(0, 1.0)
@@ -23,13 +26,15 @@ class FakeMesh:
         c1.ngb = [0]
         self.cells = [c0, c1]
 
+
 @pytest.fixture
 def config():
     return {
-            "geometry": {"meshName": "dummy"},
-            "settings": {"tStart": 0, "tEnd": 1, "nSteps": 1},
-            "IO": {"writeFrequency": 1}
-        }
+        "geometry": {"meshName": "dummy"},
+        "settings": {"tStart": 0, "tEnd": 1, "nSteps": 1},
+        "IO": {"writeFrequency": 1},
+    }
+
 
 # This only exists because some one specific person really wants to use tqdm
 class DummyTqdm:
@@ -48,6 +53,7 @@ class DummyTqdm:
 
 def test_sim_init(monkeypatch, config):
     from src.simulation import Simulation
+
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
@@ -73,6 +79,7 @@ def test_flux_upwind(monkeypatch, config):
 
     f = sim._computeFlux(0, c0, 1)
     assert f == c0.oil * 1.0
+
 
 def test_flux_downwind(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
@@ -109,7 +116,6 @@ def test_run_sim_calls_plotting(monkeypatch, config):
 
     monkeypatch.setattr("src.simulation.tqdm", DummyTqdm)
 
-
     sim = Simulation(config)
     sim.run_sim(runNumber=1, createVideo=False)
 
@@ -118,8 +124,9 @@ def test_run_sim_calls_plotting(monkeypatch, config):
 
 def test_ship_sink_reduces_oil():
     import numpy as np
-    from src.simulation import Simulation
+
     from src.mesh import Mesh
+    from src.simulation import Simulation
 
     config = {
         "settings": {"nSteps": 1, "tStart": 0.0, "tEnd": 0.5},

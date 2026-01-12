@@ -33,7 +33,9 @@ class Simulation:
         self._oilVals: List[float] = self.getOilVals()
 
         self.shipPos = None
-        if "geometry" in self.config and isinstance(self.config["geometry"].get("ship", None), list):
+        if "geometry" in self.config and isinstance(
+            self.config["geometry"].get("ship", None), list
+        ):
             shipCfg = self.config["geometry"].get("ship", None)
             if shipCfg is not None and len(shipCfg) >= 2:
                 self.shipPos = [float(shipCfg[0]), float(shipCfg[1])]
@@ -56,7 +58,9 @@ class Simulation:
 
         # Optional oil source configuration (injection point)
         self.sourcePos = None
-        if "geometry" in self.config and isinstance(self.config["geometry"].get("source", None), list):
+        if "geometry" in self.config and isinstance(
+            self.config["geometry"].get("source", None), list
+        ):
             sourceCfg = self.config["geometry"].get("source", None)
             if sourceCfg is not None and len(sourceCfg) >= 2:
                 self.sourcePos = [float(sourceCfg[0]), float(sourceCfg[1])]
@@ -154,7 +158,9 @@ class Simulation:
                 cell.oil = float(cell.oil) + float(sum(deltas))
                 cell.newOil.clear()
             else:
-                logger.debug("Cell %s had no pending oil updates", getattr(cell, "id", "?"))
+                logger.debug(
+                    "Cell %s had no pending oil updates", getattr(cell, "id", "?")
+                )
 
     def run_sim(self, runNumber: Optional[int] = None, **kwargs) -> Optional[str]:
 
