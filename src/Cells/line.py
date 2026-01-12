@@ -6,7 +6,7 @@ class Line(Cell):
         super().__init__(msh, cell_points, cell_id)
         self.type = "line"
 
-    def find_area(self):
+    def _find_area(self):
         return None
 
     def find_scaled_normales(self, all_cells=None):
