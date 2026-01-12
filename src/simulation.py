@@ -81,7 +81,7 @@ class Simulation:
     ) -> float:  # TODO: andre formler fra config
         neighbor = self._msh.cells[ngb]
         flowAvg = (cell.flow + neighbor.flow) / 2.0
-        dot = float(np.dot(flowAvg, cell.scaled_normal[i]))
+        dot = float(np.dot(flowAvg, cell.scaledNormal[i]))
         source_oil = cell.oil if dot > 0 else neighbor.oil
         return source_oil * dot
 

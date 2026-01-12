@@ -25,10 +25,10 @@ class TestFindScaledNormales:
         """Test that normals are empty when no neighbors exist."""
         msh = MockMesh()
         tri = Triangle(msh, [0, 1, 2], cell_id=0)
-        result = tri.find_scaled_normales(all_cells=[tri])
+        result = tri.findScaledNormales(allCells=[tri])
 
         assert result == [], "Should return empty list when no neighbors"
-        assert tri.scaled_normal == [], "scaled_normal should be empty"
+        assert tri.scaledNormal == [], "scaledNormal should be empty"
 
     def test_normals_count_matches_neighbors(self):
         """Test that number of normals equals number of neighbors."""
@@ -39,11 +39,11 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2, tri3]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
-        assert len(tri1.scaled_normal) == len(
+        assert len(tri1.scaledNormal) == len(
             tri1.ngb
-        ), f"Expected {len(tri1.ngb)} normals, got {len(tri1.scaled_normal)}"
+        ), f"Expected {len(tri1.ngb)} normals, got {len(tri1.scaledNormal)}"
 
     def test_normals_perpendicular_to_edges(self):
         """Test that each normal is perpendicular to its corresponding edge."""
@@ -53,7 +53,7 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
 
@@ -71,7 +71,7 @@ class TestFindScaledNormales:
             A = np.array(shared_pts[0], dtype=float)
             B = np.array(shared_pts[1], dtype=float)
             edge = np.array([B[0] - A[0], B[1] - A[1]])
-            normal = np.array(tri1.scaled_normal[i], dtype=float)
+            normal = np.array(tri1.scaledNormal[i], dtype=float)
 
             # Check perpendicularity: dot product should be ~0
             dot = np.dot(edge, normal)
@@ -87,7 +87,7 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
 
@@ -105,11 +105,11 @@ class TestFindScaledNormales:
 
             # Vector from edge midpoint to triangle midpoint
             to_midpoint = np.array(
-                [tri1.midpoint[0] - edge_mid[0], tri1.midpoint[1] - edge_mid[1]],
+                [tri1.midPoint[0] - edge_mid[0], tri1.midPoint[1] - edge_mid[1]],
                 dtype=float,
             )
 
-            normal = np.array(tri1.scaled_normal[i], dtype=float)
+            normal = np.array(tri1.scaledNormal[i], dtype=float)
 
             # Outward means dot product with "to_midpoint" should be <= 0
             dot = np.dot(normal, to_midpoint)
@@ -123,7 +123,7 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         cells_by_id = {c.id: c for c in all_cells}
 
@@ -141,11 +141,11 @@ class TestFindScaledNormales:
 
             # Vector from edge midpoint to neighbor midpoint
             to_neighbor = np.array(
-                [ngb.midpoint[0] - edge_mid[0], ngb.midpoint[1] - edge_mid[1]],
+                [ngb.midPoint[0] - edge_mid[0], ngb.midPoint[1] - edge_mid[1]],
                 dtype=float,
             )
 
-            normal = np.array(tri1.scaled_normal[i], dtype=float)
+            normal = np.array(tri1.scaledNormal[i], dtype=float)
 
             # Toward neighbor means dot product should be >= 0
             dot = np.dot(normal, to_neighbor)
@@ -160,12 +160,12 @@ class TestFindScaledNormales:
 
         all_cells = [tri1, tri2, tri3]
         tri1.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
 
         # Verify that each normal corresponds to its neighbor in order
-        assert len(tri1.scaled_normal) == len(
+        assert len(tri1.scaledNormal) == len(
             tri1.ngb
-        ), f"Length mismatch: normals={len(tri1.scaled_normal)}, ngb={len(tri1.ngb)}"
+        ), f"Length mismatch: normals={len(tri1.scaledNormal)}, ngb={len(tri1.ngb)}"
 
         cells_by_id = {c.id: c for c in all_cells}
 
@@ -185,10 +185,10 @@ class TestFindScaledNormales:
         """Test that Line cells return empty normals."""
         msh = MockMesh()
         line = Line(msh, [0, 1], cell_id=0)
-        result = line.find_scaled_normales(all_cells=[line])
+        result = line.findScaledNormales(all_cells=[line])
 
         assert result == [], "Line cell should return empty normals"
-        assert line.scaled_normal == [], "Line cell scaled_normal should be empty"
+        assert line.scaledNormal == [], "Line cell scaledNormal should be empty"
 
     def test_single_triangle_with_one_neighbor(self):
         """Test simple case: two triangles sharing one edge."""
@@ -199,19 +199,19 @@ class TestFindScaledNormales:
         all_cells = [tri1, tri2]
         tri1.find_ngb(all_cells)
         tri2.find_ngb(all_cells)
-        tri1.find_scaled_normales(all_cells)
-        tri2.find_scaled_normales(all_cells)
+        tri1.findScaledNormales(all_cells)
+        tri2.findScaledNormales(all_cells)
 
         # Each should have exactly one neighbor and one normal
         assert len(tri1.ngb) == 1, f"tri1 should have 1 neighbor, got {len(tri1.ngb)}"
         assert len(tri2.ngb) == 1, f"tri2 should have 1 neighbor, got {len(tri2.ngb)}"
         assert (
-            len(tri1.scaled_normal) == 1
-        ), f"tri1 should have 1 normal, got {len(tri1.scaled_normal)}"
+            len(tri1.scaledNormal) == 1
+        ), f"tri1 should have 1 normal, got {len(tri1.scaledNormal)}"
         assert (
-            len(tri2.scaled_normal) == 1
-        ), f"tri2 should have 1 normal, got {len(tri2.scaled_normal)}"
+            len(tri2.scaledNormal) == 1
+        ), f"tri2 should have 1 normal, got {len(tri2.scaledNormal)}"
 
         # Verify the normal is a 2D vector (numpy array)
-        normal1 = np.array(tri1.scaled_normal[0])
+        normal1 = np.array(tri1.scaledNormal[0])
         assert normal1.shape == (2,), f"Normal should be 2D, got shape {normal1.shape}"

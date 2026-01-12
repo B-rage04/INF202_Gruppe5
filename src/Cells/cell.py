@@ -24,7 +24,81 @@ class Cell(ABC):
         self.flow = self._find_flow()
         self.oil = self._find_oil()
         self.newOil = []
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, value):
+        self._id = value
+
+    @property
+    def cords(self):
+        return self._cords
+
+    @cords.setter
+    def cords(self, value):
+        self._cords = list(value)
+        self._midPoint = None
+        self._area = None
+        self._scaledNormal = None
         self._pointSet = None
+        self._flow = None
+        self._oil = None
+
+    @property
+    def midPoint(self):
+        if self._midPoint is None:
+            if len(self._cords) == 0:
+                self._midPoint = np.array([0.0, 0.0, 0.0])
+            else:
+                self._midPoint = np.mean(self._cords, axis=0)
+        return self._midPoint
+
+    @property
+    def area(self):
+        if self._area is None:
+            self._area = self.find_area()
+        return self._area
+
+    @property
+    def scaledNormal(self):
+        if self._scaledNormal is None:
+            val = self.findScaledNormales()
+            # ensure numpy array
+            self._scaledNormal = np.array(val) if val is not None else np.zeros(3)
+        return self._scaledNormal
+
+    @property
+    def pointSet(self):
+        if self._pointSet is None:
+            self._pointSet = set(tuple(p) for p in self._cords)
+        return self._pointSet
+
+    @property
+    def ngb(self):
+        return self._ngb
+
+    @property
+    def flow(self):
+        if self._flow is None:
+            self._flow = np.array(self.find_flow())
+        return self._flow
+
+    @flow.setter
+    def flow(self, value):
+        self._flow = np.array(value)
+
+    @property
+    def oil(self):
+        if self._oil is None:
+            self._oil = self.find_oil()
+        return self._oil
+
+    @oil.setter
+    def oil(self, value):
+        self._oil = value
 
     @abstractmethod
     def _find_area(self):
@@ -92,20 +166,19 @@ class Cell(ABC):
                 tuple(p) for p in self.cords
             )  # TODO: worng notation _**** for a public get set("just if none") variable.
 
-        for other in all_cells:
+        for other in allCells:
             if other.id == self.id:
                 continue
+            otherPointSet = getattr(other, "_pointSet", None)
+            if otherPointSet is None:
+                otherPointSet = set(tuple(p) for p in other.cords)
+                other.pointSet = otherPointSet
 
-            other_point_set = getattr(other, "_point_set", None)
-            if other_point_set is None:
-                other_point_set = set(tuple(p) for p in other.cords)
-                other._point_set = other_point_set
-
-            if len(self._pointSet & other_point_set) >= 2:
-                if other.id not in self.ngb:
-                    self.ngb.append(other.id)
-                if self.id not in other.ngb:
-                    other.ngb.append(self.id)
+            if len(self._pointSet & otherPointSet) >= 2:
+                if other.id not in self._ngb:
+                    self._ngb.append(other.id)
+                if self.id not in other._ngb:
+                    other._ngb.append(self.id)
 
     def _find_flow(self):  # TODO: add ability to set flow function
         return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
@@ -117,3 +190,35 @@ class Cell(ABC):
         return np.exp(
             -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
         )
+
+    def flux(self, ngb):  # TODO: add ability to set flux function
+        flow_avg = (self.flow + ngb.flow) / 2
+        if np.dot(flow_avg, self.scaledNormal) > 0:
+            return self.oil * np.dot(flow_avg, self.scaledNormal)
+        else:
+            return ngb.oil * np.dot(flow_avg, self.scaledNormal)
+
+    def toDict(self):
+        return {
+            "id": self.id,
+            "cords": [list(map(float, p)) for p in self._cords],
+            "midPoint": list(map(float, self.midPoint)),
+            "area": float(self.area) if self._area is not None else None,
+            "scaledNormal": list(map(float, self.scaledNormal)),
+            "ngb": list(self._ngb),
+            "flow": list(map(float, self.flow)),
+            "oil": float(self.oil),
+            "newOil": list(self.newOil),
+        }
+
+    def updateFromDict(self, data):
+        if "cords" in data:
+            self.cords = [np.array(p) for p in data["cords"]]
+        if "id" in data:
+            self.id = data["id"]
+        if "flow" in data:
+            self.flow = np.array(data["flow"])
+        if "oil" in data:
+            self.oil = data["oil"]
+        if "newOil" in data:
+            self.newOil = list(data["newOil"])

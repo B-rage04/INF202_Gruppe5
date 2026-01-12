@@ -28,5 +28,5 @@ def test_triangles_are_neighbors(triangles):
     assert t0.ngb.count(t1.id) == 1
     assert t1.ngb.count(t0.id) == 1
 
-    assert hasattr(t0, "_point_set") and isinstance(t0._point_set, set)
-    assert hasattr(t1, "_point_set") and isinstance(t1._point_set, set)
+    assert hasattr(t0, "_pointSet") and isinstance(t0._pointSet, set)
+    assert hasattr(t1, "_pointSet") and isinstance(t1._pointSet, set)
