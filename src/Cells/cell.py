@@ -9,8 +9,6 @@ class Cell(ABC):
     General parent class for all cell types
     
     stores all values each cell needs
-
-    with the exception of oil and newOil all values are fixed
     """
 
     def __init__(self, msh, cell_points, cell_id):
@@ -160,7 +158,7 @@ class Cell(ABC):
 
 
 
-    def find_ngb(self, all_cells):
+    def find_ngb(self, allCells):
         if not hasattr(self, "_point_set") or self._pointSet is None:
             self._pointSet = set(
                 tuple(p) for p in self.cords
@@ -181,44 +179,18 @@ class Cell(ABC):
                     other._ngb.append(self.id)
 
     def _find_flow(self):  # TODO: add ability to set flow function
+        """
+        Finds the flow direction in cell
+        """
         return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
 
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
-    def _find_oil(self):  # TODO: add ability to set oil function
+    def _find_oil(self):
+        """
+        Finds initial value for oil in cell
+        """
         return np.exp(
             -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
         )
-
-    def flux(self, ngb):  # TODO: add ability to set flux function
-        flow_avg = (self.flow + ngb.flow) / 2
-        if np.dot(flow_avg, self.scaledNormal) > 0:
-            return self.oil * np.dot(flow_avg, self.scaledNormal)
-        else:
-            return ngb.oil * np.dot(flow_avg, self.scaledNormal)
-
-    def toDict(self):
-        return {
-            "id": self.id,
-            "cords": [list(map(float, p)) for p in self._cords],
-            "midPoint": list(map(float, self.midPoint)),
-            "area": float(self.area) if self._area is not None else None,
-            "scaledNormal": list(map(float, self.scaledNormal)),
-            "ngb": list(self._ngb),
-            "flow": list(map(float, self.flow)),
-            "oil": float(self.oil),
-            "newOil": list(self.newOil),
-        }
-
-    def updateFromDict(self, data):
-        if "cords" in data:
-            self.cords = [np.array(p) for p in data["cords"]]
-        if "id" in data:
-            self.id = data["id"]
-        if "flow" in data:
-            self.flow = np.array(data["flow"])
-        if "oil" in data:
-            self.oil = data["oil"]
-        if "newOil" in data:
-            self.newOil = list(data["newOil"])
