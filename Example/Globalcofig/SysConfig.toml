@@ -1,5 +1,5 @@
 [settings]
-pathToSimConfig = "Exsample/SimConfig/" # Path to simulation config files
+pathToSimConfig = "Example/SimConfig/" # Path to simulation config files
 
 
 [UI]

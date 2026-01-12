@@ -4,6 +4,14 @@ import numpy as np
 
 
 class Cell(ABC):
+    """
+    General parent class for all cell types
+
+    stores all values each cell needs
+
+    with the exception of oil and newOil all values are fixed
+    """
+
     def __init__(self, msh, cell_points, cell_id):
         self.type = None
         self.id = cell_id

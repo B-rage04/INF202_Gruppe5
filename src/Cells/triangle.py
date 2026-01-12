@@ -4,6 +4,10 @@ from src.Cells.cell import Cell
 
 
 class Triangle(Cell):
+    """
+    Cell of type "triangle"
+    """
+
     def __init__(self, msh, cell_points, cell_id):
         super().__init__(msh, cell_points, cell_id)
         self.type = "triangle"
