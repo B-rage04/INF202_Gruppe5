@@ -19,10 +19,6 @@ class Visualizer:
 
         fig = plt.figure()
 
-        print(
-            f"len: {len(oil)}, mesh points: {len(self.mesh.points)}, mesh triangles: {len(self.mesh.triangles)}"
-        )  # TODO remove
-
         plt.tripcolor(
             self.mesh.points[:, 0],
             self.mesh.points[:, 1],
