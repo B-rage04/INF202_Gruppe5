@@ -19,8 +19,8 @@ class Triangle(Cell):
 
     def find_scaled_normales(self, all_cells=None):
         if not all_cells or not self.ngb:
-            self.scaled_normal = []
-            return self.scaled_normal
+            self._scaledNormal = []
+            return self._scaledNormal
 
         cells_dict = {cell.id: cell for cell in all_cells}
         walls = []
@@ -33,7 +33,7 @@ class Triangle(Cell):
 
             self_points = set(
                 tuple(p) for p in self.cords
-            )  # TODO: use _point_set since we already have it
+            )  # TODO: use _pointSet since we already have it
             ngb_points = set(tuple(p) for p in ngb_cell.cords)
             shared_points = list(self_points & ngb_points)
 
@@ -46,12 +46,12 @@ class Triangle(Cell):
         for A, B in walls:
             d = np.array([B[0] - A[0], B[1] - A[1]])
             n = np.array([d[1], -d[0]])
-            v = np.array([self.midpoint[0] - A[0], self.midpoint[1] - A[1]])
+            v = np.array([self.midPoint[0] - A[0], self.midPoint[1] - A[1]])
 
             if np.dot(n, v) > 0:
                 n = -n
 
             scaled_normals.append(n)
 
-        self.scaled_normal = scaled_normals
-        return self.scaled_normal
+        self._scaledNormal = scaled_normals
+        return self._scaledNormal

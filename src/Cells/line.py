@@ -10,5 +10,5 @@ class Line(Cell):
         return None
 
     def find_scaled_normales(self, all_cells=None):
-        self.scaled_normal = []
-        return self.scaled_normal
+        self._scaledNormal = []
+        return self._scaledNormal
