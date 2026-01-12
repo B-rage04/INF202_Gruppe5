@@ -3,7 +3,7 @@ import numpy as np
 from src.Cells.cell import Cell
 
 
-class Quad(Cell):
+class Quad(Cell):  # TODO:see mesh.py
     def __init__(self, msh, cell_points, cell_id):
         super().__init__(msh, cell_points, cell_id)
         self.type = "quad"
