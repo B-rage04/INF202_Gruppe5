@@ -10,11 +10,12 @@ class Cell(ABC):
         self.cords = [msh.points[i] for i in cell_points]
         self.midpoint = self.find_midpoint()
         self.area = self.find_area()
-        self.scaled_normal = []
+        self.scaledNormal = []
         self.ngb = []
         self.flow = self.find_flow()
         self.oil = self.find_oil()
-        self.new_oil = []
+        self.newOil = []
+        self._pointSet = None
 
     @abstractmethod
     def find_area(self):
@@ -31,15 +32,15 @@ class Cell(ABC):
         # TODO: else calculate it and set and return it
 
     def find_scaled_normales(self, all_cells=None):  # TODO: all_cells?
-        self.scaled_normal = []
-        return self.scaled_normal
+        self.scaledNormal = []
+        return self.scaledNormal
 
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
     def find_ngb(self, all_cells):
-        if not hasattr(self, "_point_set") or self._point_set is None:
-            self._point_set = set(
+        if not hasattr(self, "_point_set") or self._pointSet is None:
+            self._pointSet = set(
                 tuple(p) for p in self.cords
             )  # TODO: worng notation _**** for a public get set("just if none") variable.
 
@@ -52,7 +53,7 @@ class Cell(ABC):
                 other_point_set = set(tuple(p) for p in other.cords)
                 other._point_set = other_point_set
 
-            if len(self._point_set & other_point_set) >= 2:
+            if len(self._pointSet & other_point_set) >= 2:
                 if other.id not in self.ngb:
                     self.ngb.append(other.id)
                 if self.id not in other.ngb:
@@ -71,7 +72,7 @@ class Cell(ABC):
 
     def flux(self, ngb):  # TODO: add ability to set flux function
         flow_avg = (self.flow + ngb.flow) / 2
-        if np.dot(flow_avg, self.scaled_normal) > 0:
-            return self.oil * np.dot(flow_avg, self.scaled_normal)
+        if np.dot(flow_avg, self.scaledNormal) > 0:
+            return self.oil * np.dot(flow_avg, self.scaledNormal)
         else:
-            return ngb.oil * np.dot(flow_avg, self.scaled_normal)
+            return ngb.oil * np.dot(flow_avg, self.scaledNormal)

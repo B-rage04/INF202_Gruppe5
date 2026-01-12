@@ -1,3 +1,6 @@
+from typing import Any, Dict, List, Optional
+import logging
+
 import numpy as np
 from tqdm import tqdm
 
@@ -5,67 +8,128 @@ from src.mesh import Mesh
 from src.video import VideoCreator
 from src.visualize import Visualizer
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 class Simulation:
-    def __init__(self, config):
-        self.config = config
-        self.msh = Mesh(config["geometry"]["meshName"])
+    def __init__(self, config: Dict[str, Any]):
+        self._validateConfig(config)
+        self._config: Dict[str, Any] = config
 
-        self.oil_vals = self.getOilVals()
-        self.vs = Visualizer(self.msh)
-        self.CurrentStep = 0
-        self.time_start = self.config["settings"]["tStart"]
-        self.time_end = self.config["settings"]["tEnd"]
-        self.nSteps = self.config["settings"]["nSteps"]
-        self.writeFrequency = self.config["IO"]["writeFrequency"]
-        self.dt = self.time_end / self.nSteps
+        mesh_name = self._config["geometry"]["meshName"]
+        self._msh = Mesh(mesh_name)
 
-    def getOilVals(self):
-        return [cell.oil for cell in self.msh.cells if cell.type == "triangle"]
+        self._visualizer = Visualizer(self._msh)
 
-    def update_oil(self):
-        for cell in self.msh.cells:
+        self._timeStart: float = float(self._config["settings"]["tStart"])
+        self._timeEnd: float = float(self._config["settings"]["tEnd"])
+        self._nSteps: int = int(self._config["settings"]["nSteps"])
+        self._writeFrequency: int = int(self._config["IO"]["writeFrequency"])
+
+        self._dt: float = (self._timeEnd - self._timeStart) / max(1, self._nSteps)
+        self._currentTime: float = float(self._timeStart)
+
+        self._oilVals: List[float] = self.getOilVals()
+
+
+    @staticmethod
+    def _validateConfig(config: Dict[str, Any]) -> None:
+        required = [
+            ("geometry", "meshName"),
+            ("settings", "tStart"),
+            ("settings", "tEnd"),
+            ("settings", "nSteps"),
+            ("IO", "writeFrequency"),
+        ]
+        for section, key in required:
+            if section not in config or key not in config[section]:
+                raise KeyError(f"Missing required config entry: {section}.{key}")
+
+    #getters/setters
+    @property
+    def config(self) -> Dict[str, Any]:
+        return self._config
+
+    @property
+    def mesh(self) -> Mesh:
+        return self._msh
+
+    @property
+    def dt(self) -> float:
+        return self._dt
+
+    @property
+    def currentTime(self) -> float:
+        return self._currentTime
+
+    @currentTime.setter
+    def currentTime(self, value: float) -> None:
+        if not isinstance(value, (int, float)):
+            raise TypeError("current_time must be numeric")
+        self._currentTime = float(value)
+
+    @property
+    def oilVals(self) -> List[float]:
+        # return a copy to avoid accidental external mutation
+        return list(self._oilVals)
+
+
+    def getOilVals(self) -> List[float]: #TODO: ikke barre tiangle
+        return [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
+
+    def _computeFlux(self, i: int, cell: Any, ngb: int) -> float: #TODO: andre formler fra config
+        neighbor = self._msh.cells[ngb]
+        flowAvg = (cell.flow + neighbor.flow) / 2.0
+        dot = float(np.dot(flowAvg, cell.scaled_normal[i]))
+        source_oil = cell.oil if dot > 0 else neighbor.oil
+        return source_oil * dot
+
+    def updateOil(self) -> None: #TODO: ikke barre tiangle
+        for cell in self._msh.cells:
             if cell.type != "triangle":
                 continue
+            # ensure new_oil exists and is a list #TODO: lag en unit test får dette
+            if cell.newOil is None:
+                cell.newOil = []
             for i, ngb in enumerate(cell.ngb):
-                if self.msh.cells[ngb].type != "triangle":
+                if self._msh.cells[ngb].type != "triangle":
                     continue
-                cell.new_oil.append(-(self.dt / cell.area) * self.flux(i, cell, ngb))
+                delta = -(self._dt / cell.area) * self._computeFlux(i, cell, ngb)
+                cell.newOil.append(delta)
 
-        for cell in self.msh.cells:
-            if cell.new_oil is not None:
-                cell.oil += sum(cell.new_oil)
-                cell.new_oil.clear()
+        for cell in self._msh.cells:
+            if getattr(cell, "newOil", None):
+                cell.oil += sum(cell.newOil)
+                cell.newOil.clear()
             else:
-                print(f"Warning: Cell, {cell.id}, was None")  # TODO: try except
-                cell.oil = cell.oil
+                logger.debug("Cell %s had no pending oil updates", getattr(cell, "id", "?"))
 
-    def flux(self, i, cell, ngb):
-        flow_avg = (cell.flow + self.msh.cells[ngb].flow) / 2
-        if np.dot(flow_avg, cell.scaled_normal[i]) > 0:
-            return cell.oil * np.dot(flow_avg, cell.scaled_normal[i])
-        else:
-            return self.msh.cells[ngb].oil * np.dot(flow_avg, cell.scaled_normal[i])
+    def run_sim(self, runNumber: Optional[int] = None, **kwargs) -> Optional[str]:
 
-    def run_sim(self, run_number=None, create_video=True, video_fps=60, **kwargs):
-        step_idx = 0
-        self.vs.plotting(self.oil_vals, run=run_number, step=step_idx, **kwargs)
+        create_video: bool = self._config.get("video", {}).get("createVideo", False)
+        videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
 
-        with tqdm(total=self.nSteps, desc="Simulation progress", unit="steps") as pbar:
-            while self.CurrentStep <= self.time_end:
-                self.update_oil()
-                self.CurrentStep += self.dt
-                step_idx += 1
-                self.oil_vals = self.getOilVals()
+        total_steps = self._nSteps
 
-                if step_idx % self.writeFrequency == 0:  # TODO fix edje cases
-                    self.vs.plotting(
-                        self.oil_vals, run=run_number, step=step_idx, **kwargs
-                    )
+        self._visualizer.plotting(self.oilVals, run=runNumber, step=0, **kwargs)
+
+        with tqdm(total=total_steps, desc="Simulation progress", unit="steps") as pbar:
+            for stepIdx in range(1, total_steps + 1):
+                self.updateOil()
+                self._currentTime = self._timeStart + stepIdx * self._dt
+                self._oilVals = self.getOilVals()
+
+                if stepIdx % self._writeFrequency == 0:
+                    self._visualizer.plotting(self.oilVals, run=runNumber, step=stepIdx, **kwargs)
                 pbar.update(1)
 
-        if create_video and run_number is not None:
-            print(f"Creating video for run {run_number}...")
-            video_creator = VideoCreator(fps=video_fps)
-            video_path = video_creator.create_video_from_run(run_number)
-            print(f"Video created successfully: {video_path}")
+        videoPath: Optional[str] = None
+        if create_video and runNumber is not None:
+            logger.info("Creating video for run %s", runNumber)
+            videoCreator = VideoCreator(fps=videoFps)
+            videoPath = videoCreator.create_video_from_run(runNumber)
+            logger.info("Video created successfully: %s", videoPath)
+
+        return videoPath
+

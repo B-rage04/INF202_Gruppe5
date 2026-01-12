@@ -2,7 +2,7 @@ import tomllib as toml
 
 
 class LoadTOML:
-    def load_toml_file(self, file_path: str) -> dict:
+    def load_toml_file(self, file_path) -> dict:
         """
         Loads a TOML file and returns its contents as a dictionary.
         """
