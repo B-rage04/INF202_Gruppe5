@@ -19,19 +19,29 @@ class Cell(ABC):
     @abstractmethod
     def find_area(self):
         pass
+        # TODO: if has attribute return it
+        # TODO: else calculate it and set and return it
 
-    def find_midpoint(self):
+    def find_midpoint(self):  # TODO: get midpoint
         if len(self.cords) == 0:
             return np.array([0, 0, 0])
         return np.mean(self.cords, axis=0)
 
-    def find_scaled_normales(self, all_cells=None):
+        # TODO: if has attribute return it
+        # TODO: else calculate it and set and return it
+
+    def find_scaled_normales(self, all_cells=None):  # TODO: all_cells?
         self.scaled_normal = []
         return self.scaled_normal
 
+        # TODO: if has attribute return it
+        # TODO: else calculate it and set and return it
+
     def find_ngb(self, all_cells):
         if not hasattr(self, "_point_set") or self._point_set is None:
-            self._point_set = set(tuple(p) for p in self.cords)
+            self._point_set = set(
+                tuple(p) for p in self.cords
+            )  # TODO: worng notation _**** for a public get set("just if none") variable.
 
         for other in all_cells:
             if other.id == self.id:
@@ -48,15 +58,18 @@ class Cell(ABC):
                 if self.id not in other.ngb:
                     other.ngb.append(self.id)
 
-    def find_flow(self):
+    def find_flow(self):  # TODO: add ability to set flow function
         return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
 
-    def find_oil(self):
+        # TODO: if has attribute return it
+        # TODO: else calculate it and set and return it
+
+    def find_oil(self):  # TODO: add ability to set oil function
         return np.exp(
             -(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
         )
 
-    def flux(self, ngb):
+    def flux(self, ngb):  # TODO: add ability to set flux function
         flow_avg = (self.flow + ngb.flow) / 2
         if np.dot(flow_avg, self.scaled_normal) > 0:
             return self.oil * np.dot(flow_avg, self.scaled_normal)

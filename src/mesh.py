@@ -14,4 +14,7 @@ class Mesh:
         """
         import meshio
 
+        # TODO: add error handling
+        # TODO: add support for polygonal cells thrianguliation
+
         return meshio.read(file)

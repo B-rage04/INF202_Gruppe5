@@ -31,7 +31,9 @@ class Triangle(Cell):
 
             ngb_cell = cells_dict[ngb_id]
 
-            self_points = set(tuple(p) for p in self.cords)
+            self_points = set(
+                tuple(p) for p in self.cords
+            )  # TODO: use _point_set since we already have it
             ngb_points = set(tuple(p) for p in ngb_cell.cords)
             shared_points = list(self_points & ngb_points)
 
