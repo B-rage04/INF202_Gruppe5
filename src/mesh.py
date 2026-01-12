@@ -16,12 +16,12 @@ class Mesh:
             raise FileNotFoundError(f"Mesh file not found: {file}")
 
         self._msh: Any = self._readMesh(file)
-
         self._points: List[Any] = getattr(self._msh, "points", [])
         self._triangles: List[Any] = getattr(self._msh, "cells_dict", {}).get(
             "triangle", []
         )
-        self._cells = CellFactory(self._msh)
+        self._cellFactory = CellFactory(self._msh)
+        self._cells = self._cellFactory()
 
     def _readMesh(self, file: str) -> Any:
         try:

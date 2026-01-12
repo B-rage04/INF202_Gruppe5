@@ -159,28 +159,3 @@ class Cell(ABC):
             return self.oil * np.dot(flowAvg, self.scaledNormal)
         else:
             return ngb.oil * np.dot(flowAvg, self.scaledNormal)
-
-    def toDict(self):
-        return {
-            "id": self.id,
-            "cords": [list(map(float, p)) for p in self._cords],
-            "midPoint": list(map(float, self.midPoint)),
-            "area": float(self.area) if self._area is not None else None,
-            "scaledNormal": list(map(float, self.scaledNormal)),
-            "ngb": list(self._ngb),
-            "flow": list(map(float, self.flow)),
-            "oil": float(self.oil),
-            "newOil": list(self.newOil),
-        }
-
-    def updateFromDict(self, data):
-        if "cords" in data:
-            self.cords = [np.array(p) for p in data["cords"]]
-        if "id" in data:
-            self.id = data["id"]
-        if "flow" in data:
-            self.flow = np.array(data["flow"])
-        if "oil" in data:
-            self.oil = data["oil"]
-        if "newOil" in data:
-            self.newOil = list(data["newOil"])
