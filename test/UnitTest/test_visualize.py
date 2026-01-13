@@ -89,29 +89,14 @@ def test_plotting_run_with_steo3(visualizer, tmp_path):
     expected_path = Path(tmp_path) / "run1" / "oilStep10.png"
     assert Path(result) == expected_path
 
-def test_v_persist(visualizer, tmp_path):
-    oil1 = [0.1]
-    oil2 = [0.2]
-
-    visualizer.plotting(oil1, filepath=tmp_path, run=1, step=1)
-    assert visualizer.vmax == 0.1
-    assert visualizer.vmin == 0.1
-
-    visualizer.plotting(oil2, filepath=tmp_path, run=1, step=1)
-    assert visualizer.vmax == 0.1
-    assert visualizer.vmin == 0.1
-
 def test_v_persist_oil1_vmax(visualizer, tmp_path):
     oil1 = [0.1]
-
     visualizer.plotting(oil1, filepath=tmp_path, run=1, step=1)
     assert visualizer.vmax == 0.1
 
 def test_v_persist_oil1_vmin(visualizer, tmp_path):
     oil1 = [0.1]
-
     visualizer.plotting(oil1, filepath=tmp_path, run=1, step=1)
-
     assert visualizer.vmin == 0.1
 
 def test_v_persist_oil2_vmax(visualizer, tmp_path):
@@ -139,10 +124,42 @@ def test_plotting_file_incr(visualizer, tmp_path):
 
 def test_show(monkeypatch, visualizer):
     shown = {"called": False}
-
     def fake_show():
         shown["called"] = True
-
     monkeypatch.setattr("matplotlib.pyplot.show", fake_show)
     visualizer.plotting([0.1], filepath=None)
     assert shown["called"]
+
+def test_total_oil_exception(tmp_path):
+    class BadMesh:
+        points = np.array([[0, 0], [1, 0], [0, 1]])
+        triangles = np.array([[0, 1, 2]])
+        cells = [SimpleNamespace(type="triangle", oil="invalid", area=1.0)]
+    vslzr = Visualizer(BadMesh())
+    result = vslzr.plotting([0.1], filepath=tmp_path)
+    assert Path(result).exists()
+
+def test_show(monkeypatch, visualizer):
+    shown = {"called": False}
+    def fake_show():
+        shown["called"] = True
+    monkeypatch.setattr("matplotlib.pyplot.show", fake_show)
+    visualizer.plotting([0.1], filepath=None)
+    assert shown["called"]
+
+def test_plotting_file_incr_no_existing_files(visualizer, tmp_path):
+    oil_dir = tmp_path / "oil"
+    oil_dir.mkdir(parents=True, exist_ok=True)
+    result = visualizer.plotting([0.1], filepath=tmp_path)
+    ex_path = oil_dir / "0.png"
+    assert Path(result) == ex_path
+    
+def test_total_oil_flag_false(tmp_path):
+    class Mesh:
+        points = np.array([[0, 0], [1, 0], [0, 1]])
+        triangles = np.array([[0, 1, 2]])
+        cells = [SimpleNamespace(type="triangle", oil=1.0, area=1.0)]
+    viz = Visualizer(Mesh())
+    viz.totalOilFlag = False
+    result = viz.plotting([0.1], filepath=tmp_path)
+    assert Path(result).exists()
