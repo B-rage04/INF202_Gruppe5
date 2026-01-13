@@ -1,8 +1,9 @@
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Any, Dict, List
 
 from tqdm import tqdm
+
 from src.LoadTOML import LoadTOML
 from src.simulation import Simulation
 

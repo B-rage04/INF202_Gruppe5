@@ -1,8 +1,9 @@
 from tqdm import tqdm
+
 from src.Cells.line import Line
+from src.Cells.quad import Quad
 from src.Cells.triangle import Triangle
 from src.Cells.vertex import Vertex
-from src.Cells.quad import Quad
 
 
 class CellFactory:
@@ -16,6 +17,7 @@ class CellFactory:
             "quadrilateral": Quad,
         }
         self.cellList = []
+
     def register(self, key, ctype):
         if key not in self.cellTypes:
             self.cellTypes[key] = ctype
