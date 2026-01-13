@@ -29,29 +29,38 @@ def testOil(triangle):
     expectedOil = np.exp(-(np.linalg.norm(center - reference) ** 2) / 0.01)
     assert triangle.oil == pytest.approx(expectedOil)
 
+
 def testGetterId(triangle):
     pass
 
-def testGetter(triangle):
-    pass
 
 def testGetter(triangle):
     pass
 
-def testGetter(triangle):
-    pass
 
 def testGetter(triangle):
     pass
 
-def testGetter(triangle):
-    pass
 
 def testGetter(triangle):
     pass
 
+
 def testGetter(triangle):
     pass
+
+
+def testGetter(triangle):
+    pass
+
+
+def testGetter(triangle):
+    pass
+
+
+def testGetter(triangle):
+    pass
+
 
 def testGetter(triangle):
     pass
