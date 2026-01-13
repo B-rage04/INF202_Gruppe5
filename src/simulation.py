@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -21,6 +22,11 @@ class Simulation:
         self._msh = Mesh(meshName)
 
         self._visualizer = Visualizer(self._msh)
+
+        # Output directory for images/videos; default to Output/images/
+        self._imageDir: Path = Path(
+            self._config.get("IO", {}).get("imagesDir", "Output/images/")
+        )
 
         self._timeStart: float = float(self._config["settings"]["tStart"])
         self._timeEnd: float = float(self._config["settings"]["tEnd"])
@@ -166,9 +172,23 @@ class Simulation:
 
         totalSteps = self._nSteps
 
-        self._visualizer.plotting(self.oilVals, run=runNumber, step=0, **kwargs)
+        self._visualizer.plotting(
+            self.oilVals,
+            filepath=str(self._imageDir),
+            run=runNumber,
+            step=0,
+            **kwargs,
+        )
 
-        with tqdm(total=totalSteps, desc="Simulation progress", unit="steps") as pbar:
+        with tqdm(
+            total=totalSteps,
+            desc="Simulating oil dispersion",
+            unit="step",
+            colour="cyan",
+            ncols=100,
+            ascii="-#",
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+        ) as pbar:
             for stepIdx in range(1, totalSteps + 1):
                 self.updateOil()
                 self._currentTime = self._timeStart + stepIdx * self._dt
@@ -176,14 +196,18 @@ class Simulation:
 
                 if stepIdx % self._writeFrequency == 0:
                     self._visualizer.plotting(
-                        self.oilVals, run=runNumber, step=stepIdx, **kwargs
+                        self.oilVals,
+                        filepath=str(self._imageDir),
+                        run=runNumber,
+                        step=stepIdx,
+                        **kwargs,
                     )
                 pbar.update(1)
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:
             logger.info("Creating video for run %s", runNumber)
-            videoCreator = VideoCreator(fps=videoFps)
+            videoCreator = VideoCreator(imageDir=str(self._imageDir), fps=videoFps)
             videoPath = videoCreator.createVideoFromRun(runNumber)
             logger.info("Video created successfully: %s", videoPath)
 

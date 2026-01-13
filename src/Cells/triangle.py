@@ -34,7 +34,15 @@ class Triangle(Cell):
         cellsDict = {cell.id: cell for cell in allCells}
         walls = []
 
-        for ngbId in tqdm(self.ngb, desc=f"Computing normals for triangle {self.id}", unit="neighbors", leave=False):
+        for ngbId in tqdm(
+            self.ngb,
+            desc=f"Triangle {self.id:04d} normals",
+            unit="ngb",
+            leave=False,
+            colour="cyan",
+            ascii="-#",
+            disable=len(self.ngb) < 10,
+        ):
             if ngbId not in cellsDict:
                 continue
 
@@ -55,7 +63,15 @@ class Triangle(Cell):
                 walls.append((A, B))
 
         scaledNormals = []
-        for A, B in tqdm(walls, desc=f"Computing scaled normals for triangle {self.id}", unit="walls", leave=False):
+        for A, B in tqdm(
+            walls,
+            desc="Scaling wall normals",
+            unit="wall",
+            leave=False,
+            colour="blue",
+            ascii="-#",
+            disable=len(walls) < 5,
+        ):
             d = np.array([B[0] - A[0], B[1] - A[1]])
             n = np.array([d[1], -d[0]])
             v = np.array([self.midPoint[0] - A[0], self.midPoint[1] - A[1]])

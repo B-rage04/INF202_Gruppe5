@@ -22,7 +22,14 @@ class LoadTOML:
 
         if os.path.isdir(simConfigPath):
             files = [f for f in os.listdir(simConfigPath) if f.endswith(".toml")]
-            for fileName in tqdm(files, desc="Loading TOML configs", unit="files"):
+            for fileName in tqdm(
+                files,
+                desc="Loading configuration files",
+                unit="file",
+                colour="magenta",
+                ncols=100,
+                ascii="-#",
+            ):
                 fullPath = os.path.join(simConfigPath, fileName)
                 simConfigs.append(self.loadTomlFile(fullPath))
         else:

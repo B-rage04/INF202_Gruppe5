@@ -24,23 +24,53 @@ def Cell_factory(msh):
 
     # msh.cells is a list of CellBlock objects
     IDx = 0
-    for _, cell_block in tqdm(enumerate(msh.cells), desc="Processing cell blocks", total=len(msh.cells)):
+    for _, cell_block in tqdm(
+        enumerate(msh.cells),
+        desc="Processing mesh geometry",
+        total=len(msh.cells),
+        unit="block",
+        colour="yellow",
+        ncols=100,
+        ascii="-#",
+    ):
         cell_type = cell_block.type
         cells_array = cell_block.data
         if cell_type == "triangle":
-            for cell_points in tqdm(cells_array, desc=f"Creating {cell_type} cells", leave=False):
+            for cell_points in tqdm(
+                cells_array,
+                desc=f"Creating {cell_type} cells",
+                leave=False,
+                ascii="-#",
+            ):
                 cell_list.append(Triangle(msh, cell_points, IDx))
                 IDx += 1
         elif cell_type == "quad" or cell_type == "quadrilateral":
-            for cell_points in tqdm(cells_array, desc=f"Creating {cell_type} cells", leave=False):
+            for cell_points in tqdm(
+                cells_array,
+                desc=f"Creating {cell_type} cells",
+                leave=False,
+                ascii="-#",
+            ):
                 cell_list.append(Quad(msh, cell_points, IDx))
                 IDx += 1
         elif cell_type == "line":
-            for cell_points in tqdm(cells_array, desc=f"Creating {cell_type} cells", leave=False):
+            for cell_points in tqdm(
+                cells_array,
+                desc=f"Creating {cell_type} cells",
+                leave=False,
+                ascii="-#",
+            ):
                 cell_list.append(Line(msh, cell_points, IDx))
                 IDx += 1
     # find neighbors
-    for cell in tqdm(cell_list, desc="Finding cell neighbors", unit="cells"):
+    for cell in tqdm(
+        cell_list,
+        desc="Computing cell topology",
+        unit="cell",
+        colour="green",
+        ncols=100,
+        ascii="-#",
+    ):
         cell.find_ngb(cell_list)
         cell.find_scaled_normales(cell_list)
 

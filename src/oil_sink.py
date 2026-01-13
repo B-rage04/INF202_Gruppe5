@@ -16,7 +16,15 @@ def compute_ship_sink(
     ship_xy = np.array([ship_pos[0], ship_pos[1]])
     s_minus = {}
 
-    for cell in tqdm(mesh.cells, desc="Computing ship sink", unit="cells", leave=False):
+    for cell in tqdm(
+        mesh.cells,
+        desc="Computing oil collection sink",
+        unit="cell",
+        leave=False,
+        colour="blue",
+        ncols=100,
+        ascii="-#",
+    ):
         if getattr(cell, "type", None) != "triangle":
             continue
 
@@ -47,7 +55,15 @@ def compute_source(
     source_xy = np.array([source_pos[0], source_pos[1]])
     s_plus = {}
 
-    for cell in tqdm(mesh.cells, desc="Computing oil source", unit="cells", leave=False):
+    for cell in tqdm(
+        mesh.cells,
+        desc="Computing oil injection source",
+        unit="cell",
+        leave=False,
+        colour="red",
+        ncols=100,
+        ascii="-#",
+    ):
         if getattr(cell, "type", None) != "triangle":
             continue
 

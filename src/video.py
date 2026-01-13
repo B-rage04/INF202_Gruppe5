@@ -40,7 +40,14 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width, height)
         )
 
-        for imageFile in tqdm(image_files, desc="Creating video", unit="frames"):
+        for imageFile in tqdm(
+            image_files,
+            desc="Encoding video frames",
+            unit="frame",
+            colour="blue",
+            ncols=100,
+            ascii="-#",
+        ):
             frame = cv2.imread(str(imageFile))
             videoWriter.write(frame)
 
@@ -64,7 +71,14 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width, height)
         )
 
-        for imageFile in tqdm(imageFiles, desc="Creating video from images", unit="frames"):
+        for imageFile in tqdm(
+            imageFiles,
+            desc="Processing image sequence",
+            unit="img",
+            colour="cyan",
+            ncols=100,
+            ascii="-#",
+        ):
             frame = cv2.imread(str(imageFile))
             if frame is not None:
                 videoWriter.write(frame)
@@ -79,7 +93,14 @@ class VideoCreator:
         allRunImages = []
         maxSteps = 0
 
-        for runNum in tqdm(runNumbers, desc="Loading run images", unit="runs"):
+        for runNum in tqdm(
+            runNumbers,
+            desc="Loading simulation runs",
+            unit="run",
+            colour="magenta",
+            ncols=100,
+            ascii="-#",
+        ):
             runDir = self.imageDir / f"run{runNum}"
             if not runDir.exists():
                 raise FileNotFoundError(f"Run directory {runDir} does not exist")
@@ -111,7 +132,14 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width * cols, height * rows)
         )
 
-        for step in tqdm(range(maxSteps), desc="Creating comparison video", unit="frames"):
+        for step in tqdm(
+            range(maxSteps),
+            desc="Compositing comparison frames",
+            unit="frame",
+            colour="green",
+            ncols=100,
+            ascii="-#",
+        ):
             combinedFrame = np.zeros((height * rows, width * cols, 3), dtype=np.uint8)
 
             for idx, images in enumerate(allRunImages):

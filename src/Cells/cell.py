@@ -124,7 +124,15 @@ class Cell(ABC):
         # TODO: else calculate it and set and return it
 
     def findNGB(self, allCells):
-        for other in tqdm(allCells, desc=f"Finding neighbors for cell {self.id}", unit="cells", leave=False):
+        for other in tqdm(
+            allCells,
+            desc=f"Cell {self.id:04d} topology",
+            unit="cell",
+            leave=False,
+            colour="green",
+            ascii="-#",
+            disable=len(allCells) < 100,
+        ):
             if other.id == self.id:
                 continue
             otherPointSet = getattr(other, "_pointSet", None)
