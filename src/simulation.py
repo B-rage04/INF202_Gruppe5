@@ -180,14 +180,14 @@ class Simulation:
         return self.updateOil(*args, **kwargs)
 
     def run_sim(
-        self, run_number: Optional[int] = None, create_video: Optional[bool] = None, **kwargs
+        self, runNumber: Optional[int] = None, createVideo: Optional[bool] = None, **kwargs
     ) -> Optional[str]:
 
-        # allow create_video to be passed, otherwise fall back to config
-        if create_video is None:
+        # allow createVideo to be passed, otherwise fall back to config
+        if createVideo is None:
             createVideo: bool = self._config.get("video", {}).get("createVideo", False)
         else:
-            createVideo = bool(create_video)
+            createVideo = bool(createVideo)
 
         videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
 
@@ -197,7 +197,7 @@ class Simulation:
         self._visualizer.plotting(
             self.oilVals,
             filepath=str(self._imageDir),
-            run=run_number,
+            run=runNumber,
             step=0,
             **kwargs,
         )
@@ -220,22 +220,22 @@ class Simulation:
                     self._visualizer.plotting(
                         self.oilVals,
                         filepath=str(self._imageDir),
-                        run=run_number,
+                        run=runNumber,
                         step=stepIdx,
                         **kwargs,
                     )
                 pbar.update(1)
 
         videoPath: Optional[str] = None
-        if createVideo and run_number is not None:
-            logger.info("Creating video for run %s", run_number)
+        if createVideo and runNumber is not None:
+            logger.info("Creating video for run %s", runNumber)
             # call VideoCreator with fps as first arg for compatibility with tests
             videoCreator = VideoCreator(videoFps)
             # prefer snake_case method if available
-            if hasattr(videoCreator, "create_video_from_run"):
-                videoPath = videoCreator.create_video_from_run(run_number)
+            if hasattr(videoCreator, "createVideo_from_run"):
+                videoPath = videoCreator.createVideo_from_run(runNumber)
             else:
-                videoPath = videoCreator.createVideoFromRun(run_number)
+                videoPath = videoCreator.createVideoFromRun(runNumber)
             logger.info("Video created successfully: %s", videoPath)
 
         return videoPath
