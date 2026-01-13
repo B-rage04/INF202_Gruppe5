@@ -47,7 +47,16 @@ desc = "single"
 
 def test_load_sim_config_with_directory(
     tmp_path,
-):  # TODO: test shood be short and only test/asert one thing each
+):  # TODO: test shood be short and only test/asert one thing each def test_line_initialization_and_area(): # TODO: Fix names and Fcitures of "reapeet" tests
+    class DummyMesh:
+        def __init__(self):
+            self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+    msh = DummyMesh()
+    ln = Line(msh, [0, 1], 0)
+    assert ln.type == "line"
+    assert ln.findArea() is None
+    assert ln.area is None
     # create a directory with multiple toml files
     d = tmp_path / "sims"
     d.mkdir()
@@ -64,7 +73,16 @@ def test_load_sim_config_with_directory(
 
 def test_load_sim_configs_with_directory(
     tmp_path,
-):  # TODO: test shood be short and only test/asert one thing each
+):  # TODO: test shood be short and only test/asert one thing each def test_line_initialization_and_area(): # TODO: Fix names and Fcitures of "reapeet" tests
+    class DummyMesh:
+        def __init__(self):
+            self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+    msh = DummyMesh()
+    ln = Line(msh, [0, 1], 0)
+    assert ln.type == "line"
+    assert ln.findArea() is None
+    assert ln.area is None
     # create a directory with multiple toml files
     d = tmp_path / "sims"
     d.mkdir()
