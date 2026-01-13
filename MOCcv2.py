@@ -1,6 +1,7 @@
-import numpy as np
 from pathlib import Path
 from typing import Any
+
+import numpy as np
 
 
 def imread(path: str) -> Any:

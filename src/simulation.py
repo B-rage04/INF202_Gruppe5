@@ -180,7 +180,10 @@ class Simulation:
         return self.updateOil(*args, **kwargs)
 
     def run_sim(
-        self, runNumber: Optional[int] = None, createVideo: Optional[bool] = None, **kwargs
+        self,
+        runNumber: Optional[int] = None,
+        createVideo: Optional[bool] = None,
+        **kwargs,
     ) -> Optional[str]:
 
         # allow createVideo to be passed, otherwise fall back to config
@@ -200,7 +203,7 @@ class Simulation:
             filepath=str(self._imageDir),
             run=runNumber,
             step=0,
-            totalOilFlag = self._config.get("video", {}).get("totalOil", False),
+            totalOilFlag=self._config.get("video", {}).get("totalOil", False),
             **kwargs,
         )
 
@@ -232,9 +235,8 @@ class Simulation:
         if createVideo and runNumber is not None:
             logger.info("Creating video for run %s", runNumber)
 
-            
             videoCreator = VideoCreator(imageDir=self._imageDir, fps=videoFps)
-            
+
             if hasattr(videoCreator, "createVideo_from_run"):
                 videoPath = videoCreator.createVideo_from_run(runNumber)
             else:
