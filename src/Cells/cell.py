@@ -130,7 +130,8 @@ class Cell(ABC):
         # TODO: else calculate it and set and return it
 
     def findNGB(self, allCells):
-        for other in tqdm(
+        # tqdm only matters for large meshes; falls back to plain loop when small
+        iterator = tqdm(
             allCells,
             desc=f"Cell {self.id:04d} topology",
             unit="cell",
@@ -138,9 +139,8 @@ class Cell(ABC):
             colour="green",
             ascii="-#",
             disable=len(allCells) < 100,
-        ):
-            if other.id == self.id:
-        for other in allCells:
+        )
+        for other in iterator:
             if other.id == self.id:  # TODO: test this
                 continue
             otherPointSet = getattr(
