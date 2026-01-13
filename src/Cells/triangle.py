@@ -12,7 +12,7 @@ class Triangle(Cell):
         super().__init__(msh, cell_points, cell_id)
         self.type = "triangle"
 
-    def findArea(self):
+    def findArea(self):  # TODO: test this
         area = 0.5 * abs(
             (self.cords[0][0] - self.cords[2][0])
             * (self.cords[1][1] - self.cords[0][1])
@@ -20,10 +20,6 @@ class Triangle(Cell):
             * (self.cords[2][1] - self.cords[0][1])
         )
         return area
-
-    def findScaledNormales(self, allCells=None):
-        """Compatibility wrapper for callers using snake_case name."""
-        return self.findScaledNormales(allCells)
 
     def findScaledNormales(self, allCells=None):
         if not allCells or not self.ngb:
@@ -48,7 +44,7 @@ class Triangle(Cell):
             )
             sharedPoints = list(selfPoints & ngbPoints)
 
-            if len(sharedPoints) >= 2:
+            if len(sharedPoints) >= 2:  # TODO: test this
                 A = np.array(sharedPoints[0])
                 B = np.array(sharedPoints[1])
                 walls.append((A, B))
@@ -62,7 +58,7 @@ class Triangle(Cell):
             if np.dot(n, v) > 0:
                 n = -n
 
-            scaledNormals.append(n)
+            scaledNormals.append(n)  # TODO: test this
 
         self._scaledNormal = scaledNormals
         return self._scaledNormal

@@ -3,7 +3,7 @@ from src.Cells.quad import Quad
 from src.Cells.triangle import Triangle
 
 
-def CellFactory(msh):
+def CellFactory(msh):  # TODO: test this
     """
     Creates cells with data from the mesh and returns as a list
     """

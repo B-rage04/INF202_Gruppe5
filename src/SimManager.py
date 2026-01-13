@@ -15,7 +15,7 @@ def main(
 
     videoPaths: List[str] = []
 
-    for idx, simCFG in enumerate(simConfigs):
+    for idx, simCFG in enumerate(simConfigs):  # TODO: test multiple simulations configs
         sim = Simulation(simCFG)
 
         print(f"Running simulation {idx}...")
