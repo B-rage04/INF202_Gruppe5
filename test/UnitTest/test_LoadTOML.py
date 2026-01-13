@@ -47,7 +47,7 @@ desc = "single"
 
 def test_load_sim_config_with_directory(
     tmp_path,
-):  # TODO: test shood be short and only test/asert one thing each def test_line_initialization_and_area(): # TODO: Fix names and Fcitures of "reapeet" tests
+):  # TODO: test shood be short and only test/asert one thing each  # TODO: Fix names and Fcitures of "reapeet" tests
     class DummyMesh:
         def __init__(self):
             self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
@@ -73,7 +73,7 @@ def test_load_sim_config_with_directory(
 
 def test_load_sim_configs_with_directory(
     tmp_path,
-):  # TODO: test shood be short and only test/asert one thing each def test_line_initialization_and_area(): # TODO: Fix names and Fcitures of "reapeet" tests
+):  # TODO: test shood be short and only test/asert one thing each # TODO: Fix names and Fcitures of "reapeet" tests
     class DummyMesh:
         def __init__(self):
             self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
