@@ -7,19 +7,9 @@ from tqdm import tqdm
 
 class VideoCreator:
 
-    def __init__(self, *args, imageDir="Output/images/", fps=10, **kwargs):
-        # Support positional first-arg as image_dir, and keyword variants
-        image_dir = None
-        if len(args) >= 1:
-            image_dir = args[0]
-        elif "image_dir" in kwargs:
-            image_dir = kwargs.get("image_dir")
-        elif "imageDir" in kwargs:
-            image_dir = kwargs.get("imageDir")
-        else:
-            image_dir = imageDir
+    def __init__(self, imageDir="Output/images/", fps=10, **kwargs):
 
-        self.image_dir = Path(image_dir)
+        self.image_dir = Path(imageDir)
         self.imageDir = self.image_dir
         self.fps = fps
 
@@ -66,10 +56,6 @@ class VideoCreator:
         videoWriter.release()
         return str(outputPath)
 
-    # snake_case compatibility
-    def create_video_from_run(self, run_number, output_path=None):
-        return self.createVideoFromRun(run_number, output_path)
-
     def createVideoFromImages(self, imagePattern, outputPath):
         imageFiles = sorted(self.imageDir.glob(imagePattern))
 
@@ -101,9 +87,6 @@ class VideoCreator:
 
         videoWriter.release()
         return str(outputPath)
-
-    def create_video_from_images(self, image_pattern, output_path):
-        return self.createVideoFromImages(image_pattern, output_path)
 
     def createComparisonVideo(self, runNumbers, outputPath=None):
         if not runNumbers:
@@ -175,6 +158,3 @@ class VideoCreator:
 
         videoWriter.release()
         return str(outputPath)
-
-    def create_comparison_video(self, run_numbers, output_path=None):
-        return self.createComparisonVideo(run_numbers, output_path)
