@@ -72,9 +72,9 @@ def main(
 
         print(f"Simulation {run_number} complete.")
 
-    print("\n=== 📹 All videos created ===")
+    print("\n=== All videos created ===")
     for path in videoPaths:
-        print(f"  ✓ {path}")
+        print(f"{path}")
 
 
 if __name__ == "__main__":
