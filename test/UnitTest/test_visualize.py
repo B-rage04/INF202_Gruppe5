@@ -86,8 +86,8 @@ def test_plotting_run_with_steo2(visualizer, tmp_path):
 
 def test_plotting_run_with_steo3(visualizer, tmp_path):
     result = visualizer.plotting([0.1], filepath=tmp_path, run=1, step=10)
-    ex_path = Path(tmp_path)
-    assert "oil_step10.png" in result
+    expected_path = Path(tmp_path) / "run1" / "oilStep10.png"
+    assert Path(result) == expected_path
 
 def test_v_persist(visualizer, tmp_path):
     oil1 = [0.1]
