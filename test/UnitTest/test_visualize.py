@@ -76,7 +76,7 @@ def test_plotting_with_run_not_step2(visualizer, tmp_path):
     result = visualizer.plotting(oil, filepath=tmp_path, run=1)
     assert "run1" in result
 
-def test_plotting_with_run_not_step3(visualizer, tmp_path):
+def test_plotting_with_run_not_step(visualizer, tmp_path):
     oil = [0.1]
 
     result = visualizer.plotting(oil, filepath=tmp_path, run=1)
