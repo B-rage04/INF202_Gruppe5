@@ -11,6 +11,17 @@ pip install -r requirements.txt
 How to comit to code destined for dev:
 
 
+pip install pre-commit
+pre-commit install
+pre-commit install --hook-type pre-push
+pre-commit install --hook-type commit-msg
+pre-commit run --all-files
+pre-commit run --all-files
+
+
+This installs `pre-commit` and enables the `pre-commit` hooks in your local repository. The CI also runs `pre-commit` on every push/PR and branch protection should be enabled to block merges that fail checks.
+
+
 - run: 
 pre-commit run --all-files
 
