@@ -17,3 +17,4 @@ writeFrequency = 20 # Frequency of writing output data 0 is no output
 [video]
 createVideo = true # Enable or disable video creation
 videoFPS = 30 # Frames per second for the video
+totalOil = true # Show total oil amount in the visualization

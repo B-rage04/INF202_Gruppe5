@@ -7,8 +7,10 @@ from tqdm import tqdm
 
 class VideoCreator:
 
-    def __init__(self, imageDir="Output/images/", fps=10):
-        self.imageDir = Path(imageDir)
+    def __init__(self, imageDir="Output/images/", fps=10, **kwargs):
+
+        self.image_dir = Path(imageDir)
+        self.imageDir = self.image_dir
         self.fps = fps
 
     def createVideoFromRun(self, runNumber, outputPath=None):

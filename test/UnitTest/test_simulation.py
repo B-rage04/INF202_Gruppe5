@@ -57,19 +57,19 @@ def test_sim_init_dt(monkeypatch, config):
     sim = Simulation(config)
     assert sim._dt == 1.0
 
+
 def test_sim_init_ct(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     assert sim._currentTime == 0
 
+
 def test_sim_init_ov(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     assert len(sim._oilVals) == 2
-
-
 
 
 def test_get_oil_vals(monkeypatch, config):
@@ -146,11 +146,13 @@ def test_update_oil_skips_non_triangle(monkeypatch):
         }
     )
     sim.update_oil()
-    sim = Simulation({
-        "geometry": {"meshName": "dummy"},
-        "settings": {"tStart":0,"tEnd":1,"nSteps":1},
-        "IO": {"writeFrequency":1}
-    })
+    sim = Simulation(
+        {
+            "geometry": {"meshName": "dummy"},
+            "settings": {"tStart": 0, "tEnd": 1, "nSteps": 1},
+            "IO": {"writeFrequency": 1},
+        }
+    )
     sim.updateOil()
 
 
