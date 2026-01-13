@@ -15,6 +15,8 @@ class Cell(ABC):
     def __init__(self, msh, cell_points, cell_id):
         self.type = None
         self.id = cell_id
+        # keep reference to mesh so we can compute geometry against all cells
+        self._msh = msh
         # set backing fields directly to avoid invoking property setters
         self._cords = [msh.points[i] for i in cell_points]
         self._midPoint = self.findMidpoint()
@@ -66,7 +68,11 @@ class Cell(ABC):
     @property  # TODO: test getters and setters
     def scaledNormal(self):
         if self._scaledNormal is None:
-            val = self.findScaledNormales()
+            # try to compute scaled normals with access to all cells when available
+            if getattr(self, "_msh", None) is not None:
+                val = self.findScaledNormales(self._msh.cells)
+            else:
+                val = self.findScaledNormales()
             # ensure numpy array
             self._scaledNormal = np.array(val) if val is not None else np.zeros(3)
         return self._scaledNormal
