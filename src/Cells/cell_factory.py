@@ -1,4 +1,5 @@
 from tqdm import tqdm
+
 from src.Cells.line import Line
 from src.Cells.triangle import Triangle
 
