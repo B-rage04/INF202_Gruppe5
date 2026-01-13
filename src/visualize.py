@@ -9,7 +9,7 @@ class Visualizer:
         self.vmin = None
         self.vmax = None
 
-    def plotting(self, oil, filepath="Output/images/", run=None, step=None, **kwargs):
+    def plotting(self, oil, filepath="Output/images/", run=None, step=None, totalOilFlag=True, **kwargs):
         # Set vmin and vmax on first call
         if self.vmin is None or self.vmax is None:
             self.vmin = min(oil)
