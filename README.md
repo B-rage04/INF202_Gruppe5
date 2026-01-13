@@ -19,6 +19,6 @@ pre-commit run --all-files
 pytest -q --maxfail=1  
 tox 
 isort .  
-black . 😊😊😊😊😊😊😊😊😊😊😊😊😊😊😊😊😊
+black .
 
 
