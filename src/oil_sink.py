@@ -73,9 +73,9 @@ def compute_source(
         ascii="-#",
     ):
         if getattr(cell, "type", None) != "triangle":
-    for cell in mesh.cells:
-        if getattr(cell, "type", None) != "triangle":  # TODO:
-            continue
+            for cell in mesh.cells:
+                if getattr(cell, "type", None) != "triangle":  # TODO:
+                    continue
 
         cell_xy = np.array([cell.midpoint[0], cell.midpoint[1]])
         d = np.linalg.norm(cell_xy - source_xy)
