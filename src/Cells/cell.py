@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from tqdm import tqdm
 
 
 class Cell(ABC):
@@ -129,6 +130,16 @@ class Cell(ABC):
         # TODO: else calculate it and set and return it
 
     def findNGB(self, allCells):
+        for other in tqdm(
+            allCells,
+            desc=f"Cell {self.id:04d} topology",
+            unit="cell",
+            leave=False,
+            colour="green",
+            ascii="-#",
+            disable=len(allCells) < 100,
+        ):
+            if other.id == self.id:
         for other in allCells:
             if other.id == self.id:  # TODO: test this
                 continue
