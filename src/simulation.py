@@ -189,7 +189,6 @@ class Simulation:
         # allow createVideo to be passed, otherwise fall back to config
         if createVideo is None:
             createVideo: bool = self._config.get("video", {}).get("createVideo", False)
-            print(f"createVideo from config: {createVideo}")
         else:
             createVideo = bool(createVideo)
 
@@ -203,7 +202,7 @@ class Simulation:
             filepath=str(self._imageDir),
             run=runNumber,
             step=0,
-            totalOilFlag=self._config.get("video", {}).get("totalOil", False),
+            config=self._config,
             **kwargs,
         )
 

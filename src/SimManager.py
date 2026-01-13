@@ -63,7 +63,7 @@ def main(
 
         sim = Simulation(simCFG)
 
-        print(f"Running simulation {run_number}...")
+        print(f"\nRunning simulation {run_number}...")
         path = sim.run_sim(runNumber=run_number, **kwargs)
 
         if path is not None:

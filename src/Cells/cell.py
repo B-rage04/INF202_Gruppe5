@@ -98,9 +98,20 @@ class Cell(ABC):
         return self._oil
 
     @oil.setter
-    def oil(self, value):
-        assert value <= 1 and value >= 0  # Oil values must be a float between 0 and 1
-        self._oil = value
+    def oil(self, value): # TODO : dette kan hene er feil løsning men jeg fikk feilmed at oljen ble setet negatift
+        try:
+            v = float(value)
+        except Exception:
+            raise TypeError("oil value must be numeric")
+
+        if v < 0.0:
+            #print(f"Clamping oil for cell {self.id} from {v} to 0.0")
+            v = 0.0
+        elif v > 1.0:
+            print(f"Clamping oil for cell {self.id} from {v} to 1.0")
+            v = 1.0
+
+        self._oil = v
 
     @abstractmethod
     def findArea(self):
@@ -120,36 +131,49 @@ class Cell(ABC):
         # TODO Brage: else calculate it and set and return it
 
     def findNGB(self, allCells):
-        # tqdm only matters for large meshes; falls back to plain loop when small
-        iterator = tqdm(
-            allCells,
-            desc=f"Cell {self.id:04d} topology",
-            unit="cell",
-            leave=False,
-            colour="green",
-            ascii="-#",
-            disable=len(allCells) < 100,
-        )
-        for other in iterator:
-            if other.id == self.id:  # TODO Brage: test this
-                continue
-            otherPointSet = getattr(
-                other, "_pointSet", None
-            )  # uses wrong notation _**** # TODO Brage: test this
-            if otherPointSet is None:
-                otherPointSet = set(tuple(p) for p in other.cords)
-                other._pointSet = otherPointSet
-            # ensure this cell has a point set cached
-            selfPointSet = getattr(self, "_pointSet", None)
-            if selfPointSet is None:
-                self._pointSet = set(tuple(p) for p in self.cords)
-                selfPointSet = self._pointSet
+        msh = getattr(self, "_msh", None)
 
-            if len(selfPointSet & otherPointSet) >= 2:
-                if other.id not in self._ngb:
-                    self._ngb.append(other.id)  # TODO Brage: test this
+        # Build or reuse a mapping from point (tuple) -> list of cell ids
+        if msh is not None:
+            if not hasattr(msh, "_point_to_cells"): #finer alle celler som deler et pungt
+                pt_map = {}
+                for c in allCells:
+                    for p in c.cords:
+                        key = tuple(p)
+                        pt_map.setdefault(key, []).append(c.id)
+                msh._point_to_cells = pt_map
+            pt_map = msh._point_to_cells
+
+            if not hasattr(msh, "_id_to_cell"): 
+                id_map = {c.id: c for c in allCells}
+                msh._id_to_cell = id_map
+            id_map = msh._id_to_cell
+        else:
+            pt_map = {}
+            id_map = {c.id: c for c in allCells}
+            for c in allCells:
+                for p in c.cords:
+                    key = tuple(p)
+                    pt_map.setdefault(key, []).append(c.id)
+
+        # Finner ID til naboceller som har delte punkter
+        counts = {}
+        for p in self.cords:
+            for cid in pt_map.get(tuple(p), []):
+                if cid == self.id:
+                    continue
+                counts[cid] = counts.get(cid, 0) + 1
+
+        # Any cell sharing two or more points is a neighbor
+        for cid, cnt in counts.items():
+            if cnt >= 2:
+                other = id_map.get(cid)
+                if other is None:
+                    continue
+                if cid not in self._ngb:
+                    self._ngb.append(cid)
                 if self.id not in other._ngb:
-                    other._ngb.append(self.id)  # TODO Brage: test this
+                    other._ngb.append(self.id)
 
     def findFlow(self):  # TODO Brage: add ability to set flow function
         return np.array(

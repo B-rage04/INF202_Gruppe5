@@ -15,7 +15,6 @@ class Visualizer:
         filepath="Output/images/",
         run=None,
         step=None,
-        totalOilFlag=True,
         **kwargs,
     ):
         # Set vmin and vmax on first call
@@ -23,7 +22,8 @@ class Visualizer:
             self.vmin = min(oil)
             self.vmax = max(oil)
 
-        totalOilFlag = kwargs.get("totalOilFlag", False)
+        config = kwargs.get("config", {})
+        totalOilFlag = config.get("video", {}).get("totalOilFlag", False)
 
         cmap = plt.cm.get_cmap("viridis")
 

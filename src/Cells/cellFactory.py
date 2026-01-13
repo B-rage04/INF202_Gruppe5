@@ -48,13 +48,22 @@ class CellFactory:
 
         for cell in tqdm(
             self.cellList,
-            desc="Computing cell topology",
+            desc="Computing cell NGB",
             unit="cell",
             colour="green",
             ncols=100,
             ascii="-#",
         ):
             cell.findNGB(self.cellList)
+
+        for cell in tqdm(
+            self.cellList,
+            desc="Computing cell Normals",
+            unit="cell",
+            colour="green",
+            ncols=100,
+            ascii="-#",
+        ):
             cell.findScaledNormales(self.cellList)
 
         return self.cellList
