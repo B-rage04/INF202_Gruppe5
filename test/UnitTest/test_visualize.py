@@ -16,10 +16,14 @@ from src.visualize import Visualizer
 
 class TestMesh:
     def __init__(self):
-        self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+        self.points = np.array(
+            [[0.0, 0.0, 0.0], 
+            [1.0, 0.0, 0.0], 
+            [0.0, 1.0, 0.0]]
+        )
         self.cells_dict = {"triangle": np.array([[0, 1, 2]])}
         self.triangles = np.array([[0, 1, 2]])
-        self.cells = [SimpleNamespace(type="triangle", data=np.array([[0, 1, 2]]))]
+        self.cells = [SimpleNamespace(type="triangle", oil=1.0, area=1.0)]
 
 
 @pytest.fixture
@@ -29,6 +33,7 @@ def test_mesh():
 @pytest.fixture
 def visualizer(test_mesh):
     return Visualizer(test_mesh)
+
 
 def test_visualizer_init_mesh(test_mesh):
     vslzr = Visualizer(test_mesh)
@@ -42,14 +47,13 @@ def test_visualizer_init_vmax(test_mesh):
     vslzr = Visualizer(test_mesh)
     assert vslzr.vmax == None
 
-def test_plotting_sets_vmax(visualizer):
-    oil = [0.1]
-    visualizer.plotting(oil)
+def test_plotting_sets_vmax(visualizer, tmp_path):
+    visualizer.plotting([0.1], filepath=tmp_path)
     assert visualizer.vmax == 0.1
 
-def test_plotting_sets_vmin(visualizer):
+def test_plotting_sets_vmin(visualizer, tmp_path):
     oil = [0.1]
-    visualizer.plotting(oil)
+    visualizer.plotting(oil, filepath=tmp_path)
     assert visualizer.vmin == 0.1
 
 def test_plotting_filepath_no_run(visualizer, tmp_path):
