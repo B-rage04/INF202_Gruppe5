@@ -147,7 +147,7 @@ def test_show(monkeypatch, visualizer):
     visualizer.plotting([0.1], filepath=None)
     assert shown["called"]
 
-def test_total_oil_exception(monkeypatch, tmp_path):
+def test_total_oil_exception(tmp_path):
     class BadMesh:
         points = np.array([[0, 0], [1, 0], [0, 1]])
         triangles = np.array([[0, 1, 2]])
