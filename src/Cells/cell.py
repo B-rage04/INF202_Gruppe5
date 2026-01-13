@@ -15,12 +15,12 @@ class Cell(ABC):
 
     def __init__(self, msh, cell_points, cell_id):
         self.type = None
-        self.id = cell_id
+        self._id = cell_id
         # keep reference to mesh so we can compute geometry against all cells
         self._msh = msh
         # set backing fields directly to avoid invoking property setters
         self._cords = [msh.points[i] for i in cell_points]
-        self._midPoint = self.findMidpoint()
+        self._midPoint = self.findMidPoint()
         self._area = self.findArea()
         self._scaledNormal = None
         self._pointSet = None
@@ -29,41 +29,34 @@ class Cell(ABC):
         self._oil = self.findOil()
         self.newOil = []
 
-    @property  # TODO Brage Brage: test getters and setters
+    @property
     def id(self):
         return self._id
 
-    @id.setter  # TODO Brage: test getters and setters
+    @id.setter
     def id(self, value):
         self._id = value
 
-    @property  # TODO Brage: test getters and setters
+    @property
     def cords(self):
         return self._cords
 
-    @cords.setter  # TODO Brage: test getters and setters
+    @cords.setter
     def cords(self, value):
         self._cords = list(value)
-        self._midPoint = None
-        self._area = None
-        self._scaledNormal = None
+        self._midPoint = self.findMidPoint()
+        self._area = self.findArea()
+        self._scaledNormal = self.findScaledNormales()
         self._pointSet = None
-        self._flow = None
-        self._oil = None
+        self._flow = self.findFlow()
+        self._oil = self.findOil()
 
-    @property  # TODO Brage: test getters and setters
+    @property
     def midPoint(self):
-        if self._midPoint is None:
-            if len(self._cords) == 0:
-                self._midPoint = np.array([0.0, 0.0, 0.0])
-            else:
-                self._midPoint = np.mean(self._cords, axis=0)
         return self._midPoint
 
-    @property  # TODO Brage: test getters and setters
+    @property
     def area(self):
-        if self._area is None:
-            self._area = self.findArea()
         return self._area
 
     @property  # TODO Brage: test getters and setters
@@ -84,17 +77,17 @@ class Cell(ABC):
             self._pointSet = set(tuple(p) for p in self._cords)
         return self._pointSet
 
-    @property  # TODO Brage: test getters and setters
+    @property
     def ngb(self):
         return self._ngb
 
-    @property  # TODO Brage: test getters and setters
+    @property
     def flow(self):
         if self._flow is None:
             self._flow = np.array(self.findFlow())
         return self._flow
 
-    @flow.setter  # TODO Brage: test getters and setters
+    @flow.setter
     def flow(self, value):
         self._flow = np.array(value)
 
@@ -104,25 +97,22 @@ class Cell(ABC):
             self._oil = self.findOil()
         return self._oil
 
-    @oil.setter  # TODO Brage: test getters and setters
-    def oil(self, value):  # can not be more than x
+    @oil.setter
+    def oil(self, value):
+        assert value <= 1 and value >= 0  # Oil values must be a float between 0 and 1
         self._oil = value
 
     @abstractmethod
-    def findArea(self):  # TODO Brage: test this
+    def findArea(self):
+        """
+        See child class for individual claculations
+        """
         pass
-        # TODO Brage: if has attribute return it
-        # TODO Brage: else calculate it and set and return it
 
-    def findMidpoint(self):  # TODO Brage: get midpoint # TODO Brage: test this
-        if len(self.cords) == 0:
-            return np.array([0, 0, 0])
+    def findMidPoint(self):  # TODO Brage: test this
         return np.mean(self.cords, axis=0)
 
-        # TODO Brage: if has attribute return it
-        # TODO Brage: else calculate it and set and return it
-
-    def findScaledNormales(self, all_cells=None):  # TODO Brage: all_cells?
+    def findScaledNormales(self, all_cells=None):
         self._scaledNormal = []
         return self._scaledNormal
 
