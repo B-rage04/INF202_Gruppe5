@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from tqdm import tqdm
 
 
 class Cell(ABC):
@@ -129,7 +130,17 @@ class Cell(ABC):
         # TODO: else calculate it and set and return it
 
     def findNGB(self, allCells):
-        for other in allCells:
+        # tqdm only matters for large meshes; falls back to plain loop when small
+        iterator = tqdm(
+            allCells,
+            desc=f"Cell {self.id:04d} topology",
+            unit="cell",
+            leave=False,
+            colour="green",
+            ascii="-#",
+            disable=len(allCells) < 100,
+        )
+        for other in iterator:
             if other.id == self.id:  # TODO: test this
                 continue
             otherPointSet = getattr(

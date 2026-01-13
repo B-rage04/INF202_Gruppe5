@@ -1,4 +1,5 @@
 import tomllib as toml
+from tqdm import tqdm
 
 
 class LoadTOML:
@@ -26,10 +27,17 @@ class LoadTOML:
         import os
 
         if os.path.isdir(simConfigPath):
-            for fileName in os.listdir(simConfigPath):
-                if fileName.endswith(".toml"):
-                    fullPath = os.path.join(simConfigPath, fileName)
-                    simConfigs.append(self.loadTomlFile(fullPath))
+            files = [f for f in os.listdir(simConfigPath) if f.endswith(".toml")]
+            for fileName in tqdm(
+                files,
+                desc="Loading configuration files",
+                unit="file",
+                colour="magenta",
+                ncols=100,
+                ascii="-#",
+            ):
+                fullPath = os.path.join(simConfigPath, fileName)
+                simConfigs.append(self.loadTomlFile(fullPath))
         else:
             simConfigs.append(self.loadTomlFile(simConfigPath))
 
