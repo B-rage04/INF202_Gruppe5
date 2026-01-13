@@ -15,6 +15,8 @@ class Visualizer:
             self.vmin = min(oil)
             self.vmax = max(oil)
 
+        totalOilFlag = kwargs.get("totalOilFlag", False)
+
         cmap = plt.cm.get_cmap("viridis")
 
         fig = plt.figure()
@@ -32,7 +34,7 @@ class Visualizer:
         )
 
         plt.colorbar(label="Oil concentration")
-        totalOilFlag = True
+        
         if totalOilFlag:
             # Compute total oil amount (area-weighted sum over triangle cells)
             try:
