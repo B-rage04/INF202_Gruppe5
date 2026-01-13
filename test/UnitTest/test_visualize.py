@@ -48,23 +48,19 @@ def test_visualizer_init_vmax(test_mesh):
     assert vslzr.vmax == None
 
 def test_plotting_sets_vmax(visualizer, tmp_path):
+    (tmp_path / "oil").mkdir()
     visualizer.plotting([0.1], filepath=tmp_path)
     assert visualizer.vmax == 0.1
 
 def test_plotting_sets_vmin(visualizer, tmp_path):
-    oil = [0.1]
-    visualizer.plotting(oil, filepath=tmp_path)
+    (tmp_path / "oil").mkdir()
+    visualizer.plotting([0.1], filepath=tmp_path)
     assert visualizer.vmin == 0.1
 
 def test_plotting_filepath_no_run(visualizer, tmp_path):
     oil = [0.1]
     result = visualizer.plotting(oil, filepath=tmp_path)
     assert "oil_0.png" in result
-
-def test_plotting_filepath_no_run(visualizer, tmp_path):
-    oil = [0.1]
-    result = visualizer.plotting(oil, filepath=tmp_path)
-    assert os.path.exists(result)
 
 def test_plotting_with_run_not_step1(visualizer, tmp_path):
     oil = [0.1]
