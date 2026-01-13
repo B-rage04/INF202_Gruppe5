@@ -19,14 +19,31 @@ def triangles():
     return cells
 
 
-def test_triangles_are_neighbors(triangles):
+def test_triangle_t1_neighbor_to_t0(triangles):
     t0, t1 = triangles
 
     assert t1.id in t0.ngb
+
+
+def test_triangle_t0_neighbor_to_t1(triangles):
+    t0, t1 = triangles
+
     assert t0.id in t1.ngb
 
-    assert t0.ngb.count(t1.id) == 1
+
+def test_triangle_t1_neighbor_to_t0_with_ID(triangles):
+    t0, t1 = triangles
+
     assert t1.ngb.count(t0.id) == 1
 
+
+def test_triangle_t0_neighbor_to_t1_with_ID(triangles):
+    t0, t1 = triangles
+
+    assert t0.ngb.count(t1.id) == 1
+
+
+def test_triangle_pointSet(triangles):
+    t0, t1 = triangles
+
     assert hasattr(t0, "_pointSet") and isinstance(t0._pointSet, set)
-    assert hasattr(t1, "_pointSet") and isinstance(t1._pointSet, set)

@@ -18,7 +18,7 @@ class MockMesh:
         ]
 
 
-class TestFindScaledNormales:
+class TestFindScaledNormales:  # TODO: test shood be short and only test/asert one thing each
     """Test suite for Triangle.find_scaled_normales()."""
 
     def test_no_neighbors_returns_empty(self):

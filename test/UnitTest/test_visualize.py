@@ -10,6 +10,8 @@ import pytest
 
 from src.visualize import Visualizer
 
+# TODO: test shood be short and only test/asert one thing each
+
 
 class TestMesh:
     def __init__(self):

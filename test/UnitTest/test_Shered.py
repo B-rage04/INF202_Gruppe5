@@ -6,6 +6,7 @@ from src.Cells.cell import Cell
 from src.Cells.triangle import Triangle
 
 
+# TODO: test shood be short and only test/asert one thing each
 class MockMesh:
     def __init__(self):
         # Define 3 points forming a right triangle in the XY plane

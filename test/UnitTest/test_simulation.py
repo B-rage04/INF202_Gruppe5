@@ -6,6 +6,7 @@ import pytest
 from src.simulation import Simulation
 
 
+# TODO: test shood be short and only test/asert one thing each
 class FakeCell:
     def __init__(self, cid, oil, area=1.0):
         self.id = cid

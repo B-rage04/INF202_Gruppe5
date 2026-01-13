@@ -1,5 +1,7 @@
 import numpy as np
+import pytest
 
+from src.Cells.cell import Cell
 from src.Cells.line import Line
 
 
@@ -13,12 +15,6 @@ def test_line_initialization_and_area():
     assert ln.type == "line"
     assert ln.findArea() is None
     assert ln.area is None
-
-
-import pytest
-
-from src.Cells.cell import Cell
-from src.Cells.line import Line
 
 
 def test_line_is_subclass():
