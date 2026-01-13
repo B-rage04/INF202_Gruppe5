@@ -58,9 +58,9 @@ def main(
         if "imagesDir" not in simCFG["IO"]:
             simCFG["IO"]["imagesDir"] = images_dir
 
+        # Pick the next free run number based on current contents of the image directory
         run_number = _next_run_number(images_dir)
 
-    for idx, simCFG in enumerate(simConfigs):  # TODO: test multiple simulations configs
         sim = Simulation(simCFG)
 
         print(f"Running simulation {run_number}...")

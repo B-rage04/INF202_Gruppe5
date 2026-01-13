@@ -51,13 +51,25 @@ def config():
 
 
 # --- Tests ---
-def test_sim_init(monkeypatch, config):
+def test_sim_init_dt(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
-    assert sim.dt == 1.0
-    assert sim.CurrentStep == 0
-    assert len(sim.oil_vals) == 2
+    assert sim._dt == 1.0
+
+def test_sim_init_ct(monkeypatch, config):
+    monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
+    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    sim = Simulation(config)
+    assert sim._currentTime == 0
+
+def test_sim_init_ov(monkeypatch, config):
+    monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
+    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    sim = Simulation(config)
+    assert len(sim._oilVals) == 2
+
+
 
 
 def test_get_oil_vals(monkeypatch, config):
@@ -71,8 +83,8 @@ def test_flux_upwind(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
-    c0, c1 = sim.msh.cells
-    f = sim.flux(0, c0, 1)
+    c0, c1 = sim._msh.cells
+    f = sim._computeFlux(0, c0, 1)
     assert f == c0.oil * 1.0
 
 
@@ -80,9 +92,9 @@ def test_flux_downwind(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
-    c0, c1 = sim.msh.cells
-    c0.scaled_normal = [np.array([-1.0, 0.0])]
-    f = sim.flux(0, c0, 1)
+    c0, c1 = sim._msh.cells
+    c0._scaledNormal = [np.array([-1.0, 0.0])]
+    f = sim._computeFlux(0, c0, 1)
     assert f == c1.oil * -1.0
 
 
@@ -90,9 +102,9 @@ def test_update_oil_changes_oil(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
-    before = [c.oil for c in sim.msh.cells]
-    sim.update_oil()
-    after = [c.oil for c in sim.msh.cells]
+    before = [c.oil for c in sim._msh.cells]
+    sim.updateOil()
+    after = [c.oil for c in sim._msh.cells]
     assert before != after
 
 
@@ -109,7 +121,7 @@ def test_update_oil_warn(monkeypatch, config, capsys):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: BadMesh())
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
-    sim.update_oil()
+    sim.updateOil()
     captured = capsys.readouterr()
     assert "Warning: Cell, 0, was None" in captured.out
 
@@ -134,6 +146,12 @@ def test_update_oil_skips_non_triangle(monkeypatch):
         }
     )
     sim.update_oil()
+    sim = Simulation({
+        "geometry": {"meshName": "dummy"},
+        "settings": {"tStart":0,"tEnd":1,"nSteps":1},
+        "IO": {"writeFrequency":1}
+    })
+    sim.updateOil()
 
 
 def test_run_sim_plotting(monkeypatch, config):
@@ -219,7 +237,7 @@ def test_update_oil_warn_and_assign(monkeypatch, config, capsys):
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
 
     sim = Simulation(config)
-    sim.update_oil()
+    sim.updateOil()
 
     captured = capsys.readouterr()
     assert "Warning: Cell, 42, was None" in captured.out

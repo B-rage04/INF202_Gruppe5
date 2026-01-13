@@ -18,7 +18,7 @@ class VideoCreator:
             raise FileNotFoundError(f"Run directory {runDir} does not exist")
 
         image_files = sorted(
-            runDir.glob("oil_step*.png"), key=lambda x: int(x.stem.split("step")[1])
+            runDir.glob("oilStep*.png"), key=lambda x: int(x.stem.split("Step")[1])
         )
 
         if not image_files:
