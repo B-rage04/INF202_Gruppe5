@@ -1,5 +1,5 @@
 import matplotlib
-
+from pathlib import path
 matplotlib.use("Agg")
 
 import os
@@ -58,9 +58,10 @@ def test_plotting_sets_vmin(visualizer, tmp_path):
     assert visualizer.vmin == 0.1
 
 def test_plotting_filepath_no_run(visualizer, tmp_path):
-    oil = [0.1]
-    result = visualizer.plotting(oil, filepath=tmp_path)
-    assert "oil_0.png" in result
+    (tmp_path / "oil").mkdir()
+    result = visualizer.plotting([0.1], filepath=tmp_path)
+    ex_path = path(tmp_path) / "oil" / "0.png"
+    assert result.endswith("oil/0.png")
 
 def test_plotting_with_run_not_step1(visualizer, tmp_path):
     oil = [0.1]
