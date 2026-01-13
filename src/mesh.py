@@ -22,9 +22,10 @@ class Mesh:
         )  # TODO: test try to call
         self._triangles: List[Any] = getattr(self._msh, "cells_dict", {}).get(
             "triangle", []
-        )  # TODO: test try to call
-        self._cells = CellFactory(self._msh)  # TODO: test try to call
+        )
 
+        self._cellFactory = CellFactory(self._msh)  # TODO: test try to call
+        self._cells = self._cellFactory() # TODO: test try to call
     def _readMesh(self, file: str) -> Any:
         try:  # TODO: test this
             import meshio
