@@ -229,9 +229,10 @@ class Simulation:
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:
             logger.info("Creating video for run %s", runNumber)
-            # call VideoCreator with fps as first arg for compatibility with tests
-            videoCreator = VideoCreator(videoFps)
-            # prefer snake_case method if available
+
+            
+            videoCreator = VideoCreator(imageDir=self._imageDir, fps=videoFps)
+            
             if hasattr(videoCreator, "createVideo_from_run"):
                 videoPath = videoCreator.createVideo_from_run(runNumber)
             else:
