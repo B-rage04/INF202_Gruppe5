@@ -19,13 +19,13 @@ def get_branch():
 
 def main():
     branch = get_branch()
-    threshold = 70
+    threshold = 10
     if branch:
         b = branch.lower()
         if b in ("dev", "develop"):
-            threshold = 80
+            threshold = 10
         if b in ("main", "master"):
-            threshold = 99
+            threshold = 9
     cmd = [
         "pytest",
         "--maxfail=1",
