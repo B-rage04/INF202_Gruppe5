@@ -59,8 +59,25 @@ def test_sim_init(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     assert sim.dt == 1.0
+
+
+def test_sim_init(monkeypatch, config):
+    from src.simulation import Simulation
+
+    monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
+    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    sim = Simulation(config)
     assert sim.currentTime == 0.0
+
+
+def test_sim_init(monkeypatch, config):
+    from src.simulation import Simulation
+
+    monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())
+    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    sim = Simulation(config)
     assert len(sim.oilVals) == 2
+
 
 
 def test_get_oil_vals(monkeypatch, config):
@@ -121,6 +138,7 @@ def test_run_sim_calls_plotting(monkeypatch, config):
     sim.run_sim(runNumber=1, createVideo=False)
 
     assert mock_vs.plotting.called
+
 
 def test_run_sim_creates_video(monkeypatch, config):
     monkeypatch.setattr("src.simulation.Mesh", lambda _: FakeMesh())

@@ -22,7 +22,6 @@ class CellFactory:
         for cell in self.cellList:
             cell.findNGB(self.cellList)
 
-
         for cell in self.cellList:
             print(len(cell.ngb))
             cell.findScaledNormales(self.cellList)
