@@ -13,16 +13,18 @@ class CellFactory:
             self.cell_types[key] = ctype
 
     def __call__(self):
-
+        IDx = 0
         for cellblock in self.msh.cells[8:12]:
             cellType = cellblock.type
-            for idx, cell in enumerate(cellblock.data):
-                self.cellList.append(self.cellTypes[cellType](self.msh, cell, idx))
+            for cell in cellblock.data:
+                self.cellList.append(self.cellTypes[cellType](self.msh, cell, IDx))
 
         for cell in self.cellList:
             cell.findNGB(self.cellList)
 
+
         for cell in self.cellList:
+            print(len(cell.ngb))
             cell.findScaledNormales(self.cellList)
 
         return self.cellList
