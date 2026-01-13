@@ -15,7 +15,10 @@ class Visualizer:
             self.vmin = min(oil)
             self.vmax = max(oil)
 
-        totalOilFlag = kwargs.get("totalOilFlag", False)
+        # Prefer an explicitly passed `totalOilFlag` argument; if a caller
+        # provided it via `kwargs`, use that value but otherwise keep the
+        # function parameter's value.
+        totalOilFlag = kwargs.pop("totalOilFlag", totalOilFlag)
 
         cmap = plt.cm.get_cmap("viridis")
 
