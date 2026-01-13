@@ -7,6 +7,7 @@ from src.simulation import Simulation
 
 
 # TODO: test shood be short and only test/asert one thing each
+# TODO: Fix names and Fcitures of "reapeet" tests
 class FakeCell:
     def __init__(self, cid, oil, area=1.0):
         self.id = cid
