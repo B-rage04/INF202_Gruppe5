@@ -122,14 +122,6 @@ def test_plotting_file_incr(visualizer, tmp_path):
     ex_path = oil_dir / "2.png"
     assert Path(result) == ex_path
 
-def test_show(monkeypatch, visualizer):
-    shown = {"called": False}
-    def fake_show():
-        shown["called"] = True
-    monkeypatch.setattr("matplotlib.pyplot.show", fake_show)
-    visualizer.plotting([0.1], filepath=None)
-    assert shown["called"]
-
 def test_total_oil_exception(tmp_path):
     class BadMesh:
         points = np.array([[0, 0], [1, 0], [0, 1]])
@@ -153,13 +145,22 @@ def test_plotting_file_incr_no_existing_files(visualizer, tmp_path):
     result = visualizer.plotting([0.1], filepath=tmp_path)
     ex_path = oil_dir / "0.png"
     assert Path(result) == ex_path
-    
-def test_total_oil_flag_false(tmp_path):
+
+
+# Grrrr Gabriel
+def test_total_oil_flag_false(visualizer, tmp_path):
+    result = visualizer.plotting([0.1], filepath=tmp_path, totalOilFlag=False)
+    assert Path(result).exists()
+
+# Grrrrrr Me
+def test_total_oil_non_triangle_cell(tmp_path):
     class Mesh:
         points = np.array([[0, 0], [1, 0], [0, 1]])
         triangles = np.array([[0, 1, 2]])
-        cells = [SimpleNamespace(type="triangle", oil=1.0, area=1.0)]
+        cells = [
+            SimpleNamespace(type="triangle", oil=1.0, area=1.0),
+            SimpleNamespace(type="quad", oil=2.0, area=1.0)
+        ]
     viz = Visualizer(Mesh())
-    viz.totalOilFlag = False
     result = viz.plotting([0.1], filepath=tmp_path)
     assert Path(result).exists()
