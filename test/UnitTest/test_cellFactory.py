@@ -13,12 +13,24 @@ def test_cell_factory_with_cells_list():
             self.cells = [SimpleNamespace(type="triangle", data=np.array([[0, 1, 2]]))]
 
     msh = DummyMesh()
-    cells = CellFactory(msh)
+    cellFac = CellFactory(msh)
+    cells = cellFac()
     assert len(cells) == 1
+
+
+def test_cell_factory_with_cells_list():  # TODO: Fix names and Fcitures of "reapeet" tests
+    class DummyMesh:
+        def __init__(self):
+            self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+            # simulate meshio CellBlock-like object using SimpleNamespace
+            self.cells = [SimpleNamespace(type="triangle", data=np.array([[0, 1, 2]]))]
+
+    msh = DummyMesh()
+    cells = CellFactory(msh)
     assert cells[0].type == "triangle"
 
 
-def test_cell_factory_with_triangle_and_line():
+def test_cell_factory_with_triangle_and_line():  # TODO: Fix names and Fcitures of "reapeet" tests
     class DummyMesh:
         def __init__(self):
             self.points = np.array(
@@ -30,7 +42,8 @@ def test_cell_factory_with_triangle_and_line():
             ]
 
     msh = DummyMesh()
-    cells = CellFactory(msh)
+    cellFac = CellFactory(msh)
+    cells = cellFac()
     # should create one triangle and one line cell
     types = sorted([c.type for c in cells])
     assert types == ["line", "triangle"]

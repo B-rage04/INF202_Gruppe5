@@ -64,7 +64,7 @@ class Visualizer:
                 runDir = outDir / f"run{run}"
                 runDir.mkdir(parents=True, exist_ok=True)
                 if step is not None:
-                    outPath = runDir / f"oil_step{step}.png"
+                    outPath = runDir / f"oilStep{step}.png"
                 else:
                     outPath = runDir / f"oilRun{run}.png"
             else:

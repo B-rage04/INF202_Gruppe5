@@ -1,9 +1,11 @@
 import numpy as np
+import pytest
 
+from src.Cells.cell import Cell
 from src.Cells.line import Line
 
 
-def test_line_initialization_and_area():
+def test_line_initialization_and_area(): # TODO: Fix names and Fcitures of "reapeet" tests
     class DummyMesh:
         def __init__(self):
             self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
@@ -11,14 +13,25 @@ def test_line_initialization_and_area():
     msh = DummyMesh()
     ln = Line(msh, [0, 1], 0)
     assert ln.type == "line"
+
+def test_line_initialization_and_area(): # TODO: Fix names and Fcitures of "reapeet" tests
+    class DummyMesh:
+        def __init__(self):
+            self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+    msh = DummyMesh()
+    ln = Line(msh, [0, 1], 0)
     assert ln.findArea() is None
-    assert ln.area is None
 
 
-import pytest
+def test_line_initialization_and_area(): # TODO: Fix names and Fcitures of "reapeet" tests
+    class DummyMesh:
+        def __init__(self):
+            self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
-from src.Cells.cell import Cell
-from src.Cells.line import Line
+    msh = DummyMesh()
+    ln = Line(msh, [0, 1], 0)
+    assert ln.type == "line"
 
 
 def test_line_is_subclass():

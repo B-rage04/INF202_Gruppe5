@@ -10,7 +10,9 @@ def write_toml(path, content: str):
     path.write_bytes(content.encode("utf-8"))
 
 
-def test_load_toml_file(tmp_path):
+def test_load_toml_file(
+    tmp_path,
+):  # TODO: test shood be short and only test/asert one thing each
     toml_path = tmp_path / "config.toml"
     toml_content = """
 [settings]
@@ -25,7 +27,9 @@ value = 42
     assert cfg["settings"]["value"] == 42
 
 
-def test_load_sim_configs_with_file(tmp_path):
+def test_load_sim_configs_with_file(
+    tmp_path,
+):  # TODO: test shood be short and only test/asert one thing each
     # create a single sim config file
     sim_file = tmp_path / "sim1.toml"
     sim_content = """
@@ -41,7 +45,18 @@ desc = "single"
     assert sims[0]["sim"]["id"] == 1
 
 
-def test_load_sim_config_with_directory(tmp_path):
+def test_load_sim_config_with_directory(
+    tmp_path,
+):  # TODO: test shood be short and only test/asert one thing each  # TODO: Fix names and Fcitures of "reapeet" tests
+    class DummyMesh:
+        def __init__(self):
+            self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+    msh = DummyMesh()
+    ln = Line(msh, [0, 1], 0)
+    assert ln.type == "line"
+    assert ln.findArea() is None
+    assert ln.area is None
     # create a directory with multiple toml files
     d = tmp_path / "sims"
     d.mkdir()
@@ -56,7 +71,18 @@ def test_load_sim_config_with_directory(tmp_path):
     assert sims[0]["sim"]["id"] == 42
 
 
-def test_load_sim_configs_with_directory(tmp_path):
+def test_load_sim_configs_with_directory(
+    tmp_path,
+):  # TODO: test shood be short and only test/asert one thing each # TODO: Fix names and Fcitures of "reapeet" tests
+    class DummyMesh:
+        def __init__(self):
+            self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+    msh = DummyMesh()
+    ln = Line(msh, [0, 1], 0)
+    assert ln.type == "line"
+    assert ln.findArea() is None
+    assert ln.area is None
     # create a directory with multiple toml files
     d = tmp_path / "sims"
     d.mkdir()

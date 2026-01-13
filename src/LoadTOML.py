@@ -3,7 +3,11 @@ from tqdm import tqdm
 
 
 class LoadTOML:
-    def loadTomlFile(self, filePath) -> dict:
+    def loadTomlFile(
+        self, filePath
+    ) -> (
+        dict
+    ):  # TODO: test valid and invalid paths, test valid and invalid toml content
         """
         Loads a TOML file and returns its contents as a dictionary.
         """
@@ -11,7 +15,9 @@ class LoadTOML:
             config = toml.load(tomlFile)
         return config
 
-    def loadSimConfigs(self, sysConfig) -> list[dict]:
+    def loadSimConfigs(
+        self, sysConfig
+    ) -> list[dict]:  # TODO: test with single file and directory
         """ """
 
         # if directory load all sim configs in dir if single file load that file

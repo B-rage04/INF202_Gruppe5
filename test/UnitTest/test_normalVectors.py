@@ -17,8 +17,8 @@ class MockMesh:
             np.array([0.0, 1.0, 0.0]),  # Point 4
         ]
 
-
-class TestFindScaledNormales:
+#TODO: hvay is it a class?
+class TestFindScaledNormales:  # TODO: test shood be short and only test/asert one thing each
     """Test suite for Triangle.find_scaled_normales()."""
 
     def test_no_neighbors_returns_empty(self):
@@ -190,7 +190,7 @@ class TestFindScaledNormales:
         assert result == [], "Line cell should return empty normals"
         assert line.scaledNormal == [], "Line cell scaledNormal should be empty"
 
-    def test_single_triangle_with_one_neighbor(self):
+    def test_single_triangle_with_one_neighbor(self): # TODO: Fix names and Fcitures of "reapeet" tests 
         """Test simple case: two triangles sharing one edge."""
         msh = MockMesh()
         tri1 = Triangle(msh, [0, 1, 2], cell_id=0)

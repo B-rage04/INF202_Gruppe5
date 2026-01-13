@@ -1,14 +1,14 @@
 from tqdm import tqdm
 from src.Cells.line import Line
-from src.Cells.quad import Quad
 from src.Cells.triangle import Triangle
+from src.Cells.vertex import Vertex
 
 
-def CellFactory(msh):
-    """
-    Creates cells with data from the mesh and returns as a list
-    """
-    cellList = []
+class CellFactory:
+    def __init__(self, msh):
+        self.msh = msh
+        self.cellTypes = {"triangle": Triangle, "line": Line, "vertex": Vertex}
+        self.cellList = []
 
     # msh.cells is a list of CellBlock objects
     IDx = 0
@@ -61,5 +61,21 @@ def CellFactory(msh):
     ):
         cell.findNGB(cellList)
         cell.findScaledNormales(cellList)
+    def register(self, key, ctype):
+        if key not in self.cell_types:
+            self.cell_types[key] = ctype
 
-    return cellList
+    def __call__(self):
+        IDx = 0
+        for cellblock in self.msh.cells:
+            cellType = cellblock.type
+            for cell in cellblock.data:
+                self.cellList.append(self.cellTypes[cellType](self.msh, cell, IDx))
+                IDx += 1
+        for cell in self.cellList:
+            cell.findNGB(self.cellList)
+
+        for cell in self.cellList:
+            cell.findScaledNormales(self.cellList)
+
+        return self.cellList

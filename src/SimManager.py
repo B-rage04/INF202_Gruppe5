@@ -59,6 +59,7 @@ def main(
 
         run_number = _next_run_number(images_dir)
 
+    for idx, simCFG in enumerate(simConfigs):  # TODO: test multiple simulations configs
         sim = Simulation(simCFG)
 
         print(f"Running simulation {run_number}...")

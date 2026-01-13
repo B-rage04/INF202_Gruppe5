@@ -6,9 +6,9 @@ class Line(Cell):
         super().__init__(msh, cellPoints, cell_id)
         self.type = "line"
 
-    def findArea(self):
+    def findArea(self):  # TODO: test this
         return None
 
-    def findScaledNormales(self, allCells=None):
+    def findScaledNormales(self, allCells=None):  # TODO: test this
         self._scaledNormal = []
         return self._scaledNormal

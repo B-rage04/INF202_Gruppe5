@@ -16,6 +16,8 @@ class Cell(ABC):
     def __init__(self, msh, cell_points, cell_id):
         self.type = None
         self.id = cell_id
+        # keep reference to mesh so we can compute geometry against all cells
+        self._msh = msh
         # set backing fields directly to avoid invoking property setters
         self._cords = [msh.points[i] for i in cell_points]
         self._midPoint = self.findMidpoint()
@@ -27,19 +29,19 @@ class Cell(ABC):
         self._oil = self.findOil()
         self.newOil = []
 
-    @property
+    @property  # TODO: test getters and setters
     def id(self):
         return self._id
 
-    @id.setter
+    @id.setter  # TODO: test getters and setters
     def id(self, value):
         self._id = value
 
-    @property
+    @property  # TODO: test getters and setters
     def cords(self):
         return self._cords
 
-    @cords.setter
+    @cords.setter  # TODO: test getters and setters
     def cords(self, value):
         self._cords = list(value)
         self._midPoint = None
@@ -49,7 +51,7 @@ class Cell(ABC):
         self._flow = None
         self._oil = None
 
-    @property
+    @property  # TODO: test getters and setters
     def midPoint(self):
         if self._midPoint is None:
             if len(self._cords) == 0:
@@ -58,37 +60,41 @@ class Cell(ABC):
                 self._midPoint = np.mean(self._cords, axis=0)
         return self._midPoint
 
-    @property
+    @property  # TODO: test getters and setters
     def area(self):
         if self._area is None:
             self._area = self.findArea()
         return self._area
 
-    @property
+    @property  # TODO: test getters and setters
     def scaledNormal(self):
         if self._scaledNormal is None:
-            val = self.findScaledNormales()
+            # try to compute scaled normals with access to all cells when available
+            if getattr(self, "_msh", None) is not None:
+                val = self.findScaledNormales(self._msh.cells)
+            else:
+                val = self.findScaledNormales()
             # ensure numpy array
             self._scaledNormal = np.array(val) if val is not None else np.zeros(3)
         return self._scaledNormal
 
-    @property
+    @property  # TODO: test getters and setters
     def pointSet(self):
         if self._pointSet is None:
             self._pointSet = set(tuple(p) for p in self._cords)
         return self._pointSet
 
-    @property
+    @property  # TODO: test getters and setters
     def ngb(self):
         return self._ngb
 
-    @property
+    @property  # TODO: test getters and setters
     def flow(self):
         if self._flow is None:
             self._flow = np.array(self.findFlow())
         return self._flow
 
-    @flow.setter
+    @flow.setter  # TODO: test getters and setters
     def flow(self, value):
         self._flow = np.array(value)
 
@@ -98,17 +104,17 @@ class Cell(ABC):
             self._oil = self.findOil()
         return self._oil
 
-    @oil.setter
-    def oil(self, value):
+    @oil.setter  # TODO: test getters and setters
+    def oil(self, value):  # can not be more than x
         self._oil = value
 
     @abstractmethod
-    def findArea(self):
+    def findArea(self):  # TODO: test this
         pass
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
 
-    def findMidpoint(self):  # TODO: get midpoint
+    def findMidpoint(self):  # TODO: get midpoint # TODO: test this
         if len(self.cords) == 0:
             return np.array([0, 0, 0])
         return np.mean(self.cords, axis=0)
@@ -134,8 +140,12 @@ class Cell(ABC):
             disable=len(allCells) < 100,
         ):
             if other.id == self.id:
+        for other in allCells:
+            if other.id == self.id:  # TODO: test this
                 continue
-            otherPointSet = getattr(other, "_pointSet", None)
+            otherPointSet = getattr(
+                other, "_pointSet", None
+            )  # uses wrong notation _**** # TODO: test this
             if otherPointSet is None:
                 otherPointSet = set(tuple(p) for p in other.cords)
                 other._pointSet = otherPointSet
@@ -147,12 +157,14 @@ class Cell(ABC):
 
             if len(selfPointSet & otherPointSet) >= 2:
                 if other.id not in self._ngb:
-                    self._ngb.append(other.id)
+                    self._ngb.append(other.id)  # TODO: test this
                 if self.id not in other._ngb:
-                    other._ngb.append(self.id)
+                    other._ngb.append(self.id)  # TODO: test this
 
     def findFlow(self):  # TODO: add ability to set flow function
-        return np.array([self.midPoint[1] - self.midPoint[0] * 0.2, -self.midPoint[0]])
+        return np.array(
+            [self.midPoint[1] - self.midPoint[0] * 0.2, -self.midPoint[0]]
+        )  # TODO: test this
 
         # TODO: if has attribute return it
         # TODO: else calculate it and set and return it
@@ -160,36 +172,4 @@ class Cell(ABC):
     def findOil(self):  # TODO: add ability to set oil function
         return np.exp(
             -(np.linalg.norm(self.midPoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
-        )
-
-    def flux(self, ngb):  # TODO: add ability to set flux function
-        flowAvg = (self.flow + ngb.flow) / 2
-        if np.dot(flowAvg, self.scaledNormal) > 0:
-            return self.oil * np.dot(flowAvg, self.scaledNormal)
-        else:
-            return ngb.oil * np.dot(flowAvg, self.scaledNormal)
-
-    def toDict(self):
-        return {
-            "id": self.id,
-            "cords": [list(map(float, p)) for p in self._cords],
-            "midPoint": list(map(float, self.midPoint)),
-            "area": float(self.area) if self._area is not None else None,
-            "scaledNormal": list(map(float, self.scaledNormal)),
-            "ngb": list(self._ngb),
-            "flow": list(map(float, self.flow)),
-            "oil": float(self.oil),
-            "newOil": list(self.newOil),
-        }
-
-    def updateFromDict(self, data):
-        if "cords" in data:
-            self.cords = [np.array(p) for p in data["cords"]]
-        if "id" in data:
-            self.id = data["id"]
-        if "flow" in data:
-            self.flow = np.array(data["flow"])
-        if "oil" in data:
-            self.oil = data["oil"]
-        if "newOil" in data:
-            self.newOil = list(data["newOil"])
+        )  # TODO: test this

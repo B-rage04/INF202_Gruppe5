@@ -10,6 +10,8 @@ import pytest
 
 from src.visualize import Visualizer
 
+# TODO: test shood be short and only test/asert one thing each
+# TODO: Fix names and Fcitures of "reapeet" tests
 
 class TestMesh:
     def __init__(self):
@@ -29,41 +31,71 @@ def visualizer(test_mesh):
     return Visualizer(test_mesh)
 
 
-def test_visualizer_init(test_mesh):
+def test_visualizer_init_mesh(test_mesh):
     vslzr = Visualizer(test_mesh)
     assert vslzr.mesh == test_mesh
+
+def test_visualizer_init_vmin(test_mesh):
+    vslzr = Visualizer(test_mesh)
     assert vslzr.vmin == None
+
+def test_visualizer_init_vmax(test_mesh):
+    vslzr = Visualizer(test_mesh)
     assert vslzr.vmax == None
 
+def test_plotting_sets_vmax(visualizer):
+    oil = [0.1]
+    visualizer.plotting(oil)
+    assert visualizer.vmax == 0.1
 
-def test_plotting_sets_vmin_vmax(visualizer):
+def test_plotting_sets_vmin(visualizer):
     oil = [0.1]
     visualizer.plotting(oil)
     assert visualizer.vmin == 0.1
-    assert visualizer.vmax == 0.1
 
 
 def test_plotting_filepath_no_run(visualizer, tmp_path):
     oil = [0.1]
     result = visualizer.plotting(oil, filepath=tmp_path)
-    assert os.path.exists(result)
     assert "oil_0.png" in result
 
+def test_plotting_filepath_no_run(visualizer, tmp_path):
+    oil = [0.1]
+    result = visualizer.plotting(oil, filepath=tmp_path)
+    assert os.path.exists(result)
 
-def test_plotting_with_run_not_step(visualizer, tmp_path):
+def test_plotting_with_run_not_step1(visualizer, tmp_path):
     oil = [0.1]
 
     result = visualizer.plotting(oil, filepath=tmp_path, run=1)
     assert os.path.exists(result)
+
+def test_plotting_with_run_not_step2(visualizer, tmp_path):
+    oil = [0.1]
+
+    result = visualizer.plotting(oil, filepath=tmp_path, run=1)
     assert "run1" in result
+
+def test_plotting_with_run_not_step3(visualizer, tmp_path):
+    oil = [0.1]
+
+    result = visualizer.plotting(oil, filepath=tmp_path, run=1)
     assert "oil_run1.png" in result
 
 
-def test_plotting_run_with_steo(visualizer, tmp_path):
+def test_plotting_run_with_steo1(visualizer, tmp_path):
     oil = [0.1]
     result = visualizer.plotting(oil, filepath=tmp_path, run=1, step=10)
     assert os.path.exists(result)
+
+def test_plotting_run_with_steo2(visualizer, tmp_path):
+    oil = [0.1]
+    result = visualizer.plotting(oil, filepath=tmp_path, run=1, step=10)
     assert "run1" in result
+
+def test_plotting_run_with_steo3(visualizer, tmp_path):
+    oil = [0.1]
+    result = visualizer.plotting(oil, filepath=tmp_path, run=1, step=10)
     assert "oil_step10.png" in result
 
 
@@ -80,16 +112,39 @@ def test_v_persist(visualizer, tmp_path):
     assert visualizer.vmin == 0.1
 
 
+def test_v_persist_oil1_vmax(visualizer, tmp_path):
+    oil1 = [0.1]
+
+    visualizer.plotting(oil1, filepath=tmp_path, run=1, step=1)
+    assert visualizer.vmax == 0.1
+
+
+def test_v_persist_oil1_vmin(visualizer, tmp_path):
+    oil1 = [0.1]
+
+    visualizer.plotting(oil1, filepath=tmp_path, run=1, step=1)
+
+    assert visualizer.vmin == 0.1
+
+
+
+def test_v_persist_oil2_vmax(visualizer, tmp_path):
+    oil2 = [0.2]
+
+    visualizer.plotting(oil2, filepath=tmp_path, run=1, step=1)
+    assert visualizer.vmax == 0.1
+    assert visualizer.vmin == 0.1
+
+def test_v_persist_oil2_vmin(visualizer, tmp_path):
+    oil2 = [0.2]
+
+    visualizer.plotting(oil2, filepath=tmp_path, run=1, step=1)
+    assert visualizer.vmin == 0.1
+
 def test_plotting_file_incr(visualizer, tmp_path):
     oil = [0.1]
-
     (tmp_path / "oil_0.png").write_text("")
     (tmp_path / "oil_1.png").write_text("")
-    filepath = "test_images"
-
-    if not os.path.exists(filepath):
-        os.makedirs(filepath)
-
     result = visualizer.plotting(oil, filepath=tmp_path)
     assert "oil_2.png" in result
 

@@ -1,6 +1,6 @@
 
 [settings]
-nSteps = 500 # Number of Total steps
+nSteps = 1000 # Number of Total steps
 tStart = 0.0 # Start time of simulation
 tEnd = 0.5 # End time of simulation
 
@@ -11,9 +11,9 @@ ship = [0.45, 0.4] # Oil collection ship position [x, y]
 source = [0.35, 0.45] # Oil source/injection position [x, y] (optional)
 
 [IO]
-logName = "log" #TODO this need to do somthing
-writeFrequency = 20 # Frequency of writing output data 0 is no output
+logName = "log"
+writeFrequency = 1000
 
 [video]
-createVideo = true # Enable or disable video creation
-videoFPS = 30 # Frames per second for the video
+createVideo = false # Enable or disable video creation
+videoFPS = 10 # Frames per second for the video
