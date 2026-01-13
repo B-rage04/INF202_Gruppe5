@@ -32,7 +32,7 @@ class Visualizer:
         )
 
         plt.colorbar(label="Oil concentration")
-        totalOilFlag = False
+        totalOilFlag = True
         if totalOilFlag:
             # Compute total oil amount (area-weighted sum over triangle cells)
             try:

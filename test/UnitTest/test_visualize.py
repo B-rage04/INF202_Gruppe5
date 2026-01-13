@@ -146,3 +146,13 @@ def test_show(monkeypatch, visualizer):
     monkeypatch.setattr("matplotlib.pyplot.show", fake_show)
     visualizer.plotting([0.1], filepath=None)
     assert shown["called"]
+
+def test_total_oil_exception(monkeypatch, tmp_path):
+    class BadMesh:
+        points = np.array([[0, 0], [1, 0], [0, 1]])
+        triangles = np.array([[0, 1, 2]])
+        cells = [SimpleNamespace(type="triangle", oil="invalid", area=1.0)]
+    
+    vslzr = Visualizer(BadMesh())
+    result = vslzr.plotting([0.1], tmp_path)
+    assert Path(result).exists()
