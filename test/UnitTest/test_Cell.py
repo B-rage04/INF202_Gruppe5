@@ -23,7 +23,7 @@ def testFlow(triangle):
     npt.assert_allclose(triangle.flow, expectedFlow)
 
 
-def testOil(triangle):
+def testOil(triangle): 
     center = triangle.midPoint
     reference = np.array([0.35, 0.45, 0.0])
     expectedOil = np.exp(-(np.linalg.norm(center - reference) ** 2) / 0.01)
