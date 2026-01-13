@@ -73,6 +73,8 @@ class Visualizer:
                     nextnr += 1
                 outPath = outDir / f"oil/{nextnr}.png"
 
+            # ensure parent directory exists (some codepaths may target subfolders)
+            outPath.parent.mkdir(parents=True, exist_ok=True)
             plt.savefig(outPath)
             plt.close(fig)
             return str(outPath)

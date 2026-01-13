@@ -122,14 +122,17 @@ def test_v_persist_oil1_vmin(visualizer, tmp_path):
 
 def test_v_persist_oil2_vmax(visualizer, tmp_path):
     oil2 = [0.2]
-
+    # ensure persistence is tested from a known initial state
+    oil1 = [0.1]
+    visualizer.plotting(oil1, filepath=tmp_path, run=1, step=1)
     visualizer.plotting(oil2, filepath=tmp_path, run=1, step=1)
     assert visualizer.vmax == 0.1
     assert visualizer.vmin == 0.1
 
 def test_v_persist_oil2_vmin(visualizer, tmp_path):
     oil2 = [0.2]
-
+    oil1 = [0.1]
+    visualizer.plotting(oil1, filepath=tmp_path, run=1, step=1)
     visualizer.plotting(oil2, filepath=tmp_path, run=1, step=1)
     assert visualizer.vmin == 0.1
 

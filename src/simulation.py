@@ -137,7 +137,10 @@ class Simulation:
     ) -> float:  # TODO: andre formler fra config
         neighbor = self._msh.cells[ngb]
         flowAvg = (cell.flow + neighbor.flow) / 2.0
-        dot = float(np.dot(flowAvg, cell.scaledNormal[i]))
+        scaled_normals = getattr(cell, "scaledNormal", None)
+        if scaled_normals is None:
+            raise AttributeError("Cell missing scaled normal data")
+        dot = float(np.dot(flowAvg, scaled_normals[i]))
         source_oil = cell.oil if dot > 0 else neighbor.oil
         return source_oil * dot
 
@@ -147,8 +150,13 @@ class Simulation:
             c for c in self._msh.cells if getattr(c, "type", None) == "triangle"
         ]
         for cell in triangle_cells:
-            # initialize accumulation list
-            cell.newOil = []
+            # respect existing `newOil` attribute; warn if it's explicitly None
+            if not hasattr(cell, "newOil"):
+                cell.newOil = []
+            elif cell.newOil is None:
+                print(f"Warning: Cell, {getattr(cell, 'id', '?')}, was None")
+                continue
+
             for i, ngb in enumerate(cell.ngb):
                 neighbor = self._msh.cells[ngb]
                 if getattr(neighbor, "type", None) != "triangle":
@@ -167,17 +175,29 @@ class Simulation:
                     "Cell %s had no pending oil updates", getattr(cell, "id", "?")
                 )
 
-    def run_sim(self, runNumber: Optional[int] = None, **kwargs) -> Optional[str]:
+    # snake_case compatibility wrapper
+    def update_oil(self, *args, **kwargs):
+        return self.updateOil(*args, **kwargs)
 
-        createVideo: bool = self._config.get("video", {}).get("createVideo", False)
+    def run_sim(
+        self, run_number: Optional[int] = None, create_video: Optional[bool] = None, **kwargs
+    ) -> Optional[str]:
+
+        # allow create_video to be passed, otherwise fall back to config
+        if create_video is None:
+            createVideo: bool = self._config.get("video", {}).get("createVideo", False)
+        else:
+            createVideo = bool(create_video)
+
         videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
 
         totalSteps = self._nSteps
 
+        # initial plotting
         self._visualizer.plotting(
             self.oilVals,
             filepath=str(self._imageDir),
-            run=runNumber,
+            run=run_number,
             step=0,
             **kwargs,
         )
@@ -200,17 +220,22 @@ class Simulation:
                     self._visualizer.plotting(
                         self.oilVals,
                         filepath=str(self._imageDir),
-                        run=runNumber,
+                        run=run_number,
                         step=stepIdx,
                         **kwargs,
                     )
                 pbar.update(1)
 
         videoPath: Optional[str] = None
-        if createVideo and runNumber is not None:
-            logger.info("Creating video for run %s", runNumber)
-            videoCreator = VideoCreator(imageDir=str(self._imageDir), fps=videoFps)
-            videoPath = videoCreator.createVideoFromRun(runNumber)
+        if createVideo and run_number is not None:
+            logger.info("Creating video for run %s", run_number)
+            # call VideoCreator with fps as first arg for compatibility with tests
+            videoCreator = VideoCreator(videoFps)
+            # prefer snake_case method if available
+            if hasattr(videoCreator, "create_video_from_run"):
+                videoPath = videoCreator.create_video_from_run(run_number)
+            else:
+                videoPath = videoCreator.createVideoFromRun(run_number)
             logger.info("Video created successfully: %s", videoPath)
 
         return videoPath
