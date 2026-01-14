@@ -1,3 +1,4 @@
+import time
 import tomllib as toml
 
 from tqdm import tqdm
@@ -29,6 +30,7 @@ class LoadTOML:
 
         if os.path.isdir(simConfigPath):
             files = [f for f in os.listdir(simConfigPath) if f.endswith(".toml")]
+            start_time = time.perf_counter()
             for fileName in tqdm(
                 files,
                 desc="Loading configuration files",
@@ -39,6 +41,8 @@ class LoadTOML:
             ):
                 fullPath = os.path.join(simConfigPath, fileName)
                 simConfigs.append(self.loadTomlFile(fullPath))
+            elapsed_ms = (time.perf_counter() - start_time) * 1000
+            print(f"Loading configuration files completed in {elapsed_ms:.2f} ms")
         else:
             simConfigs.append(self.loadTomlFile(simConfigPath))
 

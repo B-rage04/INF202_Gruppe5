@@ -1,3 +1,4 @@
+import time
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -161,6 +162,7 @@ class Cell(ABC):
         scaledNormals = []
         disable_ngb_tqdm = len(self.ngb) < 10
 
+        start_time = time.perf_counter()
         for ngbId in tqdm(
             self.ngb,
             desc=f"Triangle {self.id:04d} normals",
@@ -194,6 +196,10 @@ class Cell(ABC):
             if np.dot(n, v) > 0:
                 n = -n
             scaledNormals.append(n)
+        
+        if not disable_ngb_tqdm:
+            elapsed_ms = (time.perf_counter() - start_time) * 1000
+            print(f"Triangle {self.id:04d} normals completed in {elapsed_ms:.2f} ms")
 
         self._scaledNormal = scaledNormals
         return self._scaledNormal

@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 import cv2
@@ -42,6 +43,7 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width, height)
         )
 
+        start_time = time.perf_counter()
         for imageFile in tqdm(
             image_files,
             desc="Encoding video frames",
@@ -52,6 +54,8 @@ class VideoCreator:
         ):
             frame = cv2.imread(str(imageFile))
             videoWriter.write(frame)
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Video encoding completed in {elapsed_ms:.2f} ms")
 
         videoWriter.release()
         return str(outputPath)
@@ -73,6 +77,7 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width, height)
         )
 
+        start_time = time.perf_counter()
         for imageFile in tqdm(
             imageFiles,
             desc="Processing image sequence",
@@ -84,6 +89,8 @@ class VideoCreator:
             frame = cv2.imread(str(imageFile))
             if frame is not None:
                 videoWriter.write(frame)
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Image sequence processing completed in {elapsed_ms:.2f} ms")
 
         videoWriter.release()
         return str(outputPath)
@@ -95,6 +102,7 @@ class VideoCreator:
         allRunImages = []
         maxSteps = 0
 
+        start_time = time.perf_counter()
         for runNum in tqdm(
             runNumbers,
             desc="Loading simulation runs",
@@ -113,6 +121,8 @@ class VideoCreator:
             )
             allRunImages.append(images)
             maxSteps = max(maxSteps, len(images))
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Loading simulation runs completed in {elapsed_ms:.2f} ms")
 
         if outputPath is None:
             outputPath = (
@@ -134,6 +144,7 @@ class VideoCreator:
             str(outputPath), fourcc, self.fps, (width * cols, height * rows)
         )
 
+        start_time = time.perf_counter()
         for step in tqdm(
             range(maxSteps),
             desc="Compositing comparison frames",
@@ -155,6 +166,8 @@ class VideoCreator:
                     ] = frame
 
             videoWriter.write(combinedFrame)
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Compositing comparison frames completed in {elapsed_ms:.2f} ms")
 
         videoWriter.release()
         return str(outputPath)

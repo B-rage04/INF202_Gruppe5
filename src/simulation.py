@@ -2,6 +2,8 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import time
+
 import numpy as np
 from tqdm import tqdm
 
@@ -201,6 +203,7 @@ class Simulation:
 
         totalSteps = self._nSteps
     
+        start_time = time.perf_counter()
         with tqdm(
             total=totalSteps,
             desc="Simulating oil dispersion",
@@ -225,16 +228,18 @@ class Simulation:
                         **kwargs,
                     )
                 pbar.update(1)
+        
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Simulation completed in {elapsed_ms:.2f} ms")
                 
-            if stepIdx % self._writeFrequency == 0:
-                self._visualizer.plotting(
-                    self._oilVals[-1],
-                    filepath=str(self._imageDir),
-                    run=runNumber,
-                    step=stepIdx,
-                    **kwargs,
-                )
-                pbar.update(1)
+        if stepIdx % self._writeFrequency == 0:
+            self._visualizer.plotting(
+                self._oilVals[-1],
+                filepath=str(self._imageDir),
+                run=runNumber,
+                step=stepIdx,
+                **kwargs,
+            )
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:
