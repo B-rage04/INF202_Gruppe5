@@ -10,18 +10,18 @@
 
 ## x.x.x update 
 
-### new things
+### New things
 
-- somthing
+- something
 
-### bug Fix
+### Bug fixes
 
-- somthing
+- something
 
-### changes
+### Changes
 
-- somthing
+- something
 
-### breaking changes
+### Breaking changes
 
-- somthing
+- something

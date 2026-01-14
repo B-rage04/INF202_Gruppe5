@@ -12,8 +12,8 @@ import pytest
 
 from src.visualize import Visualizer
 
-# TODO: test shood be short and only test/asert one thing each
-# TODO: Fix names and Fcitures of "reapeet" tests
+# TODO: tests should be short and only test/assert one thing each
+# TODO: Fix names and Fixtures of "repeat" tests
 
 
 class TestMesh:
