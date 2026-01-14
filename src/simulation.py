@@ -88,7 +88,7 @@ class Simulation:
             except Exception:
                 self.sourceSink = {}
 
-    @staticmethod
+    @staticmethod #TODO:Flytt til LoadTOML?
     def _validateConfig(config: Dict[str, Any]) -> None:
         required = [
             ("geometry", "meshName"),
@@ -137,7 +137,7 @@ class Simulation:
         self, i: int, cell: Any, ngb: int
     ) -> float:  # TODO: andre formler fra config
 
-    
+
         neighbor = self._msh.cells[ngb]
         flowAvg = (cell.flow + neighbor.flow) / 2.0
         scaled_normals = getattr(cell, "scaledNormal", None)
@@ -185,15 +185,13 @@ class Simulation:
     def run_sim(
         self,
         runNumber: Optional[int] = None,
-        createVideo: Optional[bool] = None,
         **kwargs,
     ) -> Optional[str]:
 
-        # allow createVideo to be passed, otherwise fall back to config
-        if createVideo is None:
-            createVideo: bool = self._config.get("video", {}).get("createVideo", False)
-        else:
-            createVideo = bool(createVideo)
+        createVideo = False
+        if self._config.get("IO", {}).get("writeFrequency", 0) is not 0:
+            createVideo = True
+            
 
         videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
 
@@ -222,8 +220,7 @@ class Simulation:
                 self.updateOil()
                 self._currentTime = self._timeStart + stepIdx * self._dt
                 self._oilVals = self.getOilVals()
-
-                if stepIdx % self._writeFrequency == 0:
+                if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
                     self._visualizer.plotting(
                         self.oilVals,
                         filepath=str(self._imageDir),
