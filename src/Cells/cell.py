@@ -98,14 +98,16 @@ class Cell(ABC):
         return self._oil
 
     @oil.setter
-    def oil(self, value): # TODO : dette kan hene er feil løsning men jeg fikk feilmed at oljen ble setet negatift
+    def oil(
+        self, value
+    ):  # TODO : dette kan hene er feil løsning men jeg fikk feilmed at oljen ble setet negatift
         try:
             v = float(value)
         except Exception:
             raise TypeError("oil value must be numeric")
 
         if v < 0.0:
-            #print(f"Clamping oil for cell {self.id} from {v} to 0.0")
+            # print(f"Clamping oil for cell {self.id} from {v} to 0.0")
             v = 0.0
         elif v > 1.0:
             print(f"Clamping oil for cell {self.id} from {v} to 1.0")
@@ -135,7 +137,9 @@ class Cell(ABC):
 
         # Build or reuse a mapping from point (tuple) -> list of cell ids
         if msh is not None:
-            if not hasattr(msh, "_point_to_cells"): #finer alle celler som deler et pungt
+            if not hasattr(
+                msh, "_point_to_cells"
+            ):  # finer alle celler som deler et pungt
                 pt_map = {}
                 for c in allCells:
                     for p in c.cords:
@@ -144,7 +148,7 @@ class Cell(ABC):
                 msh._point_to_cells = pt_map
             pt_map = msh._point_to_cells
 
-            if not hasattr(msh, "_id_to_cell"): 
+            if not hasattr(msh, "_id_to_cell"):
                 id_map = {c.id: c for c in allCells}
                 msh._id_to_cell = id_map
             id_map = msh._id_to_cell

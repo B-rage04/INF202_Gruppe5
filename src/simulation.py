@@ -129,7 +129,9 @@ class Simulation:
         # return a copy to avoid accidental external mutation
         return list(self._oilVals)
 
-    def getOilVals(self):
+    def getOilVals(
+        self,
+    ):  # den leser gjenom alle cellene hvert step. kan dette opimatiseres? TODO
         return [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
 
     def _computeFlux(
