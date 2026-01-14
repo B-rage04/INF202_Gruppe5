@@ -13,7 +13,7 @@ class Cell(ABC):
     with the exception of oil and newOil all values are fixed
     """
 
-    def __init__(self, msh, cell_points, cell_id):
+    def __init__(self, msh, cell_points, cell_id, config):
         self.type = None
         self._id = cell_id
         # keep reference to mesh so we can compute geometry against all cells
@@ -28,6 +28,22 @@ class Cell(ABC):
         self._flow = np.array(self.findFlow())
         self._oil = self.findOil()
         self.newOil = []
+        self._isFishing = self.isFishing(config)
+
+
+
+    def isFishing(self, config):
+        fishxmin = config["geometry"]["borders"][0][0]
+        fishxmax = config["geometry"]["borders"][0][1]
+        fishymin = config["geometry"]["borders"][1][0]
+        fishymax = config["geometry"]["borders"][1][1]
+        x = self._midPoint[0]
+        y = self._midPoint[1]
+        if fishxmin < x < fishxmax and fishymin < y < fishymax:
+            self._isFishing = True
+        else:
+            self._isFishing = False
+            
 
     @property
     def id(self):

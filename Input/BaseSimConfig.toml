@@ -6,7 +6,7 @@ tEnd = 0.5 # End time of simulation
 
 [geometry]
 meshName = "Defaults/bay.msh" # Path to mesh file
-borders = [[0, 0.45], [0, 0.2]] # Borders for Fish [x_min, y_min], [x_max, y_max]
+borders = [[0, 0.45], [0.0, 0.2]] # Borders for Fish [x_min, x_max], [y_min, y_max]
 ship = [0.45, 0.4] # Oil collection ship position [x, y]
 
 [IO]

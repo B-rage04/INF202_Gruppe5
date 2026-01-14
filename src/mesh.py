@@ -6,7 +6,7 @@ from src.Cells.cellFactory import CellFactory
 
 
 class Mesh:
-    def __init__(self, file: str) -> None:
+    def __init__(self, file: str, config) -> None:
         if not isinstance(file, str):
             raise TypeError("file must be a path string")  # TODO: test this
 
@@ -14,7 +14,7 @@ class Mesh:
             raise FileNotFoundError(f"Mesh file not found: {file}")  # TODO: test this
 
         self._msh: Any = self._readMesh(file)
-
+        self.config = config
         self._points: List[Any] = getattr(
             self._msh, "points", []
         )  # TODO: test try to call
@@ -22,7 +22,7 @@ class Mesh:
             "triangle", []
         )
 
-        self._cellFactory = CellFactory(self._msh)  # TODO: test try to call
+        self._cellFactory = CellFactory(self._msh, self.config)  # TODO: test try to call
         self._cells = self._cellFactory()  # TODO: test try to call
 
     def _readMesh(self, file: str) -> Any:

@@ -21,7 +21,7 @@ class Simulation:
         self._config = config
 
         meshName = self._config["geometry"]["meshName"]
-        self._msh = Mesh(meshName)
+        self._msh = Mesh(meshName,self._config)
 
         self._visualizer = Visualizer(self._msh)
 
