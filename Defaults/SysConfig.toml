@@ -1,6 +1,0 @@
-[settings]
-pathToSimConfig = "Input/" # Path to simulation config files
-
-[UI]
-enableUI = true # Enable or disable the user interface
-colorScheme = "viridis" # Color scheme for the UI (options: matplotlib schemes)

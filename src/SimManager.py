@@ -147,8 +147,7 @@ def main(**kwargs: Any) -> None:
     logging.info("Running...")
 
     config_loader = LoadTOML()
-
-    globalConfig: Dict[str, Any] = config_loader.loadTomlFile(globalConfigPath)
+    globalConfig: Dict[str, Any] = config_loader.loadTomlFile(kwargs.get("globalConfigPath"))
     
     logging.info(f"Loading sim configurations from: {globalConfig['settings']['pathToSimConfig']}")
 
