@@ -89,7 +89,7 @@ class Simulation:
             except Exception:
                 self.sourceSink = {}
 
-    @staticmethod #TODO:Flytt til LoadTOML?
+    @staticmethod  # TODO:Flytt til LoadTOML?
     def _validateConfig(config: Dict[str, Any]) -> None:
         required = [
             ("geometry", "meshName"),
@@ -193,7 +193,6 @@ class Simulation:
         createVideo = False
         if self._config.get("IO", {}).get("writeFrequency", 0) is not 0:
             createVideo = True
-            
 
         videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
 
