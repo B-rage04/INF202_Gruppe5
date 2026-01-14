@@ -1,67 +1,67 @@
+# Oil Spill Simulation
 
+A Python-based oil spill simulation tool using finite volume methods to model oil dispersion on water surfaces.
 
-
+## Installation
 
 Install modules:
 
+```bash
 python -m pip install pip-tools
-
 pip-compile requirements.in   
 pip install -r requirements.txt
+```
+
+## Development Setup
 
 How to commit code destined for dev:
 
-
+```bash
 pip install pre-commit
 pre-commit install
 pre-commit install --hook-type pre-push
 pre-commit install --hook-type commit-msg
 pre-commit run --all-files
-pre-commit run --all-files
-
+```
 
 This installs `pre-commit` and enables the `pre-commit` hooks in your local repository. The CI also runs `pre-commit` on every push/PR and branch protection should be enabled to block merges that fail checks.
 
+If pre-commit fails:
 
-- run: 
-pre-commit run --all-files
-
-- if failed:
-
+```bash
 pytest -q --maxfail=1  
 tox 
 isort .  
 black .
+```
 
-Oil collection ship:
+## Features
+
+### Oil Collection Ship
 - Add an optional sink to remove oil near a ship.
 - Configure ship position under geometry: `ship = [x, y]` in your sim config TOML.
 - The ship removes oil uniformly within a radius of 0.1 around the position.
 - Example:
 
-```
+```toml
 [geometry]
-meshName = "Example/Geometry/bay.msh"
+meshName = "Defaults/bay.msh"
 borders = [[0, 0.45], [0, 0.2]]
 ship = [0.35, 0.40]
 ```
 
-Oil sources:
+### Oil Sources
 - Add an optional source to inject oil at a position.
 - Configure source position under geometry: `source = [x, y]` in your sim config TOML.
 - The source injects oil uniformly within a radius of 0.1 around the position.
 - Example:
 
-```
+```toml
 [geometry]
-meshName = "Example/Geometry/bay.msh"
+meshName = "Defaults/bay.msh"
 borders = [[0, 0.45], [0, 0.2]]
 source = [0.35, 0.45]
 ```
-
-Runtime toggles:
-- Enable/disable ship sink in code: `sim.run_sim(..., use_ship_sink=True/False)`
-- Enable/disable sources in code: `sim.run_sim(..., use_sources=True/False)`
 
 ## Command Line Usage
 
@@ -116,10 +116,39 @@ logName = "log"           # Optional: log file name (defaults to "logfile")
 
 [video]
 videoFPS = 5              # Frames per second for video output
+totalOilFlag = false      # Optional: Show total oil amount in visualization
 ```
 
 **Note:** 
 - `writeFrequency` determines how often images are captured. Set to 0 to skip video creation.
 - `logName` is optional and defaults to "logfile" if not provided.
+- `totalOilFlag` is optional and defaults to false.
 - The program will return an error if required sections or keys are missing.
+
+## Project Structure
+
+```
+INF202_Gruppe5/
+├── Defaults/              # Default configuration and mesh files
+│   ├── bay.msh           # Default mesh geometry
+│   └── input.toml        # Default simulation configuration
+├── Input/                 # Example simulation configurations
+│   ├── BaseSimConfig.toml
+│   ├── HighRESSimConfig.toml
+│   └── NoVidSimConfig.toml
+├── Output/                # Simulation output (auto-generated)
+│   ├── images/           # Generated visualization images
+│   ├── videos/           # Generated simulation videos
+│   └── log/              # Simulation logs
+├── src/                   # Source code
+│   ├── Cells/            # Cell classes for mesh elements
+│   ├── mesh.py           # Mesh handling
+│   ├── simulation.py     # Main simulation logic
+│   ├── visualize.py      # Visualization functions
+│   ├── video.py          # Video creation
+│   └── SimManager.py     # Command-line interface
+├── test/                  # Unit tests
+├── main.py               # Entry point
+└── README.md             # This file
+```
 

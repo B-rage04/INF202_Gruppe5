@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from tqdm import tqdm
+
 
 class Cell(ABC):
     """
@@ -141,8 +143,17 @@ class Cell(ABC):
             self._pointSet = selfPoints
 
         scaledNormals = []
+        disable_ngb_tqdm = len(self.ngb) < 10
 
-        for ngbId in self.ngb:
+        for ngbId in tqdm(
+            self.ngb,
+            desc=f"Triangle {self.id:04d} normals",
+            unit="ngb",
+            leave=False,
+            colour="cyan",
+            ascii="-#",
+            disable=disable_ngb_tqdm,
+        ):
             ngbCell = cellsDict.get(ngbId)
             if ngbCell is None:
                 continue
