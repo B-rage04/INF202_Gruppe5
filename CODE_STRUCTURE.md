@@ -9,21 +9,21 @@ OIL SPILL SIMULATION – MASTER CHECKLIST (FULL GRADE)
 ================================================
 SECTION 1 – CORE PROBLEM UNDERSTANDING
 
-[ ] I understand that the task is to simulate oil transport on a 2D surface
-[ ] I understand that the oil follows a velocity field (advection problem)
-[ ] I understand the simulation is cell-based (finite volume style)
-[ ] I understand the physical problem is fictional but the algorithm is real
-[ ] I understand that accuracy + software quality are both graded
+[x] I understand that the task is to simulate oil transport on a 2D surface
+[x] I understand that the oil follows a velocity field (advection problem)
+[x] I understand the simulation is cell-based (finite volume style)
+[x] I understand the physical problem is fictional but the algorithm is real
+[x] I understand that accuracy + software quality are both graded
 
 Domain & Initial Conditions
 
-[ ] Coordinate system is 2D (x, y)
-[ ] Origin (0, 0) is bottom-left of the map
-[ ] Mesh file used is bay.msh
-[ ] Oil initially centered at (0.35, 0.45)
-[ ] Initial oil distribution uses exponential formula
-[ ] Oil exists only in triangle cells
-[ ] Boundary (line) cells always contain zero oil
+[x] Coordinate system is 2D (x, y)
+[x] Origin (0, 0) is bottom-left of the map
+[x] Mesh file used is bay.msh
+[x] Oil initially centered at (0.35, 0.45)
+[x] Initial oil distribution uses exponential formula
+[x] Oil exists only in triangle cells
+[x] Boundary (line) cells always contain zero oil
 
 Fishing Grounds
 
@@ -38,48 +38,48 @@ y in [0.0, 0.2]
 SECTION 2 – NUMERICAL SIMULATION DETAILS
 Spatial Discretization
 
-[ ] I do NOT store u(x) continuously
-[ ] I store oil values per cell
-[ ] I evaluate oil at cell midpoints
-[ ] Each triangle cell has:
+[x] I do NOT store u(x) continuously
+[x] I store oil values per cell
+[x] I evaluate oil at cell midpoints
+[x] Each triangle cell has:
 - 3 points
 - 3 edges
 - 3 neighbors
 
 Cell Geometry (Triangle Cells)
 
-[ ] I compute cell midpoint correctly
-[ ] I compute triangle area correctly
-[ ] I compute outward-pointing normals
-[ ] Normals are unit length
-[ ] Normals point outward (angle < 90° rule)
-[ ] I compute scaled normals (nu = n * edge length)
-[ ] I do NOT recompute geometry every timestep
+[x] I compute cell midpoint correctly
+[x] I compute triangle area correctly
+[x] I compute outward-pointing normals
+[x] Normals are unit length
+[x] Normals point outward (angle < 90° rule)
+[x] I compute scaled normals (nu = n * edge length)
+[x] I do NOT recompute geometry every timestep
 
 Cell Types
 
-[ ] Triangle cells:
+[x] Triangle cells:
 - oil evolves over time
 
-[ ] Line cells:
+[x] Line cells:
 - only represent boundaries
 - oil is always zero
 - never updated
 
 Time Discretization
 
-[ ] I define total simulation time
-[ ] I define time step Δt
-[ ] I split time into N steps
-[ ] Oil only moves to neighbor cells per timestep
+[x] I define total simulation time
+[x] I define time step Δt
+[x] I split time into N steps
+[x] Oil only moves to neighbor cells per timestep
 
 ================================================
 SECTION 3 – FLUX COMPUTATION (CRITICAL)
 Velocity Field
 
-[ ] Velocity field is implemented exactly as given
-[ ] v(x, y) = (y - 0.2x, -x)
-[ ] Velocity evaluated at cell midpoints
+[x] Velocity field is implemented exactly as given
+[x] v(x, y) = (y - 0.2x, -x)
+[x] Velocity evaluated at cell midpoints
 
 Flux Function g(a, b, nu, v)
 
@@ -89,14 +89,14 @@ g = a * dot(v, nu)
 [ ] Else:
 g = b * dot(v, nu)
 
-[ ] I do NOT swap signs incorrectly
-[ ] I use averaged velocity:
+[] I do NOT swap signs incorrectly
+[x] I use averaged velocity:
 (v_i + v_ngh) / 2
 
 Flux per Edge
 
-[ ] I compute flux per neighbor
-[ ] Flux formula includes:
+[x] I compute flux per neighbor
+[x] Flux formula includes:
 - Δt
 - cell area
 - scaled normal
@@ -104,9 +104,9 @@ Flux per Edge
 
 Cell Update
 
-[ ] I sum fluxes from all 3 neighbors
-[ ] Update rule is applied exactly as given
-[ ] Only triangle cells are updated
+[x] I sum fluxes from all 3 neighbors
+[x] Update rule is applied exactly as given
+[x] Only triangle cells are updated
 
 ================================================
 SECTION 4 – SOURCES AND SINKS (SHIP)
@@ -135,7 +135,7 @@ Analysis Requirement
 SECTION 5 – CONFIG FILE (TOML)
 Reading Config Files
 
-[ ] Program reads .toml files
+[x] Program reads .toml files
 [ ] Program errors if file does not exist
 [ ] Program errors if entries are missing
 [ ] Program errors if entries are inconsistent
@@ -162,10 +162,10 @@ Config Selection
 
 Multiple Configs
 
-[ ] --find all works
-[ ] Program searches folder for configs
-[ ] Each config runs separately
-[ ] Results saved per config
+[x] --find all works
+[x] Program searches folder for configs
+[x] Each config runs separately
+[x] Results saved per config
 
 Folder Selection
 
@@ -175,21 +175,21 @@ Folder Selection
 
 Safety
 
-[ ] Program does NOT overwrite src
-[ ] Program does NOT overwrite non-result folders
+[x] Program does NOT overwrite src
+[x] Program does NOT overwrite non-result folders
 
 ================================================
 SECTION 7 – OUTPUT & VISUALIZATION
 
-[ ] Plot of final oil distribution
-[ ] Video of oil evolution over time
+[x] Plot of final oil distribution
+[x] Video of oil evolution over time
 [ ] writeFrequency respected
-[ ] Images saved correctly
+[x] Images saved correctly
 
 ================================================
 SECTION 8 – LOGGING
 
-[ ] Logger used (not print)
+[Lasse] Logger used (not print)
 [ ] All config parameters logged
 [ ] Oil in fishing grounds logged over time
 [ ] Log saved to file
@@ -206,7 +206,7 @@ Code Design
 
 Efficiency
 
-[ ] No repeated geometry computation
+[x] No repeated geometry computation
 [ ] No unnecessary loops
 [ ] No unnecessary memory usage
 
@@ -221,7 +221,7 @@ SECTION 10 – TESTING (VERY IMPORTANT)
 [ ] ≥ 85% function coverage
 [ ] Unit tests implemented
 [ ] Integration tests implemented
-[ ] Edge-case tests implemented
+[x] Edge-case tests implemented
 [ ] Tests follow course design rules
 [ ] Tests are meaningful
 
@@ -229,7 +229,7 @@ SECTION 10 – TESTING (VERY IMPORTANT)
 SECTION 11 – PROJECT STRUCTURE
 
 [ ] Proper package layout
-[ ] requirements.txt exists
+[x] requirements.txt exists
 [ ] Only used packages listed
 [ ] No virtual environments
 [ ] No git folder included
