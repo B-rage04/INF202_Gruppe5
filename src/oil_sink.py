@@ -35,7 +35,7 @@ class OilSinkSource:
 
 
 
-    def distributions(type: str, distance: float, radius: float, sigma: float) -> float:
+    def distributions(self,type: str, distance: float, radius: float, sigma: float) -> float:
         """
         Compute the distribution value based on the specified type.
 
