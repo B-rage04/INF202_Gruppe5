@@ -27,18 +27,7 @@ class FakeMesh:
         self.cells = [c0, c1]
 
 
-class DummyTqdm:
-    def __init__(self, *args, **kwargs):
-        pass
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc, tb):
-        return False
-
-    def update(self, n=1):
-        pass
 
 
 @pytest.fixture
@@ -161,7 +150,6 @@ def test_run_sim_plotting(monkeypatch, config):
     mock_vs = MagicMock()
     monkeypatch.setattr("src.simulation.Visualizer", lambda _: mock_vs)
     monkeypatch.setattr("src.simulation.VideoCreator", MagicMock)
-    monkeypatch.setattr("src.simulation.tqdm", DummyTqdm)
     sim = Simulation(config)
     sim.run_sim(run_number=1, create_video=False)
     assert mock_vs.plotting.called
@@ -174,7 +162,6 @@ def test_run_sim_video(monkeypatch, config):
     mock_video = MagicMock()
     monkeypatch.setattr("src.simulation.VideoCreator", lambda fps: mock_video)
     mock_video.create_video_from_run.return_value = "video.mp4"
-    monkeypatch.setattr("src.simulation.tqdm", DummyTqdm)
     sim = Simulation(config)
     sim.run_sim(run_number=1, create_video=True)
     assert mock_video.create_video_from_run.called
@@ -185,7 +172,6 @@ def test_run_sim_no_video(monkeypatch, config):
     mock_vs = MagicMock()
     monkeypatch.setattr("src.simulation.Visualizer", lambda _: mock_vs)
     monkeypatch.setattr("src.simulation.VideoCreator", MagicMock)
-    monkeypatch.setattr("src.simulation.tqdm", DummyTqdm)
     sim = Simulation(config)
     sim.run_sim(run_number=None, create_video=False)
     assert mock_vs.plotting.called
@@ -201,7 +187,6 @@ def test_run_sim_skips_loop(monkeypatch):
     mock_vs = MagicMock()
     monkeypatch.setattr("src.simulation.Visualizer", lambda _: mock_vs)
     monkeypatch.setattr("src.simulation.VideoCreator", MagicMock)
-    monkeypatch.setattr("src.simulation.tqdm", DummyTqdm)
     sim = Simulation(config)
     sim.CurrentStep = 1
     sim.run_sim(run_number=None, create_video=False)
@@ -218,7 +203,6 @@ def test_run_sim_multiple_steps(monkeypatch):
     mock_vs = MagicMock()
     monkeypatch.setattr("src.simulation.Visualizer", lambda _: mock_vs)
     monkeypatch.setattr("src.simulation.VideoCreator", MagicMock)
-    monkeypatch.setattr("src.simulation.tqdm", DummyTqdm)
     sim = Simulation(config)
     sim.run_sim(run_number=1, create_video=False)
     assert mock_vs.plotting.called

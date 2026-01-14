@@ -3,11 +3,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-from tqdm import tqdm
 
 from src.mesh import Mesh
 from src.video import VideoCreator
 from src.visualize import Visualizer
+
+from src.oil_sink import OilSinkSource
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -176,9 +177,8 @@ class Simulation:
                 cell.oil = float(cell.oil) + float(sum(deltas))
                 cell.newOil.clear()
             else:
-                logger.debug(
-                    "Cell %s had no pending oil updates", getattr(cell, "id", "?")
-                )
+                pass
+                # logger.debug("Cell %s had no pending oil updates", getattr(cell, "id", "?"))
 
     # snake_case compatibility wrapper
     def update_oil(self, *args, **kwargs):
@@ -189,6 +189,8 @@ class Simulation:
         runNumber: Optional[int] = None,
         **kwargs,
     ) -> Optional[str]:
+        
+        # self.ship = OilSinkSource(self._msh,configuration=None) #TODO implement oil sink source class
 
         createVideo = False
         if self._config.get("IO", {}).get("writeFrequency", 0) is not 0:
@@ -204,31 +206,12 @@ class Simulation:
             self._currentTime = self._timeStart + stepIdx * self._dt
             self._oilVals = self.getOilVals()
 
-        with tqdm(
-            total=totalSteps,
-            desc="Simulating oil dispersion",
-            unit="step",
-            colour="cyan",
-            ncols=100,
-            ascii="-#",
-            position=0,
-            leave=True,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-        ) as pbar:
-            for stepIdx in range(1, totalSteps + 1):
-                self.updateOil()
-                self._currentTime = self._timeStart + stepIdx * self._dt
-                self._oilVals = self.getOilVals()
-                if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
-                    self._visualizer.plotting(
-                        self.oilVals,
-                        filepath=str(self._imageDir),
-                        run=runNumber,
-                        step=stepIdx,
-                        **kwargs,
-                    )
-                pbar.update(1)
-            if stepIdx % self._writeFrequency == 0:
+    
+        for stepIdx in range(1, totalSteps + 1):
+            self.updateOil()
+            self._currentTime = self._timeStart + stepIdx * self._dt
+            self._oilVals = self.getOilVals()
+            if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
                 self._visualizer.plotting(
                     self.oilVals,
                     filepath=str(self._imageDir),
@@ -236,11 +219,19 @@ class Simulation:
                     step=stepIdx,
                     **kwargs,
                 )
-            pbar.update(1)
+                
+        if stepIdx % self._writeFrequency == 0:
+            self._visualizer.plotting(
+                self.oilVals,
+                filepath=str(self._imageDir),
+                run=runNumber,
+                step=stepIdx,
+                **kwargs,
+            )
+            
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:
-            logger.info("Creating video for run %s", runNumber)
 
             videoCreator = VideoCreator(imageDir=self._imageDir, fps=videoFps)
 
@@ -248,6 +239,5 @@ class Simulation:
                 videoPath = videoCreator.createVideo_from_run(runNumber)
             else:
                 videoPath = videoCreator.createVideoFromRun(runNumber)
-            logger.info("Video created successfully: %s", videoPath)
 
         return videoPath

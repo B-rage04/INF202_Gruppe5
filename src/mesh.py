@@ -4,8 +4,6 @@ from typing import Any, List
 
 from src.Cells.cellFactory import CellFactory
 
-logger = logging.getLogger(__name__)
-
 
 class Mesh:
     def __init__(self, file: str) -> None:
@@ -32,10 +30,8 @@ class Mesh:
             import meshio
 
             msh = meshio.read(file)
-            logger.info("Loaded mesh from %s", file)
             return msh
         except Exception as exc:  # TODO: test this
-            logger.exception("Failed to read mesh file: %s", file)
             raise RuntimeError(f"Could not read mesh file {file}: {exc}") from exc
 
     @property

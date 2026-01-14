@@ -1,13 +1,28 @@
 import re
-import os
+import logging
 from pathlib import Path
-from typing import Any, Dict, List
 
-from tqdm import tqdm
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+LOG_DIR = BASE_DIR / "Output" / "log"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+LOG_FILE = LOG_DIR / "sim.log"
+
+print("Logging to:", LOG_FILE)
+
+logging.basicConfig(
+    filename="Output/log/sim.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 import argparse as argparse
-
+from typing import Any, Dict, List
 from src.LoadTOML import LoadTOML
 from src.simulation import Simulation
+
+import os
 
 
 def _next_run_number(images_dir: str = "Output/images") -> int:
@@ -128,7 +143,19 @@ def main(**kwargs: Any) -> None:
 
     args = p.parse_args()
 
+
+    logging.info("Running...")
+
     config_loader = LoadTOML()
+
+    globalConfig: Dict[str, Any] = config_loader.loadTomlFile(globalConfigPath)
+    
+    logging.info(f"Loading sim configurations from: {globalConfig['settings']['pathToSimConfig']}")
+
+    simConfigs: List[Dict[str, Any]] = config_loader.loadSimConfigs(globalConfig)
+
+    
+
     videoPaths: List[str] = []
 
     try:
@@ -137,14 +164,7 @@ def main(**kwargs: Any) -> None:
             search_folder = args.folder if args.folder else "."
             config_files = _get_config_files(search_folder)
             
-            for config_path in tqdm(
-                config_files,
-                desc="Running simulations from config files",
-                unit="config",
-                colour="cyan",
-                ncols=100,
-                ascii="-#",
-            ):
+            for config_path in config_files:
                 try:
                     config = config_loader.loadTomlFile(config_path)
                     _validate_sim_config(config, config_path)

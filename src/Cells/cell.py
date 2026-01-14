@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from tqdm import tqdm
-
 
 class Cell(ABC):
     """
@@ -105,10 +103,10 @@ class Cell(ABC):
             raise TypeError("oil value must be numeric")
 
         if v < 0.0:
-            print(f"Clamping oil for cell {self.id} from {v} to 0.0")
+            #print(f"Clamping oil for cell {self.id} from {v} to 0.0")
             v = 0.0
         elif v > 1.0:
-            print(f"Clamping oil for cell {self.id} from {v} to 1.0")
+            #print(f"Clamping oil for cell {self.id} from {v} to 1.0")
             v = 1.0
 
         self._oil = v
@@ -143,17 +141,8 @@ class Cell(ABC):
             self._pointSet = selfPoints
 
         scaledNormals = []
-        disable_ngb_tqdm = len(self.ngb) < 10
 
-        for ngbId in tqdm(
-            self.ngb,
-            desc=f"Triangle {self.id:04d} normals",
-            unit="ngb",
-            leave=False,
-            colour="cyan",
-            ascii="-#",
-            disable=disable_ngb_tqdm,
-        ):
+        for ngbId in self.ngb:
             ngbCell = cellsDict.get(ngbId)
             if ngbCell is None:
                 continue

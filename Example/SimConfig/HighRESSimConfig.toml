@@ -1,6 +1,6 @@
 
 [settings]
-nSteps = 500 # Number of Total steps
+nSteps = 50 # Number of Total steps
 tStart = 0.0 # Start time of simulation
 tEnd = 0.5 # End time of simulation
 
