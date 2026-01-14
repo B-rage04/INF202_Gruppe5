@@ -1,3 +1,5 @@
+import time
+
 from tqdm import tqdm
 
 from src.Cells.line import Line
@@ -21,6 +23,7 @@ class CellFactory:
 
     def __call__(self):
         IDx = 0
+        start_time = time.perf_counter()
         for cellblock in tqdm(
             self.msh.cells,
             desc="Processing mesh geometry",
@@ -42,7 +45,10 @@ class CellFactory:
             ):
                 self.cellList.append(cellCls(self.msh, cell, IDx))
                 IDx += 1
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Processing mesh geometry completed in {elapsed_ms:.2f} ms")
 
+        start_time = time.perf_counter()
         for cell in tqdm(
             self.cellList,
             desc="Computing cell NGB",
@@ -52,7 +58,10 @@ class CellFactory:
             ascii="-#",
         ):
             cell.findNGB(self.cellList)
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Computing cell NGB completed in {elapsed_ms:.2f} ms")
 
+        start_time = time.perf_counter()
         for cell in tqdm(
             self.cellList,
             desc="Computing cell Normals",
@@ -62,5 +71,7 @@ class CellFactory:
             ascii="-#",
         ):
             cell.findScaledNormales(self.cellList)
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Computing cell Normals completed in {elapsed_ms:.2f} ms")
 
         return self.cellList
