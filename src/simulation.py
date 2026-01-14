@@ -191,7 +191,7 @@ class Simulation:
         **kwargs,
     ) -> Optional[str]:
         
-        self.ship = OilSinkSource(self._msh,configuration=None)
+        # self.ship = OilSinkSource(self._msh,configuration=None) #TODO implement oil sink source class
 
         createVideo = False
         if self._config.get("IO", {}).get("writeFrequency", 0) is not 0:
