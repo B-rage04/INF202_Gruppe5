@@ -1,7 +1,6 @@
 from tqdm import tqdm
 
 from src.Cells.line import Line
-from src.Cells.quad import Quad
 from src.Cells.triangle import Triangle
 from src.Cells.vertex import Vertex
 
@@ -13,8 +12,6 @@ class CellFactory:
             "triangle": Triangle,
             "line": Line,
             "vertex": Vertex,
-            "quad": Quad,
-            "quadrilateral": Quad,
         }
         self.cellList = []
     

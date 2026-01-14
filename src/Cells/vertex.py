@@ -7,4 +7,4 @@ class Vertex(Cell):
         self.type = "vertex"
 
     def findArea(self):
-        return super().findArea()
+        return None
