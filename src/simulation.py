@@ -42,56 +42,131 @@ class Simulation:
 
         self._oilVals = []
 
-        # TODO change this
+        # Optional oil collection ship configuration
         self.shipPos = None
-        if "geometry" in self.config and isinstance(
-            self.config["geometry"].get("ship", None), list
-        ):
-            shipCfg = self.config["geometry"].get("ship", None)
-            if shipCfg is not None and len(shipCfg) >= 2:
-                self.shipPos = [float(shipCfg[0]), float(shipCfg[1])]
-
         self.shipSink = {}
-        if self.shipPos is not None:
-            try:
-                from src.oil_sink import compute_ship_sink
+        if "geometry" in self.config:
+            ship_cfg = self.config["geometry"].get("ship", None)
+            if isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
+                self.shipPos = [float(ship_cfg[0]), float(ship_cfg[1])]
+                
+                try:
+                    from src.oil_sink import compute_ship_sink
 
-                self.shipSink = compute_ship_sink(
-                    self._msh,
-                    ship_pos=self.shipPos,
-                    radius=0.1,
-                    sigma=1.0,
-                    strength=100.0,
-                    mode="uniform",
-                )
-            except Exception:
-                self.shipSink = {}
+                    self.shipSink = compute_ship_sink(
+                        self._msh,
+                        ship_pos=self.shipPos,
+                        radius=0.1,
+                        sigma=1.0,
+                        strength=100.0,
+                        mode="gaussian",
+                    )
+                    if self.shipSink:
+                        max_coeff = max(self.shipSink.values())
+                        logger.info(f"Ship at {self.shipPos}: {len(self.shipSink)} cells affected (max coeff: {max_coeff:.4f})")
+                    else:
+                        logger.info(f"Ship at {self.shipPos}: no cells found in range")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize ship sink: {e}")
+                    self.shipSink = {}
 
         # Optional oil source configuration (injection point)
         self.sourcePos = None
-        if "geometry" in self.config and isinstance(
-            self.config["geometry"].get("source", None), list
-        ):
-            sourceCfg = self.config["geometry"].get("source", None)
-            if sourceCfg is not None and len(sourceCfg) >= 2:
-                self.sourcePos = [float(sourceCfg[0]), float(sourceCfg[1])]
-
-        # Precompute source coefficients if configured
         self.sourceSink = {}
-        if self.sourcePos is not None:
-            try:
-                from src.oil_sink import compute_source
+        if "geometry" in self.config:
+            source_cfg = self.config["geometry"].get("source", None)
+            if isinstance(source_cfg, list) and len(source_cfg) >= 2:
+                self.sourcePos = [float(source_cfg[0]), float(source_cfg[1])]
+                
+                try:
+                    from src.oil_sink import compute_source
 
-                self.sourceSink = compute_source(
-                    self._msh,
-                    source_pos=self.sourcePos,
-                    radius=0.1,
-                    sigma=1.0,
-                    strength=10.0,
-                    mode="uniform",
-                )
-            except Exception:
-                self.sourceSink = {}
+                    self.sourceSink = compute_source(
+                        self._msh,
+                        source_pos=self.sourcePos,
+                        radius=0.1,
+                        sigma=1.0,
+                        strength=50.0,
+                        mode="gaussian",
+                    )
+                    if self.sourceSink:
+                        max_coeff = max(self.sourceSink.values())
+                        logger.info(f"Oil source at {self.sourcePos}: {len(self.sourceSink)} cells affected (max coeff: {max_coeff:.4f})")
+                    else:
+                        logger.info(f"Oil source at {self.sourcePos}: no cells found in range")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize oil source: {e}")
+
+        # Additional sources from geometry.source array
+        if "geometry" in self.config:
+            sources_array = self.config["geometry"].get("source", [])
+            if isinstance(sources_array, list) and sources_array:
+                for idx, source_pos in enumerate(sources_array):
+                    if isinstance(source_pos, list) and len(source_pos) >= 2:
+                        try:
+                            from src.oil_sink import compute_source
+                            
+                            source_coeffs = compute_source(
+                                self._msh,
+                                source_pos=[float(source_pos[0]), float(source_pos[1])],
+                                radius=0.1,
+                                sigma=1.0,
+                                strength=50.0,
+                                mode="gaussian",
+                            )
+                            # Merge with existing source coefficients
+                            for cell_id, coeff in source_coeffs.items():
+                                self.sourceSink[cell_id] = self.sourceSink.get(cell_id, 0.0) + coeff
+                            logger.info(f"Additional source {idx} at {source_pos}: {len(source_coeffs)} cells affected")
+                        except Exception as e:
+                            logger.warning(f"Failed to add source {idx}: {e}")
+
+        # Additional sinks from geometry.sink array
+        if "geometry" in self.config:
+            sinks_array = self.config["geometry"].get("sink", [])
+            if isinstance(sinks_array, list) and sinks_array:
+                for idx, sink_pos in enumerate(sinks_array):
+                    if isinstance(sink_pos, list) and len(sink_pos) >= 2:
+                        try:
+                            from src.oil_sink import compute_ship_sink
+                            
+                            sink_coeffs = compute_ship_sink(
+                                self._msh,
+                                ship_pos=[float(sink_pos[0]), float(sink_pos[1])],
+                                radius=0.1,
+                                sigma=1.0,
+                                strength=100.0,
+                                mode="gaussian",
+                            )
+                            # Merge with existing sink coefficients (ship)
+                            for cell_id, coeff in sink_coeffs.items():
+                                self.shipSink[cell_id] = self.shipSink.get(cell_id, 0.0) + coeff
+                            logger.info(f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected")
+                        except Exception as e:
+                            logger.warning(f"Failed to add sink {idx}: {e}")
+
+        # Summary log of all sources and sinks
+        num_ships = 1 if self.shipPos is not None else 0
+        num_sources = len(self.config.get("geometry", {}).get("source", []))
+        num_sinks = len(self.config.get("geometry", {}).get("sink", []))
+        
+        summary_parts = []
+        if num_ships > 0:
+            summary_parts.append(f"{num_ships} ship")
+        else:
+            summary_parts.append("0 ships")
+            
+        if num_sources > 0:
+            summary_parts.append(f"{num_sources} source{'s' if num_sources != 1 else ''}")
+        else:
+            summary_parts.append("0 sources")
+            
+        if num_sinks > 0:
+            summary_parts.append(f"{num_sinks} sink{'s' if num_sinks != 1 else ''}")
+        else:
+            summary_parts.append("0 sinks")
+        
+        logger.info(f"Configuration summary: {', '.join(summary_parts)}")
 
     @staticmethod  # TODO: Move to LoadTOML?
     def _validateConfig(config: Dict[str, Any]) -> None:
@@ -173,15 +248,33 @@ class Simulation:
                 delta = -(self._dt / cell.area) * self._computeFlux(i, cell, ngb)
                 cell.newOil.append(delta)
 
-        # Apply accumulated updates
+        # Apply accumulated updates with source/sink formula:
+        # u_i^{n+1} = u_i^{n+1/2} / (1 + Δt*S_i^- - Δt*S_i^+)
         for cell in triangle_cells:
             deltas = list(getattr(cell, "newOil", []))
-            if deltas:
-                cell.oil = float(cell.oil) + float(sum(deltas))
-                cell.newOil.clear()
+            
+            # Compute u_i^{n+1/2} = u_i^n + flux contributions
+            u_intermediate = float(cell.oil) + (sum(deltas) if deltas else 0.0)
+            
+            # Get sink coefficient S_i^- (positive value for removal)
+            sink_coeff = 0.0
+            if self.shipSink and cell.id in self.shipSink:
+                sink_coeff = self.shipSink[cell.id]
+            
+            # Get source coefficient S_i^+ (positive value for injection)
+            source_coeff = 0.0
+            if self.sourceSink and cell.id in self.sourceSink:
+                source_coeff = self.sourceSink[cell.id]
+            
+            # Apply formula: u_i^{n+1} = u_i^{n+1/2} / (1 + Δt*S_i^- - Δt*S_i^+)
+            denominator = 1.0 + self._dt * sink_coeff - self._dt * source_coeff
+            
+            if abs(denominator) > 1e-10:  # Avoid division by zero
+                cell.oil = u_intermediate / denominator
             else:
-                pass
-                # logger.debug("Cell %s had no pending oil updates", getattr(cell, "id", "?"))
+                cell.oil = u_intermediate
+            
+            cell.newOil.clear()
 
     # snake_case compatibility wrapper
     def update_oil(self, *args, **kwargs):

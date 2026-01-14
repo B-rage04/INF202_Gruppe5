@@ -7,7 +7,9 @@ tEnd = 0.5 # End time of simulation
 [geometry]
 meshName = "Defaults/bay.msh" # Path to mesh file
 borders = [[0, 0.45], [0, 0.2]] # Borders for Fish [x_min, y_min], [x_max, y_max]
-ship = [0.45, 0.4] # Oil collection ship position [x, y]
+ship = [] # Oil collection ship position [x, y] (acts as a sink)
+source = [[]] # Optional: Array of oil source positions [[x1, y1], [x2, y2], ...]
+sink = [[]] # Optional: Array of additional sink positions [[x1, y1], [x2, y2], ...]
 
 [IO]
 logName = "log" #TODO this need to do somthing

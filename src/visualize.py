@@ -44,6 +44,64 @@ class Visualizer:
 
         plt.colorbar(label="Oil concentration")
 
+        # Draw ship position (if configured)
+        if config.get("geometry", {}).get("ship"):
+            ship_pos = config["geometry"]["ship"]
+            if isinstance(ship_pos, list) and len(ship_pos) >= 2:
+                ax.plot(
+                    ship_pos[0],
+                    ship_pos[1],
+                    marker="s",
+                    markersize=12,
+                    color="red",
+                    markeredgecolor="white",
+                    markeredgewidth=2,
+                    label="Ship (sink)",
+                    zorder=10,
+                )
+
+        # Draw source positions (if configured)
+        sources = config.get("geometry", {}).get("source", [])
+        if isinstance(sources, list) and sources:
+            for idx, source_pos in enumerate(sources):
+                if isinstance(source_pos, list) and len(source_pos) >= 2:
+                    ax.plot(
+                        source_pos[0],
+                        source_pos[1],
+                        marker="^",
+                        markersize=12,
+                        color="lime",
+                        markeredgecolor="white",
+                        markeredgewidth=2,
+                        label=f"Source {idx+1}" if idx == 0 else "",
+                        zorder=10,
+                    )
+
+        # Draw sink positions (if configured)
+        sinks = config.get("geometry", {}).get("sink", [])
+        if isinstance(sinks, list) and sinks:
+            for idx, sink_pos in enumerate(sinks):
+                if isinstance(sink_pos, list) and len(sink_pos) >= 2:
+                    ax.plot(
+                        sink_pos[0],
+                        sink_pos[1],
+                        marker="v",
+                        markersize=12,
+                        color="orange",
+                        markeredgecolor="white",
+                        markeredgewidth=2,
+                        label=f"Sink {idx+1}" if idx == 0 else "",
+                        zorder=10,
+                    )
+
+        # Add legend if any markers were drawn
+        if (
+            config.get("geometry", {}).get("ship")
+            or config.get("geometry", {}).get("source")
+            or config.get("geometry", {}).get("sink")
+        ):
+            ax.legend(loc="upper right", framealpha=0.8)
+
         if totalOilFlag:
             # Compute total oil amount (area-weighted sum over triangle cells)
             try:

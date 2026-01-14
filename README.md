@@ -37,30 +37,53 @@ black .
 
 ## Features
 
-### Oil Collection Ship
-- Add an optional sink to remove oil near a ship.
-- Configure ship position under geometry: `ship = [x, y]` in your sim config TOML.
-- The ship removes oil uniformly within a radius of 0.1 around the position.
+### Oil Sources and Sinks
+
+The simulation supports sources (oil injection) and sinks (oil removal) using a Gaussian distribution formula:
+
+$$S_i = \frac{1}{2\pi\sigma^2} \exp\left(-\frac{\|x_S - x_{mid}\|^2}{2\sigma^2}\right)$$
+
+The update formula with sources and sinks:
+- $u_i^{n+1/2} = u_i^n + F_i^{(ngh_1,n)} + F_i^{(ngh_2,n)} + F_i^{(ngh_3,n)}$
+- $u_i^{n+1} = u_i^{n+1/2} / (1 + \Delta t S_i^- - \Delta t S_i^+)$
+
+where $S_i^-$ is the sink coefficient and $S_i^+$ is the source coefficient.
+
+#### Oil Collection Ship (Sink)
+- Configure ship position: `ship = [x, y]` in the geometry section
+- The ship removes oil within radius 0.1 using Gaussian distribution (σ = 1.0)
 - Example:
 
 ```toml
 [geometry]
 meshName = "Defaults/bay.msh"
 borders = [[0, 0.45], [0, 0.2]]
-ship = [0.35, 0.40]
+ship = [0.45, 0.4]
 ```
 
-### Oil Sources
-- Add an optional source to inject oil at a position.
-- Configure source position under geometry: `source = [x, y]` in your sim config TOML.
-- The source injects oil uniformly within a radius of 0.1 around the position.
+#### Multiple Sources
+- Add oil injection points: `source = [[x1, y1], [x2, y2], ...]`
+- Each source injects oil within radius 0.1 using Gaussian distribution (σ = 1.0)
 - Example:
 
 ```toml
 [geometry]
 meshName = "Defaults/bay.msh"
 borders = [[0, 0.45], [0, 0.2]]
-source = [0.35, 0.45]
+source = [[0.35, 0.45], [0.25, 0.35]]
+```
+
+#### Multiple Sinks
+- Add additional oil removal points: `sink = [[x1, y1], [x2, y2], ...]`
+- Each sink removes oil within radius 0.1 using Gaussian distribution (σ = 1.0)
+- Example:
+
+```toml
+[geometry]
+meshName = "Defaults/bay.msh"
+borders = [[0, 0.45], [0, 0.2]]
+ship = [0.45, 0.4]
+sink = [[0.2, 0.3]]
 ```
 
 ## Command Line Usage
@@ -108,7 +131,9 @@ tEnd = 0.5                # End time
 [geometry]
 meshName = "Defaults/bay.msh"     # Path to mesh file
 borders = [[0, 0.45], [0, 0.2]]   # Boundary constraints
-ship = [0.45, 0.4]                # Oil collection ship position
+ship = [0.45, 0.4]                # Optional: Oil collection ship position (sink)
+source = [[0.35, 0.45]]           # Optional: Oil source positions (injection)
+sink = [[0.2, 0.3]]               # Optional: Additional sink positions (removal)
 
 [IO]
 writeFrequency = 20       # Write images every N steps (0 = no video)
