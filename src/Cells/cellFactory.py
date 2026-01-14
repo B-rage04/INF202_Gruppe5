@@ -17,7 +17,7 @@ class CellFactory:
             "quadrilateral": Quad,
         }
         self.cellList = []
-
+    
     def register(self, key, ctype):
         if key not in self.cellTypes:
             self.cellTypes[key] = ctype
