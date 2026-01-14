@@ -2,8 +2,8 @@ from src.Cells.cell import Cell
 
 
 class Line(Cell):
-    def __init__(self, msh, cellPoints, cell_id):
-        super().__init__(msh, cellPoints, cell_id)
+    def __init__(self, msh, cellPoints, cell_id, config):
+        super().__init__(msh, cellPoints, cell_id, config)
         self.type = "line"
 
     def findArea(self):

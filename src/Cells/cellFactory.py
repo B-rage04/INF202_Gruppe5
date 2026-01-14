@@ -8,7 +8,8 @@ from src.Cells.vertex import Vertex
 
 
 class CellFactory:
-    def __init__(self, msh):
+    def __init__(self, msh, config):
+        self.config = config
         self.msh = msh
         self.cellTypes = {
             "triangle": Triangle,
@@ -43,7 +44,7 @@ class CellFactory:
                 leave=False,
                 ascii="-#",
             ):
-                self.cellList.append(cellCls(self.msh, cell, IDx))
+                self.cellList.append(cellCls(self.msh, cell, IDx, self.config))
                 IDx += 1
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         print(f"Processing mesh geometry completed in {elapsed_ms:.2f} ms")

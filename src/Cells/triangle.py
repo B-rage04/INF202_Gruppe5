@@ -9,8 +9,8 @@ class Triangle(Cell):
     Cell of type "triangle"
     """
 
-    def __init__(self, msh, cell_points, cell_id):
-        super().__init__(msh, cell_points, cell_id)
+    def __init__(self, msh, cell_points, cell_id, config):
+        super().__init__(msh, cell_points, cell_id, config)
         self.type = "triangle"
 
     def findArea(self):
