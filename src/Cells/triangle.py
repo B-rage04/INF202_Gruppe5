@@ -21,4 +21,3 @@ class Triangle(Cell):
             * (self.cords[2][1] - self.cords[0][1])
         )
         return area
-
