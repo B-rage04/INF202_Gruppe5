@@ -105,7 +105,7 @@ class Cell(ABC):
             raise TypeError("oil value must be numeric")
 
         if v < 0.0:
-            # print(f"Clamping oil for cell {self.id} from {v} to 0.0")
+            print(f"Clamping oil for cell {self.id} from {v} to 0.0")
             v = 0.0
         elif v > 1.0:
             print(f"Clamping oil for cell {self.id} from {v} to 1.0")
@@ -123,19 +123,75 @@ class Cell(ABC):
     def findMidPoint(self):  # TODO Brage: test this
         return np.mean(self.cords, axis=0)
 
-    def findScaledNormales(self, all_cells=None):
-        self._scaledNormal = []
+    def findScaledNormales(self, allCells=None):
+        if not allCells or not self.ngb:
+            self._scaledNormal = []
+            return self._scaledNormal
+
+        msh = getattr(self, "_msh", None)
+
+        # Reuse mesh-level id map if available to avoid rebuilding per cell
+        if msh is not None and hasattr(msh, "_id_to_cell"):
+            cellsDict = msh._id_to_cell
+        else:
+            cellsDict = {cell.id: cell for cell in allCells}
+
+        # cache point sets
+        selfPoints = getattr(self, "_pointSet", None)
+        if selfPoints is None:
+            selfPoints = set(tuple(p) for p in self.cords)
+            self._pointSet = selfPoints
+
+        scaledNormals = []
+        disable_ngb_tqdm = len(self.ngb) < 10
+
+        for ngbId in tqdm(
+            self.ngb,
+            desc=f"Triangle {self.id:04d} normals",
+            unit="ngb",
+            leave=False,
+            colour="cyan",
+            ascii="-#",
+            disable=disable_ngb_tqdm,
+        ):
+            ngbCell = cellsDict.get(ngbId)
+            if ngbCell is None:
+                continue
+
+            ngbPoints = getattr(ngbCell, "_pointSet", None)
+            if ngbPoints is None:
+                ngbPoints = set(tuple(p) for p in ngbCell.cords)
+                ngbCell._pointSet = ngbPoints
+
+            # find up to two shared points without creating intermediate lists
+            shared = selfPoints & ngbPoints
+            if len(shared) < 2:
+                continue
+            # deterministic ordering: sort for reproducibility
+            shared_iter = sorted(shared)
+            A = np.array(shared_iter[0])
+            B = np.array(shared_iter[1])
+
+            d = np.array([B[0] - A[0], B[1] - A[1]])
+            n = np.array([d[1], -d[0]])
+            v = np.array([self.midPoint[0] - A[0], self.midPoint[1] - A[1]])
+            if np.dot(n, v) > 0:
+                n = -n
+            scaledNormals.append(n)
+
+        self._scaledNormal = scaledNormals
         return self._scaledNormal
 
-        # TODO Brage: if has attribute return it
         # TODO Brage: else calculate it and set and return it
 
     def findNGB(self, allCells):
-        Localmsh = getattr(self, "_msh", None) #er et lokalt msh får cellen får å lagre ref til naboer. dette er får at neste cellen barre kan se på data og ikke kalkulere den
+        Localmsh = getattr(
+            self, "_msh", None
+        )  # er et lokalt msh får cellen får å lagre ref til naboer. dette er får at neste cellen barre kan se på data og ikke kalkulere den
 
         # Build or reuse a mapping from point (tuple) -> list of cell ids
         if Localmsh is not None:
-            if not hasattr(Localmsh, "_point_to_cells"):  
+            if not hasattr(Localmsh, "_point_to_cells"):
                 # lager en tabe som gir alle cellers id som deler et punkt
                 pt_map = {}
                 for c in allCells:
