@@ -129,12 +129,15 @@ class Simulation:
         # return a copy to avoid accidental external mutation
         return list(self._oilVals)
 
-    def getOilVals(self):
+    def getOilVals(self):  
+        # den leser gjenom alle cellene hvert step. kan dette opimatiseres? TODO
         return [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
 
     def _computeFlux(
         self, i: int, cell: Any, ngb: int
     ) -> float:  # TODO: andre formler fra config
+
+    
         neighbor = self._msh.cells[ngb]
         flowAvg = (cell.flow + neighbor.flow) / 2.0
         scaled_normals = getattr(cell, "scaledNormal", None)
