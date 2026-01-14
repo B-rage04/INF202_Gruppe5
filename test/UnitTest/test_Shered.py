@@ -31,11 +31,6 @@ def mesh():
 
 
 @pytest.fixture
-def cell(mesh):
-    return Cell(mesh, mesh.triangles[0], 0)
-
-
-@pytest.fixture
 def triangle(mesh):
     return Triangle(mesh, mesh.triangles[0], 0)
 
@@ -49,16 +44,6 @@ def test_triangle_coordinates(triangle):
 
     for c, e in zip(triangle.cords, expected):
         npt.assert_array_equal(c, e)
-
-
-class DummyVisualizer:
-    def __init__(self, mesh):
-        self.mesh = mesh
-        self.last_plotted = None
-
-    def plotting(self, oilVals, run=None, step=None, **kwargs):
-        self.last_plotted = list(oilVals)
-
 
 class MockMeshTriangles:
     def __init__(self):
