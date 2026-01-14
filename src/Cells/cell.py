@@ -131,25 +131,25 @@ class Cell(ABC):
         # TODO Brage: else calculate it and set and return it
 
     def findNGB(self, allCells):
-        msh = getattr(self, "_msh", None)
+        Localmsh = getattr(self, "_msh", None) #er et lokalt msh får cellen får å lagre ref til naboer. dette er får at neste cellen barre kan se på data og ikke kalkulere den
 
         # Build or reuse a mapping from point (tuple) -> list of cell ids
-        if msh is not None:
-            if not hasattr(
-                msh, "_point_to_cells"
-            ):  # finer alle celler som deler et pungt
+        if Localmsh is not None:
+            if not hasattr(Localmsh, "_point_to_cells"):  
+                # lager en tabe som gir alle cellers id som deler et punkt
                 pt_map = {}
                 for c in allCells:
                     for p in c.cords:
                         key = tuple(p)
                         pt_map.setdefault(key, []).append(c.id)
-                msh._point_to_cells = pt_map
-            pt_map = msh._point_to_cells
+                Localmsh._point_to_cells = pt_map
+            pt_map = Localmsh._point_to_cells
 
-            if not hasattr(msh, "_id_to_cell"):
+            if not hasattr(Localmsh, "_id_to_cell"):
+                # lager en tabel som git en id gir celle objectet
                 id_map = {c.id: c for c in allCells}
-                msh._id_to_cell = id_map
-            id_map = msh._id_to_cell
+                Localmsh._id_to_cell = id_map
+            id_map = Localmsh._id_to_cell
         else:
             pt_map = {}
             id_map = {c.id: c for c in allCells}

@@ -136,6 +136,8 @@ class Simulation:
     def _computeFlux(
         self, i: int, cell: Any, ngb: int
     ) -> float:  # TODO: andre formler fra config
+
+    
         neighbor = self._msh.cells[ngb]
         flowAvg = (cell.flow + neighbor.flow) / 2.0
         scaled_normals = getattr(cell, "scaledNormal", None)
