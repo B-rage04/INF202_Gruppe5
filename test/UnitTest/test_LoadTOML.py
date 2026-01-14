@@ -160,7 +160,7 @@ def test_load_toml_file_setting_value(toml_config):
     assert cfg["settings"]["value"] == 42
 
 
-def test_load_sim_configs_with_file(
+def test_load_sim_configs_with_file_0(
     tmp_path,
 ):
 
@@ -174,8 +174,10 @@ desc = "single"
 
     sysConfig = {"settings": {"pathToSimConfig": str(sim_file)}}
 
+    assert LoadTOML().loadSimConfigs(sysConfig) is not None
 
-def test_load_sim_configs_file_returns_one(tmp_path):
+
+def test_load_sim_configs_file_returns_one_1(tmp_path):
     sim_file = tmp_path / "sim1.toml"
     sim_content = """
 [sim]
@@ -188,13 +190,13 @@ desc = "single"
     assert isinstance(sims, list) and len(sims) == 1
 
 
-def test_load_sim_configs_file_returns_one(sim_file_1):
+def test_load_sim_configs_file_returns_one_2(sim_file_1):
     sysConfig = {"settings": {"pathToSimConfig": str(sim_file_1)}}
     sims = LoadTOML().loadSimConfigs(sysConfig)
     assert isinstance(sims, list) and len(sims) == 1
 
 
-def test_load_sim_configs_file_first_id_is_1(tmp_path):
+def test_load_sim_configs_file_first_id_is_1_1(tmp_path):
     sim_file = tmp_path / "sim1.toml"
     sim_content = """
 [sim]
@@ -207,7 +209,7 @@ desc = "single"
     assert sims[0]["sim"]["id"] == 1
 
 
-def test_load_sim_configs_file_first_id_is_1(sim_file_1):
+def test_load_sim_configs_file_first_id_is_1_2(sim_file_1):
     sysConfig = {"settings": {"pathToSimConfig": str(sim_file_1)}}
     sims = LoadTOML().loadSimConfigs(sysConfig)
     assert sims[0]["sim"]["id"] == 1
@@ -223,9 +225,10 @@ def test_load_sim_config_with_directory(
     write_toml(p, "[sim]\nid = 42\n")
 
     sysConfig = {"settings": {"pathToSimConfig": str(d)}}
+    assert LoadTOML().loadSimConfigs(sysConfig) is not None
 
 
-def test_load_sim_config_directory_returns_one(tmp_path):
+def test_load_sim_config_directory_returns_one_1(tmp_path):
     d = tmp_path / "sims"
     d.mkdir()
     p = d / f"sim.toml"
@@ -235,13 +238,13 @@ def test_load_sim_config_directory_returns_one(tmp_path):
     assert isinstance(sims, list) and len(sims) == 1
 
 
-def test_load_sim_config_directory_returns_one(sim_dir_1):
+def test_load_sim_config_directory_returns_one_2(sim_dir_1):
     sysConfig = {"settings": {"pathToSimConfig": str(sim_dir_1)}}
     sims = LoadTOML().loadSimConfigs(sysConfig)
     assert isinstance(sims, list) and len(sims) == 1
 
 
-def test_load_sim_config_directory_first_id_is_42(tmp_path):
+def test_load_sim_config_directory_first_id_is_42_1(tmp_path):
     d = tmp_path / "sims"
     d.mkdir()
     p = d / f"sim.toml"
@@ -251,7 +254,7 @@ def test_load_sim_config_directory_first_id_is_42(tmp_path):
     assert sims[0]["sim"]["id"] == 42
 
 
-def test_load_sim_config_directory_first_id_is_42(sim_dir_1):
+def test_load_sim_config_directory_first_id_is_42_2(sim_dir_1):
     sysConfig = {"settings": {"pathToSimConfig": str(sim_dir_1)}}
     sims = LoadTOML().loadSimConfigs(sysConfig)
     assert sims[0]["sim"]["id"] == 42
@@ -273,6 +276,10 @@ def test_load_sim_configs_directory_returns_three(tmp_path):
     for i in range(3):
         p = d / f"sim_{i}.toml"
         write_toml(p, f"[sim]\nid = {i}\n")
+
+    sysConfig = {"settings": {"pathToSimConfig": str(d)}}
+    sims = LoadTOML().loadSimConfigs(sysConfig)
+    assert isinstance(sims, list) and len(sims) == 3
 
 
 def test_load_sim_configs_directory_ids_match(tmp_path):
