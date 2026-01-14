@@ -43,19 +43,19 @@ class Simulation:
         self._oilVals = []
 
         # Optional oil collection ship configuration
-        self.shipPos = None
         self.shipSink = {}
         if "geometry" in self.config:
             ship_cfg = self.config["geometry"].get("ship", None)
             if isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
-                self.shipPos = [float(ship_cfg[0]), float(ship_cfg[1])]
-                
+                # Check if it's a valid [x, y] position (both elements should be numbers, not lists)
                 try:
+                    ship_pos = [float(ship_cfg[0]), float(ship_cfg[1])]
+                    
                     from src.oil_sink import compute_ship_sink
 
                     self.shipSink = compute_ship_sink(
                         self._msh,
-                        ship_pos=self.shipPos,
+                        ship_pos=ship_pos,
                         radius=0.1,
                         sigma=1.0,
                         strength=100.0,
@@ -63,41 +63,17 @@ class Simulation:
                     )
                     if self.shipSink:
                         max_coeff = max(self.shipSink.values())
-                        logger.info(f"Ship at {self.shipPos}: {len(self.shipSink)} cells affected (max coeff: {max_coeff:.4f})")
+                        logger.info(f"Ship at {ship_pos}: {len(self.shipSink)} cells affected (max coeff: {max_coeff:.4f})")
                     else:
-                        logger.info(f"Ship at {self.shipPos}: no cells found in range")
+                        logger.info(f"Ship at {ship_pos}: no cells found in range")
+                except (TypeError, ValueError):
+                    # ship is not a valid [x, y] position, skip
+                    pass
                 except Exception as e:
                     logger.warning(f"Failed to initialize ship sink: {e}")
-                    self.shipSink = {}
 
-        # Optional oil source configuration (injection point)
-        self.sourcePos = None
+        # Oil sources from geometry.source array (can be list of [x, y] pairs)
         self.sourceSink = {}
-        if "geometry" in self.config:
-            source_cfg = self.config["geometry"].get("source", None)
-            if isinstance(source_cfg, list) and len(source_cfg) >= 2:
-                self.sourcePos = [float(source_cfg[0]), float(source_cfg[1])]
-                
-                try:
-                    from src.oil_sink import compute_source
-
-                    self.sourceSink = compute_source(
-                        self._msh,
-                        source_pos=self.sourcePos,
-                        radius=0.1,
-                        sigma=1.0,
-                        strength=50.0,
-                        mode="gaussian",
-                    )
-                    if self.sourceSink:
-                        max_coeff = max(self.sourceSink.values())
-                        logger.info(f"Oil source at {self.sourcePos}: {len(self.sourceSink)} cells affected (max coeff: {max_coeff:.4f})")
-                    else:
-                        logger.info(f"Oil source at {self.sourcePos}: no cells found in range")
-                except Exception as e:
-                    logger.warning(f"Failed to initialize oil source: {e}")
-
-        # Additional sources from geometry.source array
         if "geometry" in self.config:
             sources_array = self.config["geometry"].get("source", [])
             if isinstance(sources_array, list) and sources_array:
@@ -117,7 +93,7 @@ class Simulation:
                             # Merge with existing source coefficients
                             for cell_id, coeff in source_coeffs.items():
                                 self.sourceSink[cell_id] = self.sourceSink.get(cell_id, 0.0) + coeff
-                            logger.info(f"Additional source {idx} at {source_pos}: {len(source_coeffs)} cells affected")
+                            logger.info(f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected")
                         except Exception as e:
                             logger.warning(f"Failed to add source {idx}: {e}")
 
@@ -146,9 +122,11 @@ class Simulation:
                             logger.warning(f"Failed to add sink {idx}: {e}")
 
         # Summary log of all sources and sinks
-        num_ships = 1 if self.shipPos is not None else 0
-        num_sources = len(self.config.get("geometry", {}).get("source", []))
-        num_sinks = len(self.config.get("geometry", {}).get("sink", []))
+        # Check if ship is a valid [x, y] position (not a list of lists)
+        ship_cfg = self.config.get("geometry", {}).get("ship", None)
+        num_ships = 1 if (isinstance(ship_cfg, list) and len(ship_cfg) >= 2 and not isinstance(ship_cfg[0], list)) else 0
+        num_sources = len([s for s in self.config.get("geometry", {}).get("source", []) if isinstance(s, list) and len(s) >= 2])
+        num_sinks = len([s for s in self.config.get("geometry", {}).get("sink", []) if isinstance(s, list) and len(s) >= 2])
         
         summary_parts = []
         if num_ships > 0:

@@ -49,41 +49,65 @@ The update formula with sources and sinks:
 
 where $S_i^-$ is the sink coefficient and $S_i^+$ is the source coefficient.
 
+**Parameters for all sources/sinks:**
+- **Radius**: 0.1 (cells within this distance are affected)
+- **σ (sigma)**: 1.0 (standard deviation of Gaussian distribution)
+- **Strength**: 100.0 for sinks (oil removal), 50.0 for sources (oil injection)
+
 #### Oil Collection Ship (Sink)
+The ship is a single oil removal device positioned at one location.
 - Configure ship position: `ship = [x, y]` in the geometry section
-- The ship removes oil within radius 0.1 using Gaussian distribution (σ = 1.0)
+- Set to empty `[]` to disable the ship
+- The ship removes oil from cells near its position using a Gaussian distribution
 - Example:
 
 ```toml
 [geometry]
-meshName = "Defaults/bay.msh"
-borders = [[0, 0.45], [0, 0.2]]
-ship = [0.45, 0.4]
+ship = [0.45, 0.4]    # Position: x=0.45, y=0.4
 ```
 
-#### Multiple Sources
-- Add oil injection points: `source = [[x1, y1], [x2, y2], ...]`
-- Each source injects oil within radius 0.1 using Gaussian distribution (σ = 1.0)
-- Example:
+#### Multiple Oil Sources
+Multiple oil injection points that add oil to the system.
+- Configure sources: `source = [[x1, y1], [x2, y2], ...]`
+- Each source injects oil near its position using a Gaussian distribution
+- Set to empty `[]` for no sources
+- Example with 2 sources:
 
 ```toml
 [geometry]
-meshName = "Defaults/bay.msh"
-borders = [[0, 0.45], [0, 0.2]]
 source = [[0.35, 0.45], [0.25, 0.35]]
 ```
 
-#### Multiple Sinks
-- Add additional oil removal points: `sink = [[x1, y1], [x2, y2], ...]`
-- Each sink removes oil within radius 0.1 using Gaussian distribution (σ = 1.0)
-- Example:
+#### Multiple Oil Sinks
+Multiple oil removal devices in addition to the ship.
+- Configure additional sinks: `sink = [[x1, y1], [x2, y2], ...]`
+- Each sink removes oil from cells near its position using a Gaussian distribution
+- Set to empty `[]` for no additional sinks
+- Example with 1 sink:
 
+```toml
+[geometry]
+sink = [[0.2, 0.3]]
+```
+
+#### Complete Example with All Features
 ```toml
 [geometry]
 meshName = "Defaults/bay.msh"
 borders = [[0, 0.45], [0, 0.2]]
-ship = [0.45, 0.4]
-sink = [[0.2, 0.3]]
+ship = [0.45, 0.4]              # Oil collection ship
+source = [[0.35, 0.45], [0.2, 0.2]]    # Oil sources
+sink = [[0.1, 0.3], [0.6, 0.4]]        # Additional oil sinks
+```
+
+The simulation will log which sources and sinks are active:
+```
+Ship at [0.45, 0.4]: 186 cells affected
+Oil source 0 at [0.35, 0.45]: 182 cells affected
+Oil source 1 at [0.2, 0.2]: 178 cells affected
+Sink 0 at [0.1, 0.3]: 156 cells affected
+Sink 1 at [0.6, 0.4]: 165 cells affected
+Configuration summary: 1 ship, 2 sources, 2 sinks
 ```
 
 ## Command Line Usage
@@ -129,11 +153,11 @@ tStart = 0.0              # Start time
 tEnd = 0.5                # End time
 
 [geometry]
-meshName = "Defaults/bay.msh"     # Path to mesh file
-borders = [[0, 0.45], [0, 0.2]]   # Boundary constraints
-ship = [0.45, 0.4]                # Optional: Oil collection ship position (sink)
-source = [[0.35, 0.45]]           # Optional: Oil source positions (injection)
-sink = [[0.2, 0.3]]               # Optional: Additional sink positions (removal)
+meshName = "Defaults/bay.msh"           # Path to mesh file
+borders = [[0, 0.45], [0, 0.2]]         # Boundary constraints
+ship = [0.45, 0.4]                      # Optional: Single ship position [x, y] or [] to disable
+source = [[0.35, 0.45], [0.25, 0.35]]   # Optional: Array of source positions [[x1, y1], [x2, y2], ...] or []
+sink = [[0.2, 0.3]]                     # Optional: Array of sink positions [[x1, y1], [x2, y2], ...] or []
 
 [IO]
 writeFrequency = 20       # Write images every N steps (0 = no video)
@@ -143,6 +167,13 @@ logName = "log"           # Optional: log file name (defaults to "logfile")
 videoFPS = 5              # Frames per second for video output
 totalOilFlag = false      # Optional: Show total oil amount in visualization
 ```
+
+**Notes:**
+- All sources/sinks are optional. Set to `[]` to disable or omit the line entirely.
+- The `ship` parameter expects a single `[x, y]` position.
+- The `source` and `sink` parameters expect arrays of positions: `[[x1, y1], [x2, y2], ...]`.
+- Visualization includes markers for all active sources (green ▲), sinks (orange ▼), and ship (red ■).
+- Configuration is logged when the simulation starts, showing which sources and sinks are active.
 
 **Note:** 
 - `writeFrequency` determines how often images are captured. Set to 0 to skip video creation.
