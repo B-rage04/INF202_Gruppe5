@@ -1,14 +1,15 @@
 
 
 
-insatll modules:
+
+Install modules:
 
 python -m pip install pip-tools
 
 pip-compile requirements.in   
 pip install -r requirements.txt
 
-How to comit to code destined for dev:
+How to commit code destined for dev:
 
 
 pip install pre-commit
@@ -40,7 +41,7 @@ Oil collection ship:
 
 ```
 [geometry]
-meshName = "Exsample/Geometry/bay.msh"
+meshName = "Example/Geometry/bay.msh"
 borders = [[0, 0.45], [0, 0.2]]
 ship = [0.35, 0.40]
 ```
@@ -53,7 +54,7 @@ Oil sources:
 
 ```
 [geometry]
-meshName = "Exsample/Geometry/bay.msh"
+meshName = "Example/Geometry/bay.msh"
 borders = [[0, 0.45], [0, 0.2]]
 source = [0.35, 0.45]
 ```
