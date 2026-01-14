@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
-from tqdm import tqdm
 import argparse as argparse
 
 from src.LoadTOML import LoadTOML
@@ -137,14 +136,7 @@ def main(**kwargs: Any) -> None:
             search_folder = args.folder if args.folder else "."
             config_files = _get_config_files(search_folder)
             
-            for config_path in tqdm(
-                config_files,
-                desc="Running simulations from config files",
-                unit="config",
-                colour="cyan",
-                ncols=100,
-                ascii="-#",
-            ):
+            for config_path in config_files:
                 try:
                     config = config_loader.loadTomlFile(config_path)
                     _validate_sim_config(config, config_path)
