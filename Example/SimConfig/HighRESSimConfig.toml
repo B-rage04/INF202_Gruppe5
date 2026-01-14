@@ -15,6 +15,5 @@ logName = "log" #TODO this need to do somthing
 writeFrequency = 0 # Frequency of writing output data 0 is no output
 
 [video]
-createVideo = true # Enable or disable video creation
 videoFPS = 5 # Frames per second for the video
 totalOilFlag = false # Show total oil amount in the visualization
