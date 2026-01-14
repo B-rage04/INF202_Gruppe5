@@ -1,0 +1,20 @@
+# TODO: update requirements version
+PyYAML>=6.0.2,<7.0
+meshio==5.3.5
+matplotlib==3.10.8
+opencv-python>=4.8.0
+tqdm>=4.66.0
+
+# Development / tooling
+pre-commit
+black
+isort
+mypy
+flake8
+build 
+
+# Testing
+pytest>=8.0
+pytest-cov
+coverage
+
