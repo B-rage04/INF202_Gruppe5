@@ -214,6 +214,8 @@ class Simulation:
             colour="cyan",
             ncols=100,
             ascii="-#",
+            position=0,
+            leave=True,
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
         ) as pbar:
             for stepIdx in range(1, totalSteps + 1):
