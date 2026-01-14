@@ -62,4 +62,63 @@ Runtime toggles:
 - Enable/disable ship sink in code: `sim.run_sim(..., use_ship_sink=True/False)`
 - Enable/disable sources in code: `sim.run_sim(..., use_sources=True/False)`
 
+## Command Line Usage
+
+The program supports the following command line arguments:
+
+### Run with default config (Defaults/input.toml):
+```bash
+python main.py
+```
+
+### Run a specific config file:
+```bash
+python main.py -c myconfig.toml
+python main.py --config myconfig.toml
+```
+This reads from `myconfig.toml` in the current project folder
+
+### Run a specific config file from a custom folder:
+```bash
+python main.py -f Input -c BaseSimConfig.toml
+python main.py --folder Input --config BaseSimConfig.toml
+```
+This reads from `Input/BaseSimConfig.toml`
+
+### Run all config files in a folder:
+```bash
+python main.py --find_all
+python main.py -f Input --find_all
+```
+- `--find_all` runs all TOML files in the current folder (default)
+- `-f Input --find_all` runs all TOML files in the `Input` folder
+- Each simulation's results are stored in separate folders under `Output/` named after the config file
+
+### Config File Structure
+
+Each TOML config file must have the following required sections:
+
+```toml
+[settings]
+nSteps = 500              # Number of simulation steps
+tStart = 0.0              # Start time
+tEnd = 0.5                # End time
+
+[geometry]
+meshName = "Defaults/bay.msh"     # Path to mesh file
+borders = [[0, 0.45], [0, 0.2]]   # Boundary constraints
+ship = [0.45, 0.4]                # Oil collection ship position
+
+[IO]
+writeFrequency = 20       # Write images every N steps (0 = no video)
+logName = "log"           # Optional: log file name (defaults to "logfile")
+
+[video]
+videoFPS = 5              # Frames per second for video output
+```
+
+**Note:** 
+- `writeFrequency` determines how often images are captured. Set to 0 to skip video creation.
+- `logName` is optional and defaults to "logfile" if not provided.
+- The program will return an error if required sections or keys are missing.
 
