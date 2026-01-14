@@ -38,7 +38,7 @@ class Simulation:
 
         self._oilVals = []
 
-        # TODO endre dette
+        # TODO change this
         self.shipPos = None
         if "geometry" in self.config and isinstance(
             self.config["geometry"].get("ship", None), list
@@ -89,7 +89,7 @@ class Simulation:
             except Exception:
                 self.sourceSink = {}
 
-    @staticmethod  # TODO:Flytt til LoadTOML?
+    @staticmethod  # TODO: Move to LoadTOML?
     def _validateConfig(config: Dict[str, Any]) -> None:
         required = [
             ("geometry", "meshName"),
@@ -131,14 +131,14 @@ class Simulation:
         return list(self._oilVals)
 
     def getOilVals(self):
-        # den leser gjenom alle cellene hvert step. kan dette opimatiseres? TODO
+        # it reads through all cells each step. Can this be optimized? TODO
         self._oilVals.append(
             [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
         )
 
     def _computeFlux(
         self, i: int, cell: Any, ngb: int
-    ) -> float:  # TODO: andre formler fra config
+    ) -> float:  # TODO: other formulas from config
 
         neighbor = self._msh.cells[ngb]
         flowAvg = (cell.flow + neighbor.flow) / 2.0

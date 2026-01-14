@@ -45,7 +45,7 @@ class Mesh:
     @property
     def triangles(
         self,
-    ) -> List[Any]:  ##TODO: ikke barre tiangle # TODO: test this, try set and get
+    ) -> List[Any]:  # TODO: not just triangle # TODO: test this, try set and get
         return list(self._triangles)
 
     @property

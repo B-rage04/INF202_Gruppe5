@@ -43,11 +43,11 @@ def testGetterArea(triangle):
     assert triangle.area == triangle._area
 
 
-def testGetterScaledNormal(triangle):  # TODO skriv test
+def testGetterScaledNormal(triangle):  # TODO: write test
     assert True
 
 
-def testPointSet(triangle):  # TODO skriv test
+def testPointSet(triangle):  # TODO: write test
     pass
 
 

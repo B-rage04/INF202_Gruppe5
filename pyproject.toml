@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "OilSpillGruppeFive"
 version = "1.0.0"
-description = "A simulation of an oil spil on a lake"
+description = "A simulation of an oil spill on a lake"
 readme = "README.md"
 authors = [{ name = "Gabriel Røer", email = "NorgeSkiFollo@gmail.com" }
           ,{ name = "Lasse Lindholm", email = "lasse.lindholm@nmbu.no" }

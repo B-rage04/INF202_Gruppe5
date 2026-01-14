@@ -97,7 +97,7 @@ class Cell(ABC):
             self._oil = self.findOil()
         return self._oil
 
-    @oil.setter  # TODO : dette kan hene er feil løsning men jeg fikk feilmed at oljen ble setet negatift
+    @oil.setter  # TODO: this might be the wrong solution but I got an error that oil was set negatively
     def oil(self, value):
         try:
             v = float(value)
@@ -116,7 +116,7 @@ class Cell(ABC):
     @abstractmethod
     def findArea(self):
         """
-        See child class for individual claculations
+        See child class for individual calculations
         """
         pass
 
@@ -187,12 +187,12 @@ class Cell(ABC):
     def findNGB(self, allCells):
         Localmsh = getattr(
             self, "_msh", None
-        )  # er et lokalt msh får cellen får å lagre ref til naboer. dette er får at neste cellen barre kan se på data og ikke kalkulere den
+        )  # local mesh for the cell to store neighbor references. This is so the next cell can just look at the data and not calculate it
 
         # Build or reuse a mapping from point (tuple) -> list of cell ids
         if Localmsh is not None:
             if not hasattr(Localmsh, "_point_to_cells"):
-                # lager en tabe som gir alle cellers id som deler et punkt
+                # create a table that gives all cell IDs that share a point
                 pointMap = {}
                 for cell in allCells:
                     for pungt in cell.cords:
@@ -202,7 +202,7 @@ class Cell(ABC):
             pointMap = Localmsh._point_to_cells
 
             if not hasattr(Localmsh, "_id_to_cell"):
-                # lager en tabel som git en id gir celle objectet
+                # create a table that gives the cell object from an ID
                 idMap = {cell.id: cell for cell in allCells}
                 Localmsh._id_to_cell = idMap
             idMap = Localmsh._id_to_cell
@@ -214,7 +214,7 @@ class Cell(ABC):
                     key = tuple(pungt)
                     pointMap.setdefault(key, []).append(cell.id)
 
-        # Finner ID til naboceller som har delte punkter
+        # Find IDs of neighbor cells that have shared points
         counts = {}
         for pungt in self.cords:
             for cellID in pointMap.get(tuple(pungt), []):

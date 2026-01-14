@@ -18,9 +18,9 @@ class MockMesh:
         ]
 
 
-# TODO: hvay is it a class?
-# TODO: Fix names and Fcitures of "reapeet" tests Oskar
-class TestFindScaledNormales:  # TODO: test shood be short and only test/asert one thing each
+# TODO: why is it a class?
+# TODO: Fix names and Fixtures of "repeat" tests Oskar
+class TestFindScaledNormales:  # TODO: tests should be short and only test/assert one thing each
     """Test suite for Triangle.find_scaled_normales()."""
 
     def test_no_neighbors_returns_empty(self):
@@ -194,7 +194,7 @@ class TestFindScaledNormales:  # TODO: test shood be short and only test/asert o
 
     def test_single_triangle_with_one_neighbor(
         self,
-    ):  # TODO: Fix names and Fcitures of "reapeet" tests
+    ):  # TODO: Fix names and Fixtures of \"repeat\" tests
         """Test simple case: two triangles sharing one edge."""
         msh = MockMesh()
         tri1 = Triangle(msh, [0, 1, 2], cell_id=0)
