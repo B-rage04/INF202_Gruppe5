@@ -193,43 +193,43 @@ class Cell(ABC):
         if Localmsh is not None:
             if not hasattr(Localmsh, "_point_to_cells"):
                 # lager en tabe som gir alle cellers id som deler et punkt
-                pt_map = {}
-                for c in allCells:
-                    for p in c.cords:
-                        key = tuple(p)
-                        pt_map.setdefault(key, []).append(c.id)
-                Localmsh._point_to_cells = pt_map
-            pt_map = Localmsh._point_to_cells
+                pointMap = {}
+                for cell in allCells:
+                    for pungt in cell.cords:
+                        key = tuple(pungt)
+                        pointMap.setdefault(key, []).append(cell.id)
+                Localmsh._point_to_cells = pointMap
+            pointMap = Localmsh._point_to_cells
 
             if not hasattr(Localmsh, "_id_to_cell"):
                 # lager en tabel som git en id gir celle objectet
-                id_map = {c.id: c for c in allCells}
-                Localmsh._id_to_cell = id_map
-            id_map = Localmsh._id_to_cell
+                idMap = {cell.id: cell for cell in allCells}
+                Localmsh._id_to_cell = idMap
+            idMap = Localmsh._id_to_cell
         else:
-            pt_map = {}
-            id_map = {c.id: c for c in allCells}
-            for c in allCells:
-                for p in c.cords:
-                    key = tuple(p)
-                    pt_map.setdefault(key, []).append(c.id)
+            pointMap = {}
+            idMap = {cell.id: cell for cell in allCells}
+            for cell in allCells:
+                for pungt in cell.cords:
+                    key = tuple(pungt)
+                    pointMap.setdefault(key, []).append(cell.id)
 
         # Finner ID til naboceller som har delte punkter
         counts = {}
-        for p in self.cords:
-            for cid in pt_map.get(tuple(p), []):
-                if cid == self.id:
+        for pungt in self.cords:
+            for cellID in pointMap.get(tuple(pungt), []):
+                if cellID == self.id:
                     continue
-                counts[cid] = counts.get(cid, 0) + 1
+                counts[cellID] = counts.get(cellID, 0) + 1
 
         # Any cell sharing two or more points is a neighbor
-        for cid, cnt in counts.items():
-            if cnt >= 2:
-                other = id_map.get(cid)
+        for cellID, SheredPoints in counts.items():
+            if SheredPoints >= 2:
+                other = idMap.get(cellID)
                 if other is None:
                     continue
-                if cid not in self._ngb:
-                    self._ngb.append(cid)
+                if cellID not in self._ngb:
+                    self._ngb.append(cellID)
                 if self.id not in other._ngb:
                     other._ngb.append(self.id)
 
