@@ -9,6 +9,8 @@ from src.mesh import Mesh
 from src.video import VideoCreator
 from src.visualize import Visualizer
 
+from src.oil_sink import OilSinkSource
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -189,6 +191,8 @@ class Simulation:
         runNumber: Optional[int] = None,
         **kwargs,
     ) -> Optional[str]:
+        
+        self.ship = OilSinkSource(self._msh,configuration=None)
 
         createVideo = False
         if self._config.get("IO", {}).get("writeFrequency", 0) is not 0:
@@ -212,7 +216,7 @@ class Simulation:
                     step=stepIdx,
                     **kwargs,
                 )
-            pbar.update(1)
+            
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:

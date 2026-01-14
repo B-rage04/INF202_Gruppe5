@@ -1,90 +1,64 @@
 import numpy as np
-from tqdm import tqdm
+from typing import Optional
+class OilSinkSource:
+    """
+    Class representing an oil sink/source in the simulation.
+    """
 
-# TODO: ship should be a child class of source?
+    def __init__(self, msh, configuration: Optional[dict] = None):
+        if configuration is None:
+            configuration = {}
 
 
-def compute_ship_sink(
-    mesh,
-    ship_pos,
-    radius: float = 0.1,
-    sigma: float = 1.0,
-    strength: float = 100.0,
-    mode: str = "uniform",
-):
-    if ship_pos is None:
-        return (
-            {}
-        )  # TODO: test that the function returns empty dict when ship_pos is None
+        self.msh = msh
+        self.position = np.array(configuration.get("position", [0.5, 0.5]))
+        self.strength = configuration.get("strength", 1.0)
+        self.type = configuration.get("type", "gaussian")
+        self.radius = configuration.get("radius", 1.0)
+        self.cellInRange = self.findCellsInRange(self.msh)
 
-    ship_xy = np.array([ship_pos[0], ship_pos[1]])
-    s_minus = {}
+    def __call__(self, *args, **kwds):
+        for cell_id, dist_value in self.cellInRange.items():
+            cell_id.oil += self.distributions(type=self.type, distance=dist_value, radius=self.radius, sigma=self.strength)
 
-    for cell in tqdm(
-        mesh.cells,
-        desc="Computing oil collection sink",
-        unit="cell",
-        leave=False,
-        colour="blue",
-        ncols=100,
-        ascii="-#",
-    ):
-        if getattr(cell, "type", None) != "triangle":
-            continue  # TODO: test all cell types are skipped except triangle
+    def findCellsInRange(self, msh):
+        cells_in_range = {}
+        for cell in msh.cells:
+            distance = np.linalg.norm(cell.midPoint[:2] - self.position)
+            if distance <= self.radius:
+                dist_value = self.distributions(
+                    self.type, distance, self.radius, self.strength
+                )
+                cells_in_range[cell.id] = dist_value
+        return cells_in_range
 
-        cell_xy = np.array([cell.midpoint[0], cell.midpoint[1]])
-        d = np.linalg.norm(cell_xy - ship_xy)  # TODO: test distance calculation
-        if d <= radius:  # TODO: test if radius in negative
-            if (
-                mode == "gaussian"
-            ):  # TODO: pass a different mode and formula # TODO: test gaussian weight calculation
-                weight = np.exp(-(d**2) / (2.0 * (sigma**2)))
+
+
+
+    def distributions(type: str, distance: float, radius: float, sigma: float) -> float:
+        """
+        Compute the distribution value based on the specified type.
+
+        Parameters:
+        type (str): The type of distribution ('gaussian' or 'uniform').
+        distance (float): The distance from the sink/source.
+        radius (float): The effective radius for uniform distribution.
+        sigma (float): The standard deviation for Gaussian distribution.
+
+        Returns:
+        float: The computed distribution value.
+        """
+        if type == "gaussian":
+            return np.exp(-0.5 * (distance / sigma) ** 2)
+
+        elif type == "uniform":
+            return 1.0 if distance <= radius else 0.0
+
+        elif type == "linear":
+            if distance <= radius:
+                return 1.0 - (distance / radius)
             else:
-                weight = 1.0
+                return 0.0
 
-            s_minus[cell.id] = strength * weight  # TODO: test strength application
-
-    return s_minus
-
-
-def compute_source(
-    mesh,
-    source_pos,
-    radius: float = 0.1,
-    sigma: float = 1.0,
-    strength: float = 100.0,
-    mode: str = "uniform",
-):
-    if source_pos is None:
-        return (
-            {}
-        )  # TODO: test that the function returns empty dict when source_pos is None
-
-    source_xy = np.array([source_pos[0], source_pos[1]])
-    s_plus = {}
-
-    for cell in tqdm(
-        mesh.cells,
-        desc="Computing oil injection source",
-        unit="cell",
-        leave=False,
-        colour="red",
-        ncols=100,
-        ascii="-#",
-    ):
-        if getattr(cell, "type", None) != "triangle":
-            for cell in mesh.cells:
-                if getattr(cell, "type", None) != "triangle":  # TODO:
-                    continue
-
-        cell_xy = np.array([cell.midpoint[0], cell.midpoint[1]])
-        d = np.linalg.norm(cell_xy - source_xy)
-        if d <= radius:
-            if mode == "gaussian":
-                weight = np.exp(-(d**2) / (2.0 * (sigma**2)))
-            else:
-                weight = 1.0
-
-            s_plus[cell.id] = strength * weight
-
-    return s_plus
+        else:
+            raise ValueError(f"Unknown distribution type: {type}")
