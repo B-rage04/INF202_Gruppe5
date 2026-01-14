@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
+from tqdm import tqdm
 
 from src.mesh import Mesh
 from src.video import VideoCreator
@@ -199,36 +200,41 @@ class Simulation:
         videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
 
         totalSteps = self._nSteps
-
-        for stepIdx in range(1, totalSteps + 1):
-            self.updateOil()
-            self.getOilVals()
-            self._currentTime = self._timeStart + stepIdx * self._dt
-            self._oilVals = self.getOilVals()
-
     
-        for stepIdx in range(1, totalSteps + 1):
-            self.updateOil()
-            self._currentTime = self._timeStart + stepIdx * self._dt
-            self._oilVals = self.getOilVals()
-            if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
+        with tqdm(
+            total=totalSteps,
+            desc="Simulating oil dispersion",
+            unit="step",
+            colour="cyan",
+            ncols=100,
+            ascii="-#",
+            position=0,
+            leave=True,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+        ) as pbar:
+            for stepIdx in range(1, totalSteps + 1):
+                self.updateOil()
+                self._currentTime = self._timeStart + stepIdx * self._dt
+                self.getOilVals()
+                if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
+                    self._visualizer.plotting(
+                        self._oilVals[-1],
+                        filepath=str(self._imageDir),
+                        run=runNumber,
+                        step=stepIdx,
+                        **kwargs,
+                    )
+                pbar.update(1)
+                
+            if stepIdx % self._writeFrequency == 0:
                 self._visualizer.plotting(
-                    self.oilVals,
+                    self._oilVals[-1],
                     filepath=str(self._imageDir),
                     run=runNumber,
                     step=stepIdx,
                     **kwargs,
                 )
-                
-        if stepIdx % self._writeFrequency == 0:
-            self._visualizer.plotting(
-                self.oilVals,
-                filepath=str(self._imageDir),
-                run=runNumber,
-                step=stepIdx,
-                **kwargs,
-            )
-            
+                pbar.update(1)
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:

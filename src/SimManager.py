@@ -143,18 +143,9 @@ def main(**kwargs: Any) -> None:
 
     args = p.parse_args()
 
-
     logging.info("Running...")
 
     config_loader = LoadTOML()
-    globalConfig: Dict[str, Any] = config_loader.loadTomlFile(kwargs.get("globalConfigPath"))
-    
-    logging.info(f"Loading sim configurations from: {globalConfig['settings']['pathToSimConfig']}")
-
-    simConfigs: List[Dict[str, Any]] = config_loader.loadSimConfigs(globalConfig)
-
-    
-
     videoPaths: List[str] = []
 
     try:
