@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 class Simulation:
     def __init__(self, config: Dict[str, Any]):
         self._validateConfig(config)
-        self._config: Dict[str, Any] = config
+        self._config = config
 
         meshName = self._config["geometry"]["meshName"]
         self._msh = Mesh(meshName)
@@ -36,8 +36,9 @@ class Simulation:
         self._dt: float = (self._timeEnd - self._timeStart) / max(1, self._nSteps)
         self._currentTime: float = float(self._timeStart)
 
-        self._oilVals: List[float] = self.getOilVals()
+        self._oilVals = []
 
+        # TODO endre dette
         self.shipPos = None
         if "geometry" in self.config and isinstance(
             self.config["geometry"].get("ship", None), list
@@ -88,7 +89,7 @@ class Simulation:
             except Exception:
                 self.sourceSink = {}
 
-    @staticmethod #TODO:Flytt til LoadTOML?
+    @staticmethod  # TODO:Flytt til LoadTOML?
     def _validateConfig(config: Dict[str, Any]) -> None:
         required = [
             ("geometry", "meshName"),
@@ -129,14 +130,15 @@ class Simulation:
         # return a copy to avoid accidental external mutation
         return list(self._oilVals)
 
-    def getOilVals(self):  
+    def getOilVals(self):
         # den leser gjenom alle cellene hvert step. kan dette opimatiseres? TODO
-        return [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
+        self._oilVals.append(
+            [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
+        )
 
     def _computeFlux(
         self, i: int, cell: Any, ngb: int
     ) -> float:  # TODO: andre formler fra config
-
 
         neighbor = self._msh.cells[ngb]
         flowAvg = (cell.flow + neighbor.flow) / 2.0
@@ -191,21 +193,16 @@ class Simulation:
         createVideo = False
         if self._config.get("IO", {}).get("writeFrequency", 0) is not 0:
             createVideo = True
-            
 
         videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
 
         totalSteps = self._nSteps
 
-        # initial plotting
-        self._visualizer.plotting(
-            self.oilVals,
-            filepath=str(self._imageDir),
-            run=runNumber,
-            step=0,
-            config=self._config,
-            **kwargs,
-        )
+        for stepIdx in range(1, totalSteps + 1):
+            self.updateOil()
+            self.getOilVals()
+            self._currentTime = self._timeStart + stepIdx * self._dt
+            self._oilVals = self.getOilVals()
 
         with tqdm(
             total=totalSteps,
@@ -231,6 +228,15 @@ class Simulation:
                         **kwargs,
                     )
                 pbar.update(1)
+            if stepIdx % self._writeFrequency == 0:
+                self._visualizer.plotting(
+                    self.oilVals,
+                    filepath=str(self._imageDir),
+                    run=runNumber,
+                    step=stepIdx,
+                    **kwargs,
+                )
+            pbar.update(1)
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:
