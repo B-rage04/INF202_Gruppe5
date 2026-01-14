@@ -97,10 +97,8 @@ class Cell(ABC):
             self._oil = self.findOil()
         return self._oil
 
-    @oil.setter
-    def oil(
-        self, value
-    ):  # TODO : dette kan hene er feil løsning men jeg fikk feilmed at oljen ble setet negatift
+    @oil.setter  # TODO : dette kan hene er feil løsning men jeg fikk feilmed at oljen ble setet negatift
+    def oil(self, value):
         try:
             v = float(value)
         except Exception:
