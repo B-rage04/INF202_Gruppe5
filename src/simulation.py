@@ -9,9 +9,6 @@ from src.mesh import Mesh
 from src.video import VideoCreator
 from src.visualize import Visualizer
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-
 
 class Simulation:
     def __init__(self, config: Dict[str, Any]):
@@ -174,9 +171,8 @@ class Simulation:
                 cell.oil = float(cell.oil) + float(sum(deltas))
                 cell.newOil.clear()
             else:
-                logger.debug(
-                    "Cell %s had no pending oil updates", getattr(cell, "id", "?")
-                )
+                pass
+                # logger.debug("Cell %s had no pending oil updates", getattr(cell, "id", "?"))
 
     # snake_case compatibility wrapper
     def update_oil(self, *args, **kwargs):
@@ -232,7 +228,6 @@ class Simulation:
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:
-            logger.info("Creating video for run %s", runNumber)
 
             videoCreator = VideoCreator(imageDir=self._imageDir, fps=videoFps)
 
@@ -240,6 +235,5 @@ class Simulation:
                 videoPath = videoCreator.createVideo_from_run(runNumber)
             else:
                 videoPath = videoCreator.createVideoFromRun(runNumber)
-            logger.info("Video created successfully: %s", videoPath)
 
         return videoPath

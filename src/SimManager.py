@@ -1,11 +1,28 @@
 import re
+import logging
 from pathlib import Path
-from typing import Any, Dict, List
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+LOG_DIR = BASE_DIR / "Output" / "log"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+LOG_FILE = LOG_DIR / "sim.log"
+
+print("Logging to:", LOG_FILE)
+
+logging.basicConfig(
+    filename="Output/log/sim.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 from tqdm import tqdm
-
+from typing import Any, Dict, List
 from src.LoadTOML import LoadTOML
 from src.simulation import Simulation
+
+import os
 
 
 def _next_run_number(images_dir: str = "Output/images") -> int:
@@ -35,10 +52,18 @@ def main(
     globalConfigPath: str = "Example/Globalcofig/SysConfig.toml", **kwargs: Any
 ) -> None:
     """Load global config and run simulations defined by it."""
+
+    logging.info("Running...")
+
     config_loader = LoadTOML()
 
     globalConfig: Dict[str, Any] = config_loader.loadTomlFile(globalConfigPath)
+    
+    logging.info(f"Loading sim configurations from: {globalConfig['settings']['pathToSimConfig']}")
+
     simConfigs: List[Dict[str, Any]] = config_loader.loadSimConfigs(globalConfig)
+
+    
 
     videoPaths: List[str] = []
 

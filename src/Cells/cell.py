@@ -105,10 +105,10 @@ class Cell(ABC):
             raise TypeError("oil value must be numeric")
 
         if v < 0.0:
-            print(f"Clamping oil for cell {self.id} from {v} to 0.0")
+            #print(f"Clamping oil for cell {self.id} from {v} to 0.0")
             v = 0.0
         elif v > 1.0:
-            print(f"Clamping oil for cell {self.id} from {v} to 1.0")
+            #print(f"Clamping oil for cell {self.id} from {v} to 1.0")
             v = 1.0
 
         self._oil = v
