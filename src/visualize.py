@@ -3,6 +3,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 
+from src.config import Config
+
 
 class Visualizer:
     def __init__(self, mesh):
@@ -23,8 +25,21 @@ class Visualizer:
             self.vmin = min(oil)
             self.vmax = max(oil)
 
-        config = kwargs.get("config", {})
-        totalOilFlag = config.get("video", {}).get("totalOilFlag", False)
+        # Prefer an explicit config passed in kwargs, otherwise fall back
+        # to `mesh.config` (new OOP `Config`). Accept legacy dict too.
+        cfg = kwargs.get("config", None)
+        if cfg is None:
+            cfg = getattr(self.mesh, "config", None)
+
+        if isinstance(cfg, dict):
+            try:
+                cfg = Config.from_dict(cfg)
+            except Exception:
+                cfg = None
+
+        totalOilFlag = False
+        if isinstance(cfg, Config):
+            totalOilFlag = bool(cfg.video.get("totalOilFlag", False))
 
         cmap = plt.cm.get_cmap("viridis")
 
@@ -45,8 +60,10 @@ class Visualizer:
         plt.colorbar(label="Oil concentration")
 
         # Draw ship position (if configured)
-        if config.get("geometry", {}).get("ship"):
-            ship_pos = config["geometry"]["ship"]
+        geometry = cfg.geometry if isinstance(cfg, Config) else {}
+        ship_cfg = geometry.get("ship") if isinstance(geometry, dict) else None
+        if ship_cfg:
+            ship_pos = ship_cfg
             if isinstance(ship_pos, list) and len(ship_pos) >= 2:
                 ax.plot(
                     ship_pos[0],
@@ -61,7 +78,7 @@ class Visualizer:
                 )
 
         # Draw source positions (if configured)
-        sources = config.get("geometry", {}).get("source", [])
+        sources = geometry.get("source", []) if isinstance(geometry, dict) else []
         if isinstance(sources, list) and sources:
             for idx, source_pos in enumerate(sources):
                 if isinstance(source_pos, list) and len(source_pos) >= 2:
@@ -78,7 +95,7 @@ class Visualizer:
                     )
 
         # Draw sink positions (if configured)
-        sinks = config.get("geometry", {}).get("sink", [])
+        sinks = geometry.get("sink", []) if isinstance(geometry, dict) else []
         if isinstance(sinks, list) and sinks:
             for idx, sink_pos in enumerate(sinks):
                 if isinstance(sink_pos, list) and len(sink_pos) >= 2:
@@ -95,11 +112,7 @@ class Visualizer:
                     )
 
         # Add legend if any markers were drawn
-        if (
-            config.get("geometry", {}).get("ship")
-            or config.get("geometry", {}).get("source")
-            or config.get("geometry", {}).get("sink")
-        ):
+        if ship_cfg or sources or sinks:
             ax.legend(loc="upper right", framealpha=0.8)
 
         if totalOilFlag:

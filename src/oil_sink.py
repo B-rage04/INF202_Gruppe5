@@ -1,5 +1,7 @@
 import numpy as np
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
+
+from src.config import Config
 
 
 def compute_ship_sink(msh, ship_pos, radius=0.1, sigma=1.0, strength=1.0, mode="gaussian"):
@@ -108,16 +110,19 @@ class OilSinkSource:
     Class representing an oil sink/source in the simulation.
     """
 
-    def __init__(self, msh, configuration: Optional[dict] = None):
+    def __init__(self, msh, configuration: Optional[Union[dict, Config]] = None):
         if configuration is None:
-            configuration = {}
-
+            cfg = {}
+        elif isinstance(configuration, Config):
+            cfg = configuration.other if getattr(configuration, "other", None) is not None else {}
+        else:
+            cfg = configuration
 
         self.msh = msh
-        self.position = np.array(configuration.get("position", [0.5, 0.5]))
-        self.strength = configuration.get("strength", 1.0)
-        self.type = configuration.get("type", "gaussian")
-        self.radius = configuration.get("radius", 1.0)
+        self.position = np.array(cfg.get("position", [0.5, 0.5]))
+        self.strength = cfg.get("strength", 1.0)
+        self.type = cfg.get("type", "gaussian")
+        self.radius = cfg.get("radius", 1.0)
         self.cellInRange = self.findCellsInRange(self.msh)
 
     def __call__(self, *args, **kwds):
