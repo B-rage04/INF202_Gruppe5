@@ -2,7 +2,7 @@ from src.Cells.cell import Cell
 
 
 class Vertex(Cell):
-    def __init__(self, msh, cell_points, cell_id, config):
+    def __init__(self, msh, cell_points, cell_id, config=None):
         super().__init__(msh, cell_points, cell_id, config)
         self.type = "vertex"
 
