@@ -1,8 +1,6 @@
 import numpy as np
-import numpy.testing as npt
 import pytest
-
-from src.Cells.triangle import Triangle
+import copy
 
 from test.utilitiesTests.ConfigTest import configTest
 from test.utilitiesTests.MeshTest import meshTest
@@ -10,14 +8,9 @@ from test.utilitiesTests.MeshTest import meshTest
 config = configTest()
 msh = meshTest()
 
-print(len(msh.cells))
-
-for cell in msh.cells:
-    print(cell.type)
-
-@pytest.fixture
+@pytest.fixture()
 def triangle():
-    return Triangle(msh, msh.cells[-1], 0, config)
+    return copy.deepcopy(msh.cells[-1])
 
 
 def testGetterId(triangle):
@@ -75,6 +68,7 @@ def testGetterOil(triangle):
     "value, bool", [(0.5, True), (0.9, True), (2.1, False), (-0.3, False)]
 )
 def testSetterOil(triangle, value, bool):
+    print(id(triangle))
     if bool:
         triangle.oil = value
         assert triangle._oil == triangle.oil
@@ -85,11 +79,21 @@ def testSetterOil(triangle, value, bool):
 def testFindFlow(triangle):
     cx, cy = triangle.midPoint[0], triangle.midPoint[1]
     expectedFlow = np.array([cy - cx * 0.2, -cx])
-    npt.assert_allclose(triangle.flow, expectedFlow)
+    assert triangle.flow.all() == expectedFlow.all()
 
 
 def testOil(triangle):
+    print(id(triangle))
     center = triangle.midPoint
     reference = np.array([0.35, 0.45, 0.0])
     expectedOil = np.exp(-(np.linalg.norm(center - reference) ** 2) / 0.01)
     assert triangle.oil == pytest.approx(expectedOil)
+
+def testid(triangle):
+    print(id(triangle))
+
+def testid2(triangle):
+    print(id(triangle))
+
+testid(triangle)
+testid2(triangle)
