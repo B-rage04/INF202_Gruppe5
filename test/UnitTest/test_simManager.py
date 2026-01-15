@@ -37,3 +37,32 @@ def test_next_run_number_ignores_non_run_folders(tmp_path):
     (tmp_path / "run_old").mkdir()
     (tmp_path / "runX").mkdir()
     assert Manager._next_run_number(str(tmp_path)) == 1
+
+
+def test_get_config_files_no_config_files_found_in_folder(tmp_path):
+    """Should raise ValueError when no TOML files found."""
+    with pytest.raises(ValueError):
+        Manager._get_config_files(str(tmp_path))
+
+
+def test_get_config_files_invalid_directory():
+    """Should raise ValueError when given an invalid directory path."""
+    with pytest.raises(ValueError):
+        Manager._get_config_files("this/doenst/exist/lol")
+
+
+def test_get_config_files_correct_read_toml():
+    """Should return sorted list of TOML files from Defaults folder."""
+    result = Manager._get_config_files("test/utilitiesTests/ConfigTest.toml")
+    assert result == ["test\\utilitiesTests\\ConfigTest.toml"] 
+
+
+def test_is_result_folder_positive(tmp_path):
+    (tmp_path / "images").mkdir()
+    (tmp_path / "videos").mkdir()
+    assert Manager._is_result_folder(tmp_path) is True
+
+def test_is_result_folder_negative(tmp_path):
+    assert Manager._is_result_folder(tmp_path) is False
+
+def test_create_result_folder
