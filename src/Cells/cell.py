@@ -14,7 +14,7 @@ class Cell(ABC):
     with the exception of oil and newOil all values are fixed
     """
 
-    def __init__(self, msh, cell_points, cell_id, config):
+    def __init__(self, msh, cell_points, cell_id, config): 
         self.type = None
         self._id = cell_id
         # keep reference to mesh so we can compute geometry against all cells

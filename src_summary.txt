@@ -1,0 +1,167 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' -- Core classes from src --
+abstract class Cell {
+  - type
+  - _id
+  - _msh
+  - _cords
+  - _midPoint
+  - _area
+  - _scaledNormal
+  - _pointSet
+  - _ngb
+  - _flow
+  - _oil
+  - newOil
+  - _isFishing
+  + id() {get; set}
+  + cords() {get; set}
+  + midPoint()
+  + area()
+  + scaledNormal()
+  + pointSet()
+  + ngb()
+  + flow() {get; set}
+  + oil() {get; set}
+  + __init__(msh, cell_points, cell_id, config)
+  + isFishing(config)
+  + findArea()
+  + findMidPoint()
+  + findScaledNormales(allCells=None)
+  + findNGB(allCells)
+  + findFlow()
+  + findOil()
+}
+
+class Triangle
+class Line
+class Vertex
+
+Triangle --|> Cell
+Line --|> Cell
+Vertex --|> Cell
+
+class CellFactory {
+  - config
+  - msh
+  - cellTypes
+  - cellList
+  + __init__(msh, config)
+  + register(key, ctype)
+  + __call__()
+}
+
+class Mesh {
+  - _msh
+  - config
+  - _points
+  - _triangles
+  - _cellFactory
+  - _cells
+  + __init__(file: str, config)
+  + _readMesh(file: str)
+  + reload(file: str)
+  + points()
+  + triangles()
+  + cells()
+}
+
+Mesh "1" o-- "1" CellFactory : uses
+CellFactory ..> Triangle : creates
+CellFactory ..> Line : creates
+CellFactory ..> Vertex : creates
+
+class Visualizer {
+  - mesh
+  - vmin
+  - vmax
+  + __init__(mesh)
+  + plotting(oil, filepath="Output/images/", run=None, step=None, **kwargs)
+}
+
+class VideoCreator {
+  - imageDir
+  - fps
+  + __init__(imageDir="Output/images/", fps=10, **kwargs)
+  + createVideoFromRun(runNumber, outputPath=None)
+  + createVideoFromImages(imagePattern, outputPath)
+  + createComparisonVideo(runNumbers, outputPath=None)
+}
+
+class Simulation {
+  - _config
+  - _msh
+  - _visualizer
+  - _imageDir
+  - _timeStart
+  - _timeEnd
+  - _nSteps
+  - _writeFrequency
+  - _dt
+  - _currentTime
+  - _oilVals
+  - shipSink
+  - sourceSink
+  + __init__(config)
+  + _validateConfig(config)
+  + getOilVals()
+  + _computeFlux(i, cell, ngb)
+  + updateOil()
+  + update_oil(*args, **kwargs)
+  + run_sim(runNumber=None, **kwargs)
+  + config() {get}
+  + mesh() {get}
+  + dt() {get}
+  + currentTime() {get; set}
+  + oilVals() {get}
+}
+
+Simulation ..> Mesh : depends on
+Simulation ..> Visualizer : uses
+Simulation ..> VideoCreator : uses
+
+class OilSinkSource {
+  - msh
+  - position
+  - strength
+  - type
+  - radius
+  - cellInRange
+  + __init__(msh, configuration=None)
+  + __call__(*args, **kwds)
+  + findCellsInRange(msh)
+  + distributions(type, distance, radius, sigma) : float
+}
+
+note left of OilSinkSource
+  Module-level functions:
+  - compute_ship_sink(msh, ship_pos, radius=0.1, sigma=1.0, strength=1.0, mode="gaussian")
+  - compute_source(msh, source_pos, radius=0.1, sigma=1.0, strength=1.0, mode="gaussian")
+end note
+
+class SimManager <<module>> {
+  {static} _next_run_number(images_dir = "Output/images")
+  {static} _validate_sim_config(config, config_path)
+  {static} _get_config_files(folder)
+  {static} _is_result_folder(folder_path)
+  {static} _create_result_folder(base_name, output_dir = "Output")
+  {static} main(**kwargs)
+}
+
+class LoadTOML {
+  + loadTomlFile(self, filePath) : dict
+  + loadSimConfigs(self, sysConfig) : list[dict]
+}
+
+' Grouping for Cells package
+package "src.Cells" {
+  class Cell
+  class Triangle
+  class Line
+  class Vertex
+  class CellFactory
+}
+
+@enduml
