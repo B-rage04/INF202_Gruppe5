@@ -29,23 +29,24 @@ class Cell(ABC):
         self._flow = np.array(self.findFlow())
         self._oil = self.findOil()
         self.newOil = []
-        self._isFishing = self.isFishing(config)
+        self._isFishing = self.isFishingCheck(config)
+        
 
 
 
-    def isFishing(self, config):
+    def isFishingCheck(self, config):
         fishxmin = config["geometry"]["borders"][0][0]
         fishxmax = config["geometry"]["borders"][0][1]
         fishymin = config["geometry"]["borders"][1][0]
         fishymax = config["geometry"]["borders"][1][1]
         x = self._midPoint[0]
         y = self._midPoint[1]
-        if fishxmin < x < fishxmax and fishymin < y < fishymax:
-            self._isFishing = True
-        else:
-            self._isFishing = False
-            
+        return fishxmin < x < fishxmax and fishymin < y < fishymax
 
+            
+    @property
+    def isFishing(self):
+        return self._isFishing
     @property
     def id(self):
         return self._id
