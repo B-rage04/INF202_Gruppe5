@@ -69,5 +69,35 @@ def test_create_result_folder_value_error(tmp_path):
     with pytest.raises(ValueError):
         Manager._create_result_folder(tmp_path)
 
-def test_create_result_folder_able_to(tmp_path):
-    assert Manager._create_result_folder(tmp_path) == str(tmp_path)
+        
+def test_create_result_folder_creates_subfolder(tmp_path):
+    """Should create a subfolder inside output_dir."""
+    result = Manager._create_result_folder("test_config", str(tmp_path))
+    assert result == str(tmp_path / "test_config")
+
+
+def test_create_result_folder_subfolder_exists(tmp_path):
+    """Should actually create the folder on disk."""
+    Manager._create_result_folder("test_config", str(tmp_path))
+    assert (tmp_path / "test_config").exists()
+
+
+def test_create_result_folder_prevents_overwrite_non_result(tmp_path):
+    """Should raise ValueError if folder exists but isn't a result folder."""
+    # Create a non-result folder (no images/videos subdirs)
+    config_folder = tmp_path / "test_config"
+    config_folder.mkdir()
+    (config_folder / "some_file.txt").write_text("data")
+    
+    with pytest.raises(ValueError):
+        Manager._create_result_folder("test_config", str(tmp_path))
+
+
+def test_create_result_folder_allows_overwrite_result(tmp_path):
+    """Should allow reusing existing result folders."""
+    config_folder = tmp_path / "test_config"
+    config_folder.mkdir()
+    (config_folder / "images").mkdir()
+    
+    result = Manager._create_result_folder("test_config", str(tmp_path))
+    assert result == str(config_folder)
