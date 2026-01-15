@@ -1,11 +1,11 @@
 
 [settings]
-nSteps = 50 # Number of Total steps
+nSteps = 10 # Number of Total steps
 tStart = 0.0 # Start time of simulation
-tEnd = 0.2 # End time of simulation
+tEnd = 0.1 # End time of simulation
 
 [geometry]
-meshName = "test/utilitiesTests" # Path to mesh file
+meshName = "test/utilitiesTests/simpleMesh.msh" # Path to mesh file
 borders = [[0, 0.45], [0.0, 0.2]] # Borders for Fish [x_min, x_max], [y_min, y_max]
 ship = [0.45, 0.4] # Oil collection ship position [x, y]
 

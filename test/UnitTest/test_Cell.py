@@ -4,21 +4,17 @@ import pytest
 
 from src.Cells.triangle import Triangle
 
-from src.LoadTOML import LoadTOML
+from test.utilitiesTests.config import ConfigTest
+from test.utilitiesTests.MeshTest import MeshTest
+config1 = ConfigTest()
+config2 = config1()
+msh = MeshTest()()
 
-configloader = LoadTOML()
-config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
-
-class DummyMesh:
-    def __init__(self):
-        self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
-        self.triangles = np.array([[0, 1, 2]])
-
+print(msh.cells[0].points)
 
 @pytest.fixture
 def triangle():
-    msh = DummyMesh()
-    return Triangle(msh, msh.triangles[0], 0, config)
+    return Triangle(msh, msh.cells[0].points, 0, config2)
 
 
 def testGetterId(triangle):

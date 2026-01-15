@@ -1,4 +1,10 @@
-class DummyMesh:
-    def __init__(self):
-        self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
-        self.triangles = np.array([[0, 1, 2]])
+
+
+
+from src.mesh import Mesh
+from test.utilitiesTests.config import config
+config = config()
+print(type(config))
+msh = Mesh("test/utilitiesTests/simpleMesh.msh", config)
+
+#print(msh)

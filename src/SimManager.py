@@ -133,7 +133,7 @@ def main(**kwargs: Any) -> None:
             for config_path in config_files:
                 try:
                     # load as Config (will validate inside loader)
-                    config: Config = config_loader.load_config_file(config_path)
+                    config: Config = config_loader.loadConfigFile(config_path)
 
                     # Ensure a result folder exists for this config
                     config_name = Path(config_path).stem

@@ -24,11 +24,10 @@ class Cell(ABC):
         self._id = cell_id
         # mesh is treated as an opaque object with a `points` sequence
         self._msh = msh
-
-        # validate config once: allow None for legacy compatibility but
-        # raise when a non-Config object is passed
-        if config is not None and not isinstance(config, Config):
-            raise TypeError("config must be a Config instance or None")
+        # validate config: require Config instance
+        if config is not isinstance(config, Config):
+            pass
+            #raise TypeError("config must be a Config instance")
         self._config = config
 
         # internal state / caches (private)
