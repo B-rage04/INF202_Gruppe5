@@ -19,17 +19,11 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Simulation:
-    def __init__(self, config: Dict[str, Any] | Config):
-        # Accept either a raw dict (backwards compatible) or a Config instance
-        if isinstance(config, Config):
-            cfg = config
-        elif isinstance(config, dict):
-            cfg = Config.from_dict(config)
-        else:
-            raise TypeError("config must be a dict or Config instance")
-
-        # store Config object
-        self._config: Config = cfg
+    def __init__(self, config:Config=None):
+        # validate config: require Config instance
+        if config is not isinstance(config, Config):
+            raise TypeError("config must be a Config instance")
+        self._config = config
 
         meshName = self._config.mesh_name()
         # Mesh expects a path and a config object
