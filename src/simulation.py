@@ -300,8 +300,9 @@ class Simulation:
                 self.updateOil()
                 self._currentTime = self._timeStart + stepIdx * self._dt
                 self.getOilVals()
-                logger.info(f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}")
+
                 if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
+                    logger.info(f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}")
                     self._visualizer.plotting(
                         self._oilVals[-1],
                         filepath=str(self._imageDir),
