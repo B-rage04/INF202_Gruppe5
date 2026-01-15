@@ -206,7 +206,7 @@ class Simulation:
             )
 
         self._fishingOil.append(
-            sum([cell.oil for cell in self._msh.cells if cell.isFishing == True])
+            sum([cell.oil for cell in self._msh.cells if cell.isFishing])
         )
 
     def _computeFlux(
@@ -306,6 +306,7 @@ class Simulation:
                 self.updateOil()
                 self._currentTime = self._timeStart + stepIdx * self._dt
                 self.getOilVals()
+                self.getFishing()
 
                 if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
                     logger.info(f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}")
