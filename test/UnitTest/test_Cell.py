@@ -4,17 +4,17 @@ import pytest
 
 from src.Cells.triangle import Triangle
 
-from test.utilitiesTests.config import ConfigTest
-from test.utilitiesTests.MeshTest import MeshTest
-config1 = ConfigTest()
-config2 = config1()
-msh = MeshTest()()
+from test.utilitiesTests.ConfigTest import configTest
+from test.utilitiesTests.MeshTest import meshTest
 
-print(msh.cells[0].points)
+config = configTest()
+msh = meshTest()
+
+print(len(msh.cells))
 
 @pytest.fixture
 def triangle():
-    return Triangle(msh, msh.cells[0].points, 0, config2)
+    return Triangle(msh, msh.cells[0].points, 0, config)
 
 
 def testGetterId(triangle):
