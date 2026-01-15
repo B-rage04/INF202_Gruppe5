@@ -35,12 +35,12 @@ class Cell(ABC):
         self._flow = np.array(self.findFlow())
         self._oil = self.findOil()
         self.newOil = []
-        self._isFishing = self.isFishingCheck(config)
+        self._isFishing = self.isFishingCheck()
         
 
 
 
-    def isFishingCheck(self, config):
+    def isFishingCheck(self):
 
         fishxmin =  self._config.geometry["borders"][0][0]
         fishxmax =  self._config.geometry["borders"][0][1]
