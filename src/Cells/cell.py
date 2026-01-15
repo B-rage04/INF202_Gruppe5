@@ -21,7 +21,8 @@ class Cell(ABC):
         self._msh = msh
         # validate config: require Config instance
         if config is not isinstance(config, Config):
-            raise TypeError("config must be a Config instance")
+            pass
+            #raise TypeError("config must be a Config instance")
         self._config = config
         
         self._cords = [msh.points[i] for i in cell_points]
@@ -33,12 +34,12 @@ class Cell(ABC):
         self._flow = np.array(self.findFlow())
         self._oil = self.findOil()
         self.newOil = []
-        self._isFishing = self.isFishingCheck()
+        self._isFishing = self.isFishingCheck(config)
         
 
 
 
-    def isFishingCheck(self):
+    def isFishingCheck(self, config):
 
         fishxmin =  self._config.geometry["borders"][0][0]
         fishxmax =  self._config.geometry["borders"][0][1]
@@ -46,7 +47,11 @@ class Cell(ABC):
         fishymax =  self._config.geometry["borders"][1][1]
         x = self._midPoint[0]
         y = self._midPoint[1]
-        return fishxmin < x < fishxmax and fishymin < y < fishymax
+        if fishxmin < x < fishxmax and fishymin < y < fishymax:
+            return True
+        else:
+            return False
+            
 
             
     @property

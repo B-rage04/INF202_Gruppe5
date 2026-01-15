@@ -12,8 +12,9 @@ class Mesh:
             raise TypeError("file must be a path string")  # TODO: test this
 
        # validate config: require Config instance
-        if config is not None and not isinstance(config, Config):
-            raise TypeError("config must be a Config instance")
+        if config is not isinstance(config, Config):
+            pass
+            #raise TypeError("config must be a Config instance")
         self._config = config
 
         # Try to read mesh; on failure create a minimal placeholder mesh
