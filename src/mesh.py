@@ -11,10 +11,11 @@ class Mesh:
         if not isinstance(file, str):
             raise TypeError("file must be a path string")  # TODO: test this
 
-       # validate config: require Config instance
-        if config is not isinstance(config, Config):
-            pass
-            #raise TypeError("config must be a Config instance")
+       # validate config: accept plain dict or Config instance
+        if isinstance(config, dict):
+            config = Config.from_dict(config)
+        elif not isinstance(config, Config) and config is not None:
+            raise TypeError("config must be a Config instance or dict")
         self._config = config
 
         # Try to read mesh; on failure create a minimal placeholder mesh

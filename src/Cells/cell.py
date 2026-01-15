@@ -22,15 +22,14 @@ class Cell(ABC):
     def __init__(self, msh, cell_points, cell_id, config: Config = None):
         self.type = None
         self._id = cell_id
-        # mesh is treated as an opaque object with a `points` sequence
+        
         self._msh = msh
         # validate config: require Config instance
-        if config is not isinstance(config, Config):
-            pass
-            #raise TypeError("config must be a Config instance")
+        if not isinstance(config, Config) and config is not None:
+            raise TypeError("config must be a Config instance")
         self._config = config
 
-        # internal state / caches (private)
+        # internal state / caches 
         self._cords = [msh.points[i] for i in cell_points]
         self._midPoint = None
         self._area = None
@@ -47,52 +46,11 @@ class Cell(ABC):
         self._oil = self.findOil()
         self._isFishing = self.isFishingCheck(config)
 
-    def isFishingCheck(self, config=None):
-        cfg = config if config is not None else self._config
-        if cfg is None:
-            return False
+    
 
-        # Support both Config instances and plain dicts used in tests
-        if isinstance(cfg, dict):
-            geom = cfg.get("geometry")
-        else:
-            geom = getattr(cfg, "geometry", None)
+    # --- validate -----------------------------------------
 
-        if not geom or "borders" not in geom:
-            return False
-
-        fishxmin = geom["borders"][0][0]
-        fishxmax = geom["borders"][0][1]
-        fishymin = geom["borders"][1][0]
-        fishymax = geom["borders"][1][1]
-        x = self._midPoint[0]
-        y = self._midPoint[1]
-        return fishxmin < x < fishxmax and fishymin < y < fishymax
-
-    # --- cache & update helpers -----------------------------------------
-    def _update_cords(self, cords):
-        self._cords = list(cords)
-        self._update_geometry()
-        self.invalidate_physics_cache()
-
-    def _update_geometry(self):
-        self._midPoint = self.findMidPoint()
-        self._area = self.findArea()
-        self.invalidate_geometry_cache()
-
-    def invalidate_geometry_cache(self):
-        self._scaledNormal = None
-        self._pointSet = None
-
-    def invalidate_physics_cache(self):
-        self._flow = None
-        self._oil = None
-
-    def invalidate_all_caches(self):
-        self.invalidate_geometry_cache()
-        self.invalidate_physics_cache()
-
-    def _validate_and_clamp_oil(self, value):
+    def _validate_and_clamp_oil(self, value):  # TODO: this might be the wrong solution but I got an error that oil was set negatively
         try:
             v = float(value)
         except Exception:
@@ -173,7 +131,7 @@ class Cell(ABC):
             self._oil = self.findOil()
         return self._oil
 
-    @oil.setter  # TODO: this might be the wrong solution but I got an error that oil was set negatively
+    @oil.setter 
     def oil(self, value):
         self._oil = self._validate_and_clamp_oil(value)
 
@@ -208,18 +166,9 @@ class Cell(ABC):
             self._pointSet = selfPoints
 
         scaledNormals = []
-        disable_ngb_tqdm = len(self.ngb) < 10
 
-        start_time = time.perf_counter()
-        for ngbId in tqdm(
-            self.ngb,
-            desc=f"Triangle {self.id:04d} normals",
-            unit="ngb",
-            leave=False,
-            colour="cyan",
-            ascii="-#",
-            disable=disable_ngb_tqdm,
-        ):
+        for ngbId in self.ngb:
+
             ngbCell = cellsDict.get(ngbId)
             if ngbCell is None:
                 continue
@@ -244,10 +193,6 @@ class Cell(ABC):
             if np.dot(n, v) > 0:
                 n = -n
             scaledNormals.append(n)
-
-        if not disable_ngb_tqdm:
-            elapsed_ms = (time.perf_counter() - start_time) * 1000
-            print(f"Triangle {self.id:04d} normals completed in {elapsed_ms:.2f} ms")
 
         self._scaledNormal = scaledNormals
         return self._scaledNormal
@@ -304,3 +249,12 @@ class Cell(ABC):
 
     def findOil(self):  # TODO Brage: add ability to set oil function
         return np.exp(-(np.linalg.norm(self.midPoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01)
+    
+    def isFishingCheck(self):
+        fishxmin = self._config.geometry["borders"][0][0]
+        fishxmax = self._config.geometry["borders"][0][1]
+        fishymin = self._config.geometry["borders"][1][0]
+        fishymax = self._config.geometry["borders"][1][1]
+        x = self._midPoint[0]
+        y = self._midPoint[1]
+        return fishxmin < x < fishxmax and fishymin < y < fishymax
