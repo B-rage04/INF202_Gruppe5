@@ -2,13 +2,15 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
-
+import numpy as np
 
 class Visualizer:
     def __init__(self, mesh):
         self.mesh = mesh
         self.vmin = None
         self.vmax = None
+
+        self.triangle_cells = [cell for cell in mesh.cells if getattr(cell, "type", None) == "triangle"]
 
     def plotting(
         self,
@@ -41,6 +43,30 @@ class Visualizer:
             vmin=self.vmin,
             vmax=self.vmax,
         )
+
+        # Refresh triangle cells
+        self.triangle_cells = [cell for cell in self.mesh.cells if getattr(cell, "type", None) == "triangle"]
+
+        # Map fishing state to triangles (1.0 = fishing, 0.0 = not fishing)
+        fishing_data = [cell._isFishing for cell in self.mesh.cells if cell.type == "triangle"]
+
+        if np.any(fishing_data):
+            ax.tripcolor(
+                self.mesh.points[:, 0],
+                self.mesh.points[:, 1],
+                self.mesh.triangles,
+                fishing_data,
+                shading="flat",
+                cmap=plt.cm.Reds,
+                vmin=0,
+                vmax=1,
+                alpha=0.2,
+                linewidth=0,
+                edgecolors='none'
+            )
+
+
+
 
         plt.colorbar(label="Oil concentration")
 

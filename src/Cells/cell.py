@@ -41,9 +41,9 @@ class Cell(ABC):
         x = self._midPoint[0]
         y = self._midPoint[1]
         if fishxmin < x < fishxmax and fishymin < y < fishymax:
-            self._isFishing = True
+            return True
         else:
-            self._isFishing = False
+            return False
             
 
     @property

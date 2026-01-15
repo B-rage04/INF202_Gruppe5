@@ -41,6 +41,7 @@ class Simulation:
         self._currentTime: float = float(self._timeStart)
 
         self._oilVals = []
+        self._fish_vals = []
 
         # Optional oil collection ship configuration
         self.shipSink = {}
@@ -192,6 +193,11 @@ class Simulation:
         self._oilVals.append(
             [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
         )
+    
+    def getFishing(self):
+        self._fish_vals.append(
+            [cell._isFishing for cell in self._msh.cells if cell.type == "triangle"]
+            )
 
     def _computeFlux(
         self, i: int, cell: Any, ngb: int
@@ -299,7 +305,7 @@ class Simulation:
                         **kwargs,
                     )
                 pbar.update(1)
-        
+
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         print(f"Simulation completed in {elapsed_ms:.2f} ms")
                 
