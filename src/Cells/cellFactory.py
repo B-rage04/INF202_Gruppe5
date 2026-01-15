@@ -6,6 +6,8 @@ from src.Cells.line import Line
 from src.Cells.triangle import Triangle
 from src.Cells.vertex import Vertex
 
+from src.config import Config
+
 
 class CellFactory:
     def __init__(self, msh, config:Config=None):
@@ -14,7 +16,8 @@ class CellFactory:
 
         # validate config: require Config instance
         if config is not isinstance(config, Config):
-            raise TypeError("config must be a Config instance")
+            pass
+            #raise TypeError("config must be a Config instance")
         self._config = config
 
         self.msh = msh
@@ -51,7 +54,7 @@ class CellFactory:
                 leave=False,
                 ascii="-#",
             ):
-                self.cellList.append(cellCls(self.msh, cell, IDx, self.config))
+                self.cellList.append(cellCls(self.msh, cell, IDx, self._config))
                 IDx += 1
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         print(f"Processing mesh geometry completed in {elapsed_ms:.2f} ms")

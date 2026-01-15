@@ -15,261 +15,231 @@ class Cell(ABC):
     with the exception of oil and newOil all values are fixed
     """
 
-    def __init__(self, msh, cell_points, cell_id, config:Config=None):
-        self.type = None
+    def __init__(self, msh, cell_points, cell_id, config: Config = None, *, flow_fn=None, oil_fn=None):
+        # identity
         self._id = cell_id
+        # keep reference to mesh only for contextual use (no direct internal caching of mesh maps)
         self._msh = msh
-        # validate config: require Config instance
-        if config is not isinstance(config, Config):
+
+        # validate config once
+        if not isinstance(config, Config):
             raise TypeError("config must be a Config instance")
         self._config = config
-        
-        self._cords = [msh.points[i] for i in cell_points]
-        self._midPoint = self.findMidPoint()
-        self._area = self.findArea()
-        self._scaledNormal = None
-        self._pointSet = None
-        self._ngb = []
-        self._flow = np.array(self.findFlow())
-        self._oil = self.findOil()
-        self.newOil = []
-        self._isFishing = self.isFishingCheck(config)
-        
 
+        # private geometry storage; freeze public access via property
+        self._points = tuple(msh.points[i] for i in cell_points)
 
+        # cached geometric/physical values (explicitly computed or invalidated)
+        self._midpoint = None
+        self._area = None
+        self._point_set = None
+        self._scaled_normals = None  # list of normals to neighbors
 
-    def isFishingCheck(self, config):
+        # neighbors are stored as IDs only; discovery is explicit
+        self._neighbors = tuple()
 
-        fishxmin =  self._config.geometry["borders"][0][0]
-        fishxmax =  self._config.geometry["borders"][0][1]
-        fishymin =  self._config.geometry["borders"][1][0]
-        fishymax =  self._config.geometry["borders"][1][1]
-        x = self._midPoint[0]
-        y = self._midPoint[1]
-        return fishxmin < x < fishxmax and fishymin < y < fishymax
+        # physics values and their provider functions (extensible)
+        self._flow = None
+        self._oil = None
+        self._flow_fn = flow_fn or self._default_flow
+        self._oil_fn = oil_fn or self._default_oil
 
-            
+        # computed flags
+        self.compute_flow()  # compute initial flow
+        self.compute_oil()  # compute initial oil
+
+        # domain-specific flag (keeps original behaviour but uses config safely)
+        self._is_fishing = self._compute_is_fishing()
+
+    # ---------- ID ----------
     @property
-    def isFishing(self):
-        return self._isFishing
-    @property
-    def id(self):
+    def id(self) -> int:
         return self._id
 
+    # allow id assignment if necessary, but keep explicit
     @id.setter
-    def id(self, value):
-        self._id = value
+    def id(self, val: int):
+        self._id = int(val)
+
+    # ---------- geometry ----------
+    @property
+    def points(self):
+        """
+        Returnerer cellehjørner som en tuple av tuples (read-only).
+        """
+        return tuple(tuple(p) for p in self._points)
 
     @property
-    def cords(self):
-        return self._cords
+    def midpoint(self):
+        if self._midpoint is None:
+            self._midpoint = self._compute_midpoint()
+        return np.array(self._midpoint)
 
-    @cords.setter
-    def cords(self, value):
-        self._cords = list(value)
-        self._midPoint = self.findMidPoint()
-        self._area = self.findArea()
-        self._scaledNormal = self.findScaledNormales()
-        self._pointSet = None
-        self._flow = self.findFlow()
-        self._oil = self.findOil()
-
-    @property
-    def midPoint(self):
-        return self._midPoint
+    def _compute_midpoint(self):
+        return np.mean(self._points, axis=0)
 
     @property
     def area(self):
-        return self._area
-
-    @property  # TODO Brage: test getters and setters
-    def scaledNormal(self):
-        if self._scaledNormal is None:
-            # try to compute scaled normals with access to all cells when available
-            if getattr(self, "_msh", None) is not None:
-                val = self.findScaledNormales(self._msh.cells)
-            else:
-                val = self.findScaledNormales()
-            # ensure numpy array
-            self._scaledNormal = np.array(val) if val is not None else np.zeros(3)
-        return self._scaledNormal
-
-    @property  # TODO Brage: test getters and setters
-    def pointSet(self):
-        if self._pointSet is None:
-            self._pointSet = set(tuple(p) for p in self._cords)
-        return self._pointSet
+        if self._area is None:
+            self._area = self.findArea()
+        return float(self._area)
 
     @property
-    def ngb(self):
-        return self._ngb
+    def point_set(self):
+        if self._point_set is None:
+            self._point_set = frozenset(tuple(p) for p in self._points)
+        return self._point_set
 
+    # ---------- neighbors (IDs) ----------
     @property
-    def flow(self):
-        if self._flow is None:
-            self._flow = np.array(self.findFlow())
-        return self._flow
+    def neighbors(self):
+        """Returnerer nabocelle-IDer som en tuple (read-only).
 
-    @flow.setter
-    def flow(self, value):
-        self._flow = np.array(value)
-
-    @property
-    def oil(self):
-        if self._oil is None:
-            self._oil = self.findOil()
-        return self._oil
-
-    @oil.setter  # TODO: this might be the wrong solution but I got an error that oil was set negatively
-    def oil(self, value):
-        try:
-            v = float(value)
-        except Exception:
-            raise TypeError("oil value must be numeric")
-
-        if v < 0.0:
-            #print(f"Clamping oil for cell {self.id} from {v} to 0.0")
-            v = 0.0
-        elif v > 1.0:
-            #print(f"Clamping oil for cell {self.id} from {v} to 1.0")
-            v = 1.0
-
-        self._oil = v
-
-    @abstractmethod
-    def findArea(self):
+        Beregning av naboer skjer eksternt og injiseres via compute_neighbors_from_maps.
         """
-        See child class for individual calculations
+        return self._neighbors
+
+    def compute_neighbors_from_maps(self, point_to_cells: dict, id_to_cell: dict):
+        """Beregn naboskap basert på eksterne kart.
+
+        point_to_cells: mapping fra punkt -> liste av celle-IDer
+        id_to_cell: mapping fra id -> celleobjekt (kun for symmetrisk oppdatering)
         """
-        pass
+        counts = {}
+        for p in self._points:
+            for cid in point_to_cells.get(tuple(p), []):
+                if cid == self._id:
+                    continue
+                counts[cid] = counts.get(cid, 0) + 1
 
-    def findMidPoint(self):  # TODO Brage: test this
-        return np.mean(self.cords, axis=0)
+        neigh = [cid for cid, shared in counts.items() if shared >= 2]
+        self._neighbors = tuple(sorted(neigh))
 
-    def findScaledNormales(self, allCells=None):
-        if not allCells or not self.ngb:
-            self._scaledNormal = []
-            return self._scaledNormal
+        # symmetrisk oppdatering på eksternt cell-objekt dersom tilgjengelig
+        for cid in self._neighbors:
+            other = id_to_cell.get(cid)
+            if other is not None:
+                # ensure other has this cell as neighbor without mutating its internals directly
+                if self._id not in other._neighbors:
+                    other._neighbors = tuple(sorted(other._neighbors + (self._id,)))
 
-        msh = getattr(self, "_msh", None)
+    # ---------- scaled normals (explicit compute) ----------
+    @property
+    def scaled_normals(self):
+        """Returnerer cached scaled normals eller None hvis ikke beregnet."""
+        return self._scaled_normals
 
-        # Reuse mesh-level id map if available to avoid rebuilding per cell
-        if msh is not None and hasattr(msh, "_id_to_cell"):
-            cellsDict = msh._id_to_cell
-        else:
-            cellsDict = {cell.id: cell for cell in allCells}
+    def compute_scaled_normals(self, id_to_cell: dict, *, disable_tqdm_threshold: int = 10):
+        """Beregner og cacher skalert normalvektor mot hver nabo.
 
-        # cache point sets
-        selfPoints = getattr(self, "_pointSet", None)
-        if selfPoints is None:
-            selfPoints = set(tuple(p) for p in self.cords)
-            self._pointSet = selfPoints
+        id_to_cell: mapping fra id -> cell objekt for å lese nabo-geometri.
+        """
+        if not self._neighbors:
+            self._scaled_normals = []
+            return self._scaled_normals
 
-        scaledNormals = []
-        disable_ngb_tqdm = len(self.ngb) < 10
-
-        start_time = time.perf_counter()
-        for ngbId in tqdm(
-            self.ngb,
-            desc=f"Triangle {self.id:04d} normals",
-            unit="ngb",
-            leave=False,
-            colour="cyan",
-            ascii="-#",
-            disable=disable_ngb_tqdm,
-        ):
-            ngbCell = cellsDict.get(ngbId)
-            if ngbCell is None:
+        self_points = self.point_set
+        scaled = []
+        disable = len(self._neighbors) < disable_tqdm_threshold
+        start = time.perf_counter()
+        for nid in tqdm(self._neighbors, desc=f"Triangle {self.id:04d} normals", unit="ngb", leave=False, disable=disable):
+            ngb = id_to_cell.get(nid)
+            if ngb is None:
                 continue
-
-            ngbPoints = getattr(ngbCell, "_pointSet", None)
-            if ngbPoints is None:
-                ngbPoints = set(tuple(p) for p in ngbCell.cords)
-                ngbCell._pointSet = ngbPoints
-
-            # find up to two shared points without creating intermediate lists
-            shared = selfPoints & ngbPoints
+            shared = self_points & ngb.point_set
             if len(shared) < 2:
                 continue
-            # deterministic ordering: sort for reproducibility
             shared_iter = sorted(shared)
             A = np.array(shared_iter[0])
             B = np.array(shared_iter[1])
-
             d = np.array([B[0] - A[0], B[1] - A[1]])
             n = np.array([d[1], -d[0]])
-            v = np.array([self.midPoint[0] - A[0], self.midPoint[1] - A[1]])
+            v = np.array([self.midpoint[0] - A[0], self.midpoint[1] - A[1]])
             if np.dot(n, v) > 0:
                 n = -n
-            scaledNormals.append(n)
-        
-        if not disable_ngb_tqdm:
-            elapsed_ms = (time.perf_counter() - start_time) * 1000
+            scaled.append(n)
+        if not disable:
+            elapsed_ms = (time.perf_counter() - start) * 1000
             print(f"Triangle {self.id:04d} normals completed in {elapsed_ms:.2f} ms")
+        self._scaled_normals = scaled
+        return self._scaled_normals
 
-        self._scaledNormal = scaledNormals
-        return self._scaledNormal
+    # ---------- physics (flow, oil) ----------
+    def _default_flow(self):
+        # preserve original numeric result
+        return np.array([self.midpoint[1] - self.midpoint[0] * 0.2, -self.midpoint[0]])
 
-        # TODO Brage: else calculate it and set and return it
+    def compute_flow(self, flow_fn=None):
+        """Beregn eller oppdater strømmen for cellen.
 
-    def findNGB(self, allCells):
-        Localmsh = getattr(
-            self, "_msh", None
-        )  # local mesh for the cell to store neighbor references. This is so the next cell can just look at the data and not calculate it
+        Kan ta en alternativ `flow_fn` som tar `cell` og returnerer en numpy-array.
+        """
+        fn = flow_fn or self._flow_fn
+        # Attempt to call both zero-arg and single-arg styles to support bound/unbound callables.
+        if not callable(fn):
+            raise TypeError("flow_fn must be callable")
+        try:
+            val = fn()
+        except TypeError:
+            val = fn(self)
+        self._flow = np.array(val)
+        return self._flow
 
-        # Build or reuse a mapping from point (tuple) -> list of cell ids
-        if Localmsh is not None:
-            if not hasattr(Localmsh, "_point_to_cells"):
-                # create a table that gives all cell IDs that share a point
-                pointMap = {}
-                for cell in allCells:
-                    for pungt in cell.cords:
-                        key = tuple(pungt)
-                        pointMap.setdefault(key, []).append(cell.id)
-                Localmsh._point_to_cells = pointMap
-            pointMap = Localmsh._point_to_cells
+    @property
+    def flow(self):
+        return np.array(self._flow)
 
-            if not hasattr(Localmsh, "_id_to_cell"):
-                # create a table that gives the cell object from an ID
-                idMap = {cell.id: cell for cell in allCells}
-                Localmsh._id_to_cell = idMap
-            idMap = Localmsh._id_to_cell
-        else:
-            pointMap = {}
-            idMap = {cell.id: cell for cell in allCells}
-            for cell in allCells:
-                for pungt in cell.cords:
-                    key = tuple(pungt)
-                    pointMap.setdefault(key, []).append(cell.id)
+    def _default_oil(self):
+        return np.exp(-(np.linalg.norm(self.midpoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01)
 
-        # Find IDs of neighbor cells that have shared points
-        counts = {}
-        for pungt in self.cords:
-            for cellID in pointMap.get(tuple(pungt), []):
-                if cellID == self.id:
-                    continue
-                counts[cellID] = counts.get(cellID, 0) + 1
+    def compute_oil(self, oil_fn=None):
+        """Beregn eller oppdater oljeinnhold for cellen.
 
-        # Any cell sharing two or more points is a neighbor
-        for cellID, SheredPoints in counts.items():
-            if SheredPoints >= 2:
-                other = idMap.get(cellID)
-                if other is None:
-                    continue
-                if cellID not in self._ngb:
-                    self._ngb.append(cellID)
-                if self.id not in other._ngb:
-                    other._ngb.append(self.id)
+        Klamping gjøres eksakt her for å sentralisere validering.
+        """
+        fn = oil_fn or self._oil_fn
+        if not callable(fn):
+            raise TypeError("oil_fn must be callable")
+        try:
+            val = fn()
+        except TypeError:
+            val = fn(self)
+        self._oil = self._clamp_oil(float(val))
+        return self._oil
 
-    def findFlow(self):  # TODO Brage: add ability to set flow function
-        return np.array(
-            [self.midPoint[1] - self.midPoint[0] * 0.2, -self.midPoint[0]]
-        )  # TODO Brage: test this
+    @staticmethod
+    def _clamp_oil(v: float) -> float:
+        if v < 0.0:
+            return 0.0
+        if v > 1.0:
+            return 1.0
+        return v
 
-        # TODO Brage: if has attribute return it
-        # TODO Brage: else calculate it and set and return it
+    @property
+    def oil(self) -> float:
+        return float(self._oil)
 
-    def findOil(self):  # TODO Brage: add ability to set oil function
-        return np.exp(
-            -(np.linalg.norm(self.midPoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
-        )  # TODO Brage: test this
+    def set_oil(self, value):
+        """Eksplisitt oppdatering av oljeinnhold (valideres og klampes)."""
+        self._oil = self._clamp_oil(float(value))
+
+    # ---------- abstract area calculation ----------
+    @abstractmethod
+    def findArea(self):
+        """Beregn areal — implementeres i underklasser."""
+        raise NotImplementedError
+
+    # ---------- helper for fishing region (keeps previous semantics) ----------
+    def _compute_is_fishing(self):
+        geo = self._config.geometry
+        fishxmin = geo["borders"][0][0]
+        fishxmax = geo["borders"][0][1]
+        fishymin = geo["borders"][1][0]
+        fishymax = geo["borders"][1][1]
+        x, y = self.midpoint[0], self.midpoint[1]
+        return fishxmin < x < fishxmax and fishymin < y < fishymax
+
+    @property
+    def isFishing(self):
+        return bool(self._is_fishing)
+

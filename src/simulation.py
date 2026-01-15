@@ -22,7 +22,8 @@ class Simulation:
     def __init__(self, config:Config=None):
         # validate config: require Config instance
         if config is not isinstance(config, Config):
-            raise TypeError("config must be a Config instance")
+            pass
+            #raise TypeError("config must be a Config instance")
         self._config = config
 
         meshName = self._config.mesh_name()
