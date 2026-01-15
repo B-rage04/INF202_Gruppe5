@@ -41,11 +41,7 @@ class Cell(ABC):
 
 
     def isFishingCheck(self, config):
-        fishxmin = config["geometry"]["borders"][0][0]
-        fishxmax = config["geometry"]["borders"][0][1]
-        fishymin = config["geometry"]["borders"][1][0]
-        fishymax = config["geometry"]["borders"][1][1]
-    def isFishing(self):
+
         fishxmin =  self._config.geometry["borders"][0][0]
         fishxmax =  self._config.geometry["borders"][0][1]
         fishymin =  self._config.geometry["borders"][1][0]
