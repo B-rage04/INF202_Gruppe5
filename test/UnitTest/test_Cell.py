@@ -88,12 +88,3 @@ def testOil(triangle):
     reference = np.array([0.35, 0.45, 0.0])
     expectedOil = np.exp(-(np.linalg.norm(center - reference) ** 2) / 0.01)
     assert triangle.oil == pytest.approx(expectedOil)
-
-def testid(triangle):
-    print(id(triangle))
-
-def testid2(triangle):
-    print(id(triangle))
-
-testid(triangle)
-testid2(triangle)
