@@ -303,7 +303,7 @@ class Simulation:
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         print(f"Simulation completed in {elapsed_ms:.2f} ms")
                 
-        if stepIdx % self._writeFrequency == 0:
+        if self._writeFrequency is not 0 and stepIdx % self._writeFrequency == 0:
             self._visualizer.plotting(
                 self._oilVals[-1],
                 filepath=str(self._imageDir),
