@@ -18,9 +18,10 @@ logging.basicConfig(
 )
 
 import argparse as argparse
-from typing import Any, Dict, List
+from typing import Any, List
 from src.LoadTOML import LoadTOML
 from src.simulation import Simulation
+from src.config import Config
 
 import os
 
@@ -48,32 +49,7 @@ def _next_run_number(images_dir: str = "Output/images") -> int:
     return max(existing) + 1
 
 
-def _validate_sim_config(config: Dict[str, Any], config_path: str) -> None:
-    """Validate that simulation config has required structure and entries."""
-    required_sections = ["settings", "geometry", "IO", "video"]
-    for section in required_sections:
-        if section not in config:
-            raise ValueError(f"Missing required section '[{section}]' in {config_path}")
-    
-    # Validate settings section
-    required_settings = ["nSteps", "tStart", "tEnd"]
-    for key in required_settings:
-        if key not in config["settings"]:
-            raise ValueError(f"Missing required key '{key}' in [settings] section of {config_path}")
-    
-    # Validate geometry section
-    if "meshName" not in config["geometry"]:
-        raise ValueError(f"Missing required key 'meshName' in [geometry] section of {config_path}")
-    
-    # Validate IO section - logName is optional, defaults to "logfile"
-    if "writeFrequency" not in config["IO"]:
-        raise ValueError(f"Missing required key 'writeFrequency' in [IO] section of {config_path}")
-    
-    # Validate video section
-    required_video = ["videoFPS"]
-    for key in required_video:
-        if key not in config["video"]:
-            raise ValueError(f"Missing required key '{key}' in [video] section of {config_path}")
+
 
 
 def _get_config_files(folder: str) -> List[str]:
@@ -156,28 +132,20 @@ def main(**kwargs: Any) -> None:
             
             for config_path in config_files:
                 try:
-                    config = config_loader.loadTomlFile(config_path)
-                    _validate_sim_config(config, config_path)
-                    
-                    # Set defaults for optional parameters
-                    if "logName" not in config.get("IO", {}):
-                        if "IO" not in config:
-                            config["IO"] = {}
-                        config["IO"]["logName"] = "logfile"
-                    
-                    # Create result folder based on config file name
+                    # load as Config (will validate inside loader)
+                    config: Config = config_loader.load_config_file(config_path)
+
+                    # Ensure a result folder exists for this config
                     config_name = Path(config_path).stem
                     result_folder = _create_result_folder(config_name)
-                    
-                    # Update config with output folder
-                    if "IO" not in config:
-                        config["IO"] = {}
-                    config["IO"]["imagesDir"] = f"{result_folder}/images/"
-                    config["IO"]["videosDir"] = f"{result_folder}/videos/"
-                    
+
+                    # Update config IO paths for this result folder
+                    config.IO["imagesDir"] = f"{result_folder}/images/"
+                    config.IO["videosDir"] = f"{result_folder}/videos/"
+
                     # Get next run number for this result folder
-                    run_number = _next_run_number(f"{result_folder}/images/")
-                    
+                    run_number = _next_run_number(config.images_dir())
+
                     sim = Simulation(config)
                     print(f"\nRunning simulation from {config_name}...")
                     path = sim.run_sim(runNumber=run_number, **kwargs)
@@ -195,7 +163,7 @@ def main(**kwargs: Any) -> None:
         else:
             # Run single config file
             config_file = args.config_file if args.config_file else "input.toml"
-            
+
             # Determine config file path
             if args.folder:
                 # If folder is specified, look for config file there
@@ -206,29 +174,18 @@ def main(**kwargs: Any) -> None:
             else:
                 # Default: no config file or folder specified, use Defaults/input.toml
                 config_path = str(Path("Defaults") / config_file)
-            
-            config = config_loader.loadTomlFile(config_path)
-            _validate_sim_config(config, config_path)
-            
-            # Set defaults for optional parameters
-            if "logName" not in config.get("IO", {}):
-                if "IO" not in config:
-                    config["IO"] = {}
-                config["IO"]["logName"] = "logfile"
-            
-            # Create result folder based on config file name (not the output config path)
-            config_name = Path(config_path).stem
-            result_folder = _create_result_folder(config_name)
-            
-            # Update config with output folder
-            if "IO" not in config:
-                config["IO"] = {}
-            config["IO"]["imagesDir"] = f"{result_folder}/images/"
-            config["IO"]["videosDir"] = f"{result_folder}/videos/"
-            
-            # Get next run number for this result folder
-            run_number = _next_run_number(f"{result_folder}/images/")
-            
+
+            config: Config = config_loader.loadConfigFile(config_path)
+
+            # Ensure default log name exists
+            config.IO.setdefault("logName", "logfile")
+
+            # Get output directory from config or use default
+            images_dir = config.images_dir()
+
+            # Get next run number
+            run_number = _next_run_number(images_dir)
+
             sim = Simulation(config)
             print(f"\nRunning simulation from {config_path}...")
             path = sim.run_sim(runNumber=run_number, **kwargs)
