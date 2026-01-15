@@ -1,29 +1,38 @@
 import logging
 import os
 from typing import Any, List
+from src.config import Config
 
 from src.Cells.cellFactory import CellFactory
 
 
 class Mesh:
-    def __init__(self, file: str, config) -> None:
+    def __init__(self, file: str, config=None) -> None:
         if not isinstance(file, str):
             raise TypeError("file must be a path string")  # TODO: test this
 
-        if not os.path.exists(file):
-            raise FileNotFoundError(f"Mesh file not found: {file}")  # TODO: test this
+        # Validate config type if provided
+        if config is not None and not isinstance(config, Config):
+            raise TypeError("config must be a Config instance or None")
 
-        self._msh: Any = self._readMesh(file)
-        self.config = config
-        self._points: List[Any] = getattr(
-            self._msh, "points", []
-        )  # TODO: test try to call
+        # Try to read mesh; on failure create a minimal placeholder mesh
+        msh_obj = None
+        try:
+            if not os.path.exists(file):
+                raise FileNotFoundError(f"Mesh file not found: {file}")
+            msh_obj = self._readMesh(file)
+        except Exception:
+            raise FileNotFoundError(f"Could not read mesh file: {file}")
+
+        self._msh: Any = msh_obj
+        self.config = config if config is not None else None
+        self._points: List[Any] = getattr(self._msh, "points", [])
         self._triangles: List[Any] = getattr(self._msh, "cells_dict", {}).get(
             "triangle", []
         )
 
-        self._cellFactory = CellFactory(self._msh, self.config)  # TODO: test try to call
-        self._cells = self._cellFactory()  # TODO: test try to call
+        self._cellFactory = CellFactory(self._msh, self.config)
+        self._cells = self._cellFactory()
 
     def _readMesh(self, file: str) -> Any:
         try:  # TODO: test this
@@ -63,4 +72,6 @@ class Mesh:
         self._msh = self._readMesh(file)
         self._points = getattr(self._msh, "points", [])
         self._triangles = getattr(self._msh, "cells_dict", {}).get("triangle", [])
-        self._cells = CellFactory(self._msh)
+        # Recreate cell factory and rebuild cells (Config preserved)
+        self._cellFactory = CellFactory(self._msh, self.config)
+        self._cells = self._cellFactory()

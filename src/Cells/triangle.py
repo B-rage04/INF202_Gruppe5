@@ -9,7 +9,7 @@ class Triangle(Cell):
     Cell of type "triangle"
     """
 
-    def __init__(self, msh, cell_points, cell_id, config):
+    def __init__(self, msh, cell_points, cell_id, config=None):
         super().__init__(msh, cell_points, cell_id, config)
         self.type = "triangle"
 

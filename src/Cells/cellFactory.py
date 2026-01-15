@@ -8,7 +8,13 @@ from src.Cells.vertex import Vertex
 
 
 class CellFactory:
-    def __init__(self, msh, config):
+    def __init__(self, msh, config=None):
+        # Accept only Config instance or None for new API
+        from src.config import Config
+
+        if config is not None and not isinstance(config, Config):
+            raise TypeError("config must be a Config instance or None")
+
         self.config = config
         self.msh = msh
         self.cellTypes = {

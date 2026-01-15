@@ -12,30 +12,38 @@ from src.video import VideoCreator
 from src.visualize import Visualizer
 
 from src.oil_sink import OilSinkSource
+from src.config import Config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 class Simulation:
-    def __init__(self, config: Dict[str, Any]):
-        self._validateConfig(config)
-        self._config = config
+    def __init__(self, config: Dict[str, Any] | Config):
+        # Accept either a raw dict (backwards compatible) or a Config instance
+        if isinstance(config, Config):
+            cfg = config
+        elif isinstance(config, dict):
+            cfg = Config.from_dict(config)
+        else:
+            raise TypeError("config must be a dict or Config instance")
 
-        meshName = self._config["geometry"]["meshName"]
-        self._msh = Mesh(meshName,self._config)
+        # store Config object
+        self._config: Config = cfg
+
+        meshName = self._config.mesh_name()
+        # Mesh expects a path and a config object
+        self._msh = Mesh(meshName, self._config)
 
         self._visualizer = Visualizer(self._msh)
 
         # Output directory for images/videos; default to Output/images/
-        self._imageDir: Path = Path(
-            self._config.get("IO", {}).get("imagesDir", "Output/images/")
-        )
+        self._imageDir: Path = Path(self._config.images_dir())
 
-        self._timeStart: float = float(self._config["settings"]["tStart"])
-        self._timeEnd: float = float(self._config["settings"]["tEnd"])
-        self._nSteps: int = int(self._config["settings"]["nSteps"])
-        self._writeFrequency: int = int(self._config["IO"]["writeFrequency"])
+        self._timeStart: float = float(self._config.settings["tStart"])
+        self._timeEnd: float = float(self._config.settings["tEnd"])
+        self._nSteps: int = int(self._config.settings["nSteps"])
+        self._writeFrequency: int = int(self._config.IO.get("writeFrequency", 0))
 
         self._dt: float = (self._timeEnd - self._timeStart) / max(1, self._nSteps)
         self._currentTime: float = float(self._timeStart)
@@ -44,106 +52,99 @@ class Simulation:
 
         # Optional oil collection ship configuration
         self.shipSink = {}
-        if "geometry" in self.config:
-            ship_cfg = self.config["geometry"].get("ship", None)
-            if isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
-                # Check if it's a valid [x, y] position (both elements should be numbers, not lists)
-                try:
-                    ship_pos = [float(ship_cfg[0]), float(ship_cfg[1])]
-                    
-                    from src.oil_sink import compute_ship_sink
+        ship_cfg = self._config.geometry.get("ship", None)
+        if isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
+            try:
+                ship_pos = [float(ship_cfg[0]), float(ship_cfg[1])]
+                from src.oil_sink import compute_ship_sink
 
-                    self.shipSink = compute_ship_sink(
-                        self._msh,
-                        ship_pos=ship_pos,
-                        radius=0.1,
-                        sigma=1.0,
-                        strength=100.0,
-                        mode="gaussian",
-                    )
-                    if self.shipSink:
-                        max_coeff = max(self.shipSink.values())
-                        logger.info(f"Ship at {ship_pos}: {len(self.shipSink)} cells affected (max coeff: {max_coeff:.4f})")
-                    else:
-                        logger.info(f"Ship at {ship_pos}: no cells found in range")
-                except (TypeError, ValueError):
-                    # ship is not a valid [x, y] position, skip
-                    pass
-                except Exception as e:
-                    logger.warning(f"Failed to initialize ship sink: {e}")
+                self.shipSink = compute_ship_sink(
+                    self._msh,
+                    ship_pos=ship_pos,
+                    radius=0.1,
+                    sigma=1.0,
+                    strength=100.0,
+                    mode="gaussian",
+                )
+                if self.shipSink:
+                    max_coeff = max(self.shipSink.values())
+                    logger.info(f"Ship at {ship_pos}: {len(self.shipSink)} cells affected (max coeff: {max_coeff:.4f})")
+                else:
+                    logger.info(f"Ship at {ship_pos}: no cells found in range")
+            except (TypeError, ValueError):
+                pass
+            except Exception as e:
+                logger.warning(f"Failed to initialize ship sink: {e}")
 
         # Oil sources from geometry.source array (can be list of [x, y] pairs)
         self.sourceSink = {}
-        if "geometry" in self.config:
-            sources_array = self.config["geometry"].get("source", [])
-            if isinstance(sources_array, list) and sources_array:
-                for idx, source_pos in enumerate(sources_array):
-                    if isinstance(source_pos, list) and len(source_pos) >= 2:
-                        try:
-                            from src.oil_sink import compute_source
-                            
-                            source_coeffs = compute_source(
-                                self._msh,
-                                source_pos=[float(source_pos[0]), float(source_pos[1])],
-                                radius=0.1,
-                                sigma=1.0,
-                                strength=50.0,
-                                mode="gaussian",
-                            )
-                            # Merge with existing source coefficients
-                            for cell_id, coeff in source_coeffs.items():
-                                self.sourceSink[cell_id] = self.sourceSink.get(cell_id, 0.0) + coeff
-                            logger.info(f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected")
-                        except Exception as e:
-                            logger.warning(f"Failed to add source {idx}: {e}")
+        sources_array = self._config.geometry.get("source", [])
+        if isinstance(sources_array, list) and sources_array:
+            for idx, source_pos in enumerate(sources_array):
+                if isinstance(source_pos, list) and len(source_pos) >= 2:
+                    try:
+                        from src.oil_sink import compute_source
+
+                        source_coeffs = compute_source(
+                            self._msh,
+                            source_pos=[float(source_pos[0]), float(source_pos[1])],
+                            radius=0.1,
+                            sigma=1.0,
+                            strength=50.0,
+                            mode="gaussian",
+                        )
+                        # Merge with existing source coefficients
+                        for cell_id, coeff in source_coeffs.items():
+                            self.sourceSink[cell_id] = self.sourceSink.get(cell_id, 0.0) + coeff
+                        logger.info(f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected")
+                    except Exception as e:
+                        logger.warning(f"Failed to add source {idx}: {e}")
 
         # Additional sinks from geometry.sink array
-        if "geometry" in self.config:
-            sinks_array = self.config["geometry"].get("sink", [])
-            if isinstance(sinks_array, list) and sinks_array:
-                for idx, sink_pos in enumerate(sinks_array):
-                    if isinstance(sink_pos, list) and len(sink_pos) >= 2:
-                        try:
-                            from src.oil_sink import compute_ship_sink
-                            
-                            sink_coeffs = compute_ship_sink(
-                                self._msh,
-                                ship_pos=[float(sink_pos[0]), float(sink_pos[1])],
-                                radius=0.1,
-                                sigma=1.0,
-                                strength=100.0,
-                                mode="gaussian",
-                            )
-                            # Merge with existing sink coefficients (ship)
-                            for cell_id, coeff in sink_coeffs.items():
-                                self.shipSink[cell_id] = self.shipSink.get(cell_id, 0.0) + coeff
-                            logger.info(f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected")
-                        except Exception as e:
-                            logger.warning(f"Failed to add sink {idx}: {e}")
+        sinks_array = self._config.geometry.get("sink", [])
+        if isinstance(sinks_array, list) and sinks_array:
+            for idx, sink_pos in enumerate(sinks_array):
+                if isinstance(sink_pos, list) and len(sink_pos) >= 2:
+                    try:
+                        from src.oil_sink import compute_ship_sink
+
+                        sink_coeffs = compute_ship_sink(
+                            self._msh,
+                            ship_pos=[float(sink_pos[0]), float(sink_pos[1])],
+                            radius=0.1,
+                            sigma=1.0,
+                            strength=100.0,
+                            mode="gaussian",
+                        )
+                        # Merge with existing sink coefficients (ship)
+                        for cell_id, coeff in sink_coeffs.items():
+                            self.shipSink[cell_id] = self.shipSink.get(cell_id, 0.0) + coeff
+                        logger.info(f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected")
+                    except Exception as e:
+                        logger.warning(f"Failed to add sink {idx}: {e}")
 
         # Summary log of all sources and sinks
-        # Check if ship is a valid [x, y] position (not a list of lists)
-        ship_cfg = self.config.get("geometry", {}).get("ship", None)
+        ship_cfg = self._config.geometry.get("ship", None)
         num_ships = 1 if (isinstance(ship_cfg, list) and len(ship_cfg) >= 2 and not isinstance(ship_cfg[0], list)) else 0
-        num_sources = len([s for s in self.config.get("geometry", {}).get("source", []) if isinstance(s, list) and len(s) >= 2])
-        num_sinks = len([s for s in self.config.get("geometry", {}).get("sink", []) if isinstance(s, list) and len(s) >= 2])
-        
+        num_sources = len([s for s in self._config.geometry.get("source", []) if isinstance(s, list) and len(s) >= 2])
+        num_sinks = len([s for s in self._config.geometry.get("sink", []) if isinstance(s, list) and len(s) >= 2])
+
         summary_parts = []
         if num_ships > 0:
             summary_parts.append(f"{num_ships} ship")
         else:
             summary_parts.append("0 ships")
-            
+
         if num_sources > 0:
             summary_parts.append(f"{num_sources} source{'s' if num_sources != 1 else ''}")
         else:
             summary_parts.append("0 sources")
-            
+
         if num_sinks > 0:
             summary_parts.append(f"{num_sinks} sink{'s' if num_sinks != 1 else ''}")
         else:
             summary_parts.append("0 sinks")
-        
+
         logger.info(f"Configuration summary: {', '.join(summary_parts)}")
 
     @staticmethod  # TODO: Move to LoadTOML?
@@ -161,7 +162,7 @@ class Simulation:
 
     # getters/setters
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> Config:
         return self._config
 
     @property
@@ -267,10 +268,10 @@ class Simulation:
         # self.ship = OilSinkSource(self._msh,configuration=None) #TODO implement oil sink source class
 
         createVideo = False
-        if self._config.get("IO", {}).get("writeFrequency", 0) is not 0:
+        if int(self._config.IO.get("writeFrequency", 0)) != 0:
             createVideo = True
 
-        videoFps: int = int(self._config.get("video", {}).get("videoFPS", 30))
+        videoFps: int = int(self._config.video.get("videoFPS", 30))
 
         totalSteps = self._nSteps
     
