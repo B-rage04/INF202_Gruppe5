@@ -20,43 +20,55 @@ logging.basicConfig(level=logging.INFO)
 
 class Simulation:
     def __init__(self, config:Config=None):
-        # validate config: require Config instance
+        self._config = self._validate_config(config)
+        self._msh = self._initialize_mesh()
+        self._initialize_visualizer()
+        self._initialize_time_parameters()
+        self.shipSink = self._initialize_ship_sink()
+        self.sourceSink = self._initialize_oil_sources()
+        self._initialize_additional_sinks()
+        self._log_configuration_summary()
+
+    def _validate_config(self, config):
+        """Validate that config is a Config instance."""
         if config is not isinstance(config, Config):
             pass
             #raise TypeError("config must be a Config instance")
-        self._config = config
+        return config
 
+    def _initialize_mesh(self):
+        """Initialize mesh from config."""
         meshName = self._config.mesh_name()
-        # Mesh expects a path and a config object
-        self._msh = Mesh(meshName, self._config)
+        return Mesh(meshName, self._config)
 
+    def _initialize_visualizer(self):
+        """Initialize visualizer and tracking lists."""
         self._visualizer = Visualizer(self._msh)
-
         self._fishingOil = []
-
-        # Output directory for images/videos; default to Output/images/
+        self._oilVals = []
+        self._fish_vals = []
         self._imageDir: Path = Path(self._config.images_dir())
 
+    def _initialize_time_parameters(self):
+        """Initialize time-related parameters from config."""
         self._timeStart: float = float(self._config.settings["tStart"])
         self._timeEnd: float = float(self._config.settings["tEnd"])
         self._nSteps: int = int(self._config.settings["nSteps"])
         self._writeFrequency: int = int(self._config.IO.get("writeFrequency", 0))
-
         self._dt: float = (self._timeEnd - self._timeStart) / max(1, self._nSteps)
         self._currentTime: float = float(self._timeStart)
 
-        self._oilVals = []
-        self._fish_vals = []
-
-        # Optional oil collection ship configuration
-        self.shipSink = {}
+    def _initialize_ship_sink(self):
+        """Initialize ship sink configuration."""
+        shipSink = {}
         ship_cfg = self._config.geometry.get("ship", None)
+        
         if isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
             try:
                 ship_pos = [float(ship_cfg[0]), float(ship_cfg[1])]
                 from src.oil_sink import compute_ship_sink
 
-                self.shipSink = compute_ship_sink(
+                shipSink = compute_ship_sink(
                     self._msh,
                     ship_pos=ship_pos,
                     radius=0.1,
@@ -64,19 +76,24 @@ class Simulation:
                     strength=100.0,
                     mode="gaussian",
                 )
-                if self.shipSink:
-                    max_coeff = max(self.shipSink.values())
-                    logger.info(f"Ship at {ship_pos}: {len(self.shipSink)} cells affected (max coeff: {max_coeff:.4f})")
+                
+                if shipSink:
+                    max_coeff = max(shipSink.values())
+                    logger.info(f"Ship at {ship_pos}: {len(shipSink)} cells affected (max coeff: {max_coeff:.4f})")
                 else:
                     logger.info(f"Ship at {ship_pos}: no cells found in range")
             except (TypeError, ValueError):
                 pass
             except Exception as e:
                 logger.warning(f"Failed to initialize ship sink: {e}")
+        
+        return shipSink
 
-        # Oil sources from geometry.source array (can be list of [x, y] pairs)
-        self.sourceSink = {}
+    def _initialize_oil_sources(self):
+        """Initialize oil sources from config."""
+        sourceSink = {}
         sources_array = self._config.geometry.get("source", [])
+        
         if isinstance(sources_array, list) and sources_array:
             for idx, source_pos in enumerate(sources_array):
                 if isinstance(source_pos, list) and len(source_pos) >= 2:
@@ -91,15 +108,20 @@ class Simulation:
                             strength=50.0,
                             mode="gaussian",
                         )
-                        # Merge with existing source coefficients
+                        
                         for cell_id, coeff in source_coeffs.items():
-                            self.sourceSink[cell_id] = self.sourceSink.get(cell_id, 0.0) + coeff
+                            sourceSink[cell_id] = sourceSink.get(cell_id, 0.0) + coeff
+                        
                         logger.info(f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected")
                     except Exception as e:
                         logger.warning(f"Failed to add source {idx}: {e}")
+        
+        return sourceSink
 
-        # Additional sinks from geometry.sink array
+    def _initialize_additional_sinks(self):
+        """Initialize additional sinks from config."""
         sinks_array = self._config.geometry.get("sink", [])
+        
         if isinstance(sinks_array, list) and sinks_array:
             for idx, sink_pos in enumerate(sinks_array):
                 if isinstance(sink_pos, list) and len(sink_pos) >= 2:
@@ -114,14 +136,16 @@ class Simulation:
                             strength=100.0,
                             mode="gaussian",
                         )
-                        # Merge with existing sink coefficients (ship)
+                        
                         for cell_id, coeff in sink_coeffs.items():
                             self.shipSink[cell_id] = self.shipSink.get(cell_id, 0.0) + coeff
+                        
                         logger.info(f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected")
                     except Exception as e:
                         logger.warning(f"Failed to add sink {idx}: {e}")
 
-        # Summary log of all sources and sinks
+    def _log_configuration_summary(self):
+        """Log summary of all sources and sinks."""
         ship_cfg = self._config.geometry.get("ship", None)
         num_ships = 1 if (isinstance(ship_cfg, list) and len(ship_cfg) >= 2 and not isinstance(ship_cfg[0], list)) else 0
         num_sources = len([s for s in self._config.geometry.get("source", []) if isinstance(s, list) and len(s) >= 2])
