@@ -169,9 +169,9 @@ Multiple Configs
 
 Folder Selection
 
-[] -f folder works
-[] --folder folder works
-[] --folder test --find all works
+[x] -f folder works
+[x] --folder folder works
+[x] --folder test --find all works
 
 Safety
 
@@ -190,9 +190,9 @@ SECTION 7 – OUTPUT & VISUALIZATION
 SECTION 8 – LOGGING
 
 [Lasse] Logger used (not print)
-[ ] All config parameters logged
+[x] All config parameters logged
 [x] Oil in fishing grounds logged over time
-[ ] Log saved to file
+[x] Log saved to file
 
 ================================================
 SECTION 9 – SOFTWARE QUALITY (30%)
