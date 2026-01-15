@@ -4,7 +4,10 @@ import pytest
 
 from src.Cells.cell import Cell
 from src.Cells.triangle import Triangle
+from src.LoadTOML import LoadTOML
 
+configloader = LoadTOML()
+config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
 
 # TODO: tests should be short and only test/assert one thing each
 class MockMesh:
@@ -22,7 +25,7 @@ class MockMesh:
         self.triangles = np.array([[0, 1, 2]])
 
         # Provide ready-made cells for Simulation (list of Cell objects)
-        self.cells = [Triangle(self, self.triangles[0], 0)]
+        self.cells = [Triangle(self, self.triangles[0], 0, config)]
 
 
 @pytest.fixture
@@ -32,7 +35,7 @@ def mesh():
 
 @pytest.fixture
 def triangle(mesh):
-    return Triangle(mesh, mesh.triangles[0], 0)
+    return Triangle(mesh, mesh.triangles[0], 0, config)
 
 
 def test_triangle_coordinates(triangle):

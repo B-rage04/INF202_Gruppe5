@@ -3,7 +3,10 @@ import pytest
 
 from src.Cells.cell import Cell
 from src.Cells.line import Line
+from src.LoadTOML import LoadTOML
 
+configloader = LoadTOML()
+config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
 
 def test_line_initialization_and_area1():  # TODO: Fix names and Fixtures of "repeat" tests
     class DummyMesh:
@@ -11,7 +14,7 @@ def test_line_initialization_and_area1():  # TODO: Fix names and Fixtures of "re
             self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
     msh = DummyMesh()
-    ln = Line(msh, [0, 1], 0)
+    ln = Line(msh, [0, 1], 0, config)
     assert ln.type == "line"
 
 
@@ -21,7 +24,7 @@ def test_line_initialization_and_area2():  # TODO: Fix names and Fixtures of "re
             self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
     msh = DummyMesh()
-    ln = Line(msh, [0, 1], 0)
+    ln = Line(msh, [0, 1], 0, config)
     assert ln.findArea() is None
 
 
@@ -31,7 +34,7 @@ def test_line_initialization_and_area3():  # TODO: Fix names and Fixtures of "re
             self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
     msh = DummyMesh()
-    ln = Line(msh, [0, 1], 0)
+    ln = Line(msh, [0, 1], 0, config)
     assert ln.type == "line"
 
 

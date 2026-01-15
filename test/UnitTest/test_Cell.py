@@ -4,6 +4,10 @@ import pytest
 
 from src.Cells.triangle import Triangle
 
+from src.LoadTOML import LoadTOML
+
+configloader = LoadTOML()
+config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
 
 class DummyMesh:
     def __init__(self):
@@ -14,7 +18,7 @@ class DummyMesh:
 @pytest.fixture
 def triangle():
     msh = DummyMesh()
-    return Triangle(msh, msh.triangles[0], 0)
+    return Triangle(msh, msh.triangles[0], 0, config)
 
 
 def testGetterId(triangle):

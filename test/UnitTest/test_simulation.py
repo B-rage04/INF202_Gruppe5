@@ -5,6 +5,11 @@ import pytest
 
 from src.simulation import Simulation
 
+from src.LoadTOML import LoadTOML
+
+configloader = LoadTOML()
+config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
+
 
 class FakeCell:
     def __init__(self, cid, oil, area=1.0, cell_type="triangle"):

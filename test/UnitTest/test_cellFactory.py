@@ -5,6 +5,10 @@ import pytest
 
 from src.Cells.cellFactory import CellFactory
 
+from src.LoadTOML import LoadTOML
+
+configloader = LoadTOML()
+config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
 
 @pytest.fixture
 def triangle_mesh():
@@ -24,16 +28,16 @@ def triangle_line_mesh():
 
 
 def test_cell_factory_returns_one_cell(triangle_mesh):
-    cells = CellFactory(triangle_mesh)()
+    cells = CellFactory(triangle_mesh, config)()
     assert len(cells) == 1
 
 
 def test_cell_factory_triangle_type(triangle_mesh):
-    cells = CellFactory(triangle_mesh)()
+    cells = CellFactory(triangle_mesh, config)()
     assert cells[0].type == "triangle"
 
 
 def test_cell_factory_triangle_and_line_types(triangle_line_mesh):
-    cells = CellFactory(triangle_line_mesh)()
+    cells = CellFactory(triangle_line_mesh, config)()
     types = sorted([c.type for c in cells])
     assert types == ["line", "triangle"]

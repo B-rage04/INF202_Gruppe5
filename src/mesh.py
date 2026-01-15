@@ -59,7 +59,7 @@ class Mesh:
 
     # --- Utility ---
     def reload(
-        self, file: str
+        self, file: str, config
     ) -> (
         None
     ):  # TODO: test this, with valid and invalid paths, With same path, different path
