@@ -65,4 +65,9 @@ def test_is_result_folder_positive(tmp_path):
 def test_is_result_folder_negative(tmp_path):
     assert Manager._is_result_folder(tmp_path) is False
 
-def test_create_result_folder
+def test_create_result_folder_value_error(tmp_path):
+    with pytest.raises(ValueError):
+        Manager._create_result_folder(tmp_path)
+
+def test_create_result_folder_able_to(tmp_path):
+    assert Manager._create_result_folder(tmp_path) == str(tmp_path)
