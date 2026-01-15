@@ -127,8 +127,8 @@ class OilSinkSource:
 
     def __call__(self, *args, **kwds):
         """Apply oil sink/source effect to all cells in range."""
-        for cell_id, dist_value in self.cellInRange.items():
-            cell_id.oil += dist_value
+        for cell, dist_value in self.cellInRange.items():
+            cell.oil += dist_value
 
     def _find_cells_in_range(self) -> Dict:
         """Find all cells within radius and compute their distribution values."""
@@ -139,5 +139,8 @@ class OilSinkSource:
                 dist_value = _get_distribution_coefficient(
                     distance, self.type, self.radius, self.strength
                 )
-                cells_in_range[cell.id] = dist_value
+                cells_in_range[cell] = dist_value
+        
+        # DEBUG: Print how many cells were found
+        print(f"Oil source: Found {len(cells_in_range)} cells in range")
         return cells_in_range

@@ -24,8 +24,8 @@ class Simulation:
         self._msh = self._initialize_mesh()
         self._initialize_visualizer()
         self._initialize_time_parameters()
-        self.shipSink = self._initialize_ship_sink()
-        self.sourceSink = self._initialize_oil_sources()
+        self.oilSinks = self._initialize_ship_sink()  # Changed from shipSink
+        self.oilSources = self._initialize_oil_sources()  # Changed from sourceSink
         self._initialize_additional_sinks()
         self._log_configuration_summary()
 
@@ -112,7 +112,8 @@ class Simulation:
                         for cell_id, coeff in source_coeffs.items():
                             sourceSink[cell_id] = sourceSink.get(cell_id, 0.0) + coeff
                         
-                        logger.info(f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected")
+                        max_coeff = max(source_coeffs.values()) if source_coeffs else 0.0
+                        logger.info(f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected (max coeff: {max_coeff:.4f})")
                     except Exception as e:
                         logger.warning(f"Failed to add source {idx}: {e}")
         
@@ -138,7 +139,7 @@ class Simulation:
                         )
                         
                         for cell_id, coeff in sink_coeffs.items():
-                            self.shipSink[cell_id] = self.shipSink.get(cell_id, 0.0) + coeff
+                            self.oilSinks[cell_id] = self.oilSinks.get(cell_id, 0.0) + coeff  # Changed from shipSink
                         
                         logger.info(f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected")
                     except Exception as e:
@@ -243,53 +244,39 @@ class Simulation:
         source_oil = cell.oil if dot > 0 else neighbor.oil
         return source_oil * dot
 
-    def updateOil(self):
-        # Accumulate flux contributions per cell
-        triangle_cells = [
-            c for c in self._msh.cells if getattr(c, "type", None) == "triangle"
-        ]
-        for cell in triangle_cells:
-            # respect existing `newOil` attribute; warn if it's explicitly None
-            if not hasattr(cell, "newOil"):
-                cell.newOil = []
-            elif cell.newOil is None:
-                print(f"Warning: Cell, {getattr(cell, 'id', '?')}, was None")
-                continue
+    def updateOil(self, dt):
+        """Update oil concentration using predictor-corrector with sources/sinks."""
+        # Get source and sink coefficients
+        source_coeffs = self.oilSources if hasattr(self, 'oilSources') else {}
+        sink_coeffs = self.oilSinks if hasattr(self, 'oilSinks') else {}
 
+        oil_half = np.zeros(len(self._msh.cells))
+
+        # Predictor step
+        for cell in self._msh.cells:
+            if getattr(cell, "type", None) != "triangle":
+                continue
+            flux_sum = 0.0
             for i, ngb in enumerate(cell.ngb):
                 neighbor = self._msh.cells[ngb]
                 if getattr(neighbor, "type", None) != "triangle":
                     continue
-                delta = -(self._dt / cell.area) * self._computeFlux(i, cell, ngb)
-                cell.newOil.append(delta)
+                flux_sum += -(dt / cell.area) * self._computeFlux(i, cell, ngb)
+            oil_half[cell.id] = cell.oil + flux_sum
 
-        # Apply accumulated updates with source/sink formula:
-        # u_i^{n+1} = u_i^{n+1/2} / (1 + Δt*S_i^- - Δt*S_i^+)
-        for cell in triangle_cells:
-            deltas = list(getattr(cell, "newOil", []))
-            
-            # Compute u_i^{n+1/2} = u_i^n + flux contributions
-            u_intermediate = float(cell.oil) + (sum(deltas) if deltas else 0.0)
-            
-            # Get sink coefficient S_i^- (positive value for removal)
-            sink_coeff = 0.0
-            if self.shipSink and cell.id in self.shipSink:
-                sink_coeff = self.shipSink[cell.id]
-            
-            # Get source coefficient S_i^+ (positive value for injection)
-            source_coeff = 0.0
-            if self.sourceSink and cell.id in self.sourceSink:
-                source_coeff = self.sourceSink[cell.id]
-            
-            # Apply formula: u_i^{n+1} = u_i^{n+1/2} / (1 + Δt*S_i^- - Δt*S_i^+)
-            denominator = 1.0 + self._dt * sink_coeff - self._dt * source_coeff
-            
-            if abs(denominator) > 1e-10:  # Avoid division by zero
-                cell.oil = u_intermediate / denominator
+        # Corrector step with sources/sinks (spec-compliant)
+        for cell in self._msh.cells:
+            if getattr(cell, "type", None) != "triangle":
+                continue
+            S_plus = source_coeffs.get(cell.id, 0.0)   # Source term
+            S_minus = sink_coeffs.get(cell.id, 0.0)   # Sink term
+
+            # Apply spec: u_new = u_half / (1 + dt*S_minus - dt*S_plus)
+            denominator = 1.0 + dt * S_minus - dt * S_plus
+            if abs(denominator) > 1e-12:
+                cell.oil = oil_half[cell.id] / denominator
             else:
-                cell.oil = u_intermediate
-            
-            cell.newOil.clear()
+                cell.oil = oil_half[cell.id]
 
     # snake_case compatibility wrapper
     def update_oil(self, *args, **kwargs):
@@ -324,11 +311,18 @@ class Simulation:
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
         ) as pbar:
             for stepIdx in range(1, totalSteps + 1):
-                self.updateOil()
+                self.updateOil(self._dt)  # Pass dt argument
                 self._currentTime = self._timeStart + stepIdx * self._dt
                 self.getOilVals()
 
-                if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
+                # Always write first image, last image, or at writeFrequency intervals
+                should_write = False
+                if self._writeFrequency != 0:
+                    should_write = (stepIdx == 1 or 
+                                   stepIdx == totalSteps or 
+                                   stepIdx % self._writeFrequency == 0)
+                
+                if should_write:
                     logger.info(f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}")
                     self._visualizer.plotting(
                         self._oilVals[-1],
@@ -341,15 +335,6 @@ class Simulation:
 
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         print(f"Simulation completed in {elapsed_ms:.2f} ms")
-                
-        if self._writeFrequency is not 0 and stepIdx % self._writeFrequency == 0:
-            self._visualizer.plotting(
-                self._oilVals[-1],
-                filepath=str(self._imageDir),
-                run=runNumber,
-                step=stepIdx,
-                **kwargs,
-            )
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:
