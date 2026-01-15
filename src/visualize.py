@@ -1,16 +1,16 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-
-from src.config import Config
-
+from matplotlib.collections import PolyCollection
+import numpy as np
 
 class Visualizer:
     def __init__(self, mesh):
         self.mesh = mesh
         self.vmin = None
         self.vmax = None
+
+        self.triangle_cells = [cell for cell in mesh.cells if getattr(cell, "type", None) == "triangle"]
 
     def plotting(
         self,
@@ -56,6 +56,29 @@ class Visualizer:
             vmin=self.vmin,
             vmax=self.vmax,
         )
+
+        fishing_triangles = [
+            cell.cords for cell in self.mesh.cells 
+            if cell.type == "triangle" and cell._isFishing
+        ]
+
+        if fishing_triangles:
+            # 2. Convert to a collection of polygons
+            # We only care about the (x, y) coordinates for each triangle
+            verts = [np.array(t)[:, :2] for t in fishing_triangles]
+            
+            # 3. Create the collection
+            coll = PolyCollection(
+                verts, 
+                facecolors='red', 
+                alpha=0.1, 
+                edgecolors='none', 
+                linewidth=0,
+                antialiased=False
+            )
+            
+            ax.add_collection(coll)
+
 
         plt.colorbar(label="Oil concentration")
 

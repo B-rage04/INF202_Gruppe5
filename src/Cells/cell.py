@@ -46,7 +46,11 @@ class Cell(ABC):
         fishymax =  self._config.geometry["borders"][1][1]
         x = self._midPoint[0]
         y = self._midPoint[1]
-        return fishxmin < x < fishxmax and fishymin < y < fishymax
+        if fishxmin < x < fishxmax and fishymin < y < fishymax:
+            return True
+        else:
+            return False
+            
 
             
     @property
