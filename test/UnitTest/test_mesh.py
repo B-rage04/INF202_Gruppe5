@@ -27,7 +27,15 @@ def tmp_mesh(monkeypatch, tmp_path):
     return str(p)
 
 
-def test_mesh_loads_points_and_triangles(tmp_mesh):
+def test_mesh_loads_points_and_triangles(
+    tmp_mesh,
+):  # TODO: assert should be the last thing in the test
     m = Mesh(tmp_mesh)
     assert m.points.shape == (3, 3)
     npt.assert_array_equal(m.triangles, np.array([[0, 1, 2]]))
+
+
+def test_reload(tmp_mesh):
+    m = Mesh(tmp_mesh)
+    m.reload(tmp_mesh)
+    assert m is not FileNotFoundError

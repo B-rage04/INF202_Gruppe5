@@ -1,36 +1,39 @@
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
-from src.Cells.cell_factory import Cell_factory
+from src.Cells.cellFactory import CellFactory
 
 
-def test_cell_factory_with_cells_list():
-    class DummyMesh:
-        def __init__(self):
-            self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
-            # simulate meshio CellBlock-like object using SimpleNamespace
-            self.cells = [SimpleNamespace(type="triangle", data=np.array([[0, 1, 2]]))]
+@pytest.fixture
+def triangle_mesh():
+    pts = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+    cells = [SimpleNamespace(type="triangle", data=np.array([[0, 1, 2]]))]
+    return SimpleNamespace(points=pts, cells=cells)
 
-    msh = DummyMesh()
-    cells = Cell_factory(msh)
+
+@pytest.fixture
+def triangle_line_mesh():
+    pts = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [2.0, 0.0, 0.0]])
+    cells = [
+        SimpleNamespace(type="triangle", data=np.array([[0, 1, 2]])),
+        SimpleNamespace(type="line", data=np.array([[1, 3]])),
+    ]
+    return SimpleNamespace(points=pts, cells=cells)
+
+
+def test_cell_factory_returns_one_cell(triangle_mesh):
+    cells = CellFactory(triangle_mesh)()
     assert len(cells) == 1
+
+
+def test_cell_factory_triangle_type(triangle_mesh):
+    cells = CellFactory(triangle_mesh)()
     assert cells[0].type == "triangle"
 
 
-def test_cell_factory_with_triangle_and_line():
-    class DummyMesh:
-        def __init__(self):
-            self.points = np.array(
-                [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [2.0, 0.0, 0.0]]
-            )
-            self.cells = [
-                SimpleNamespace(type="triangle", data=np.array([[0, 1, 2]])),
-                SimpleNamespace(type="line", data=np.array([[1, 3]])),
-            ]
-
-    msh = DummyMesh()
-    cells = Cell_factory(msh)
-    # should create one triangle and one line cell
+def test_cell_factory_triangle_and_line_types(triangle_line_mesh):
+    cells = CellFactory(triangle_line_mesh)()
     types = sorted([c.type for c in cells])
     assert types == ["line", "triangle"]

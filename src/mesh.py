@@ -1,17 +1,66 @@
-from src.Cells.cell_factory import Cell_factory
+import logging
+import os
+from typing import Any, List
+
+from src.Cells.cellFactory import CellFactory
 
 
 class Mesh:
-    def __init__(self, file: str):
-        self.msh = self.read_mesh(file)
-        self.points = self.msh.points
-        self.triangles = self.msh.cells_dict["triangle"]
-        self.cells = Cell_factory(self.msh)
+    def __init__(self, file: str, config) -> None:
+        if not isinstance(file, str):
+            raise TypeError("file must be a path string")  # TODO: test this
 
-    def read_mesh(self, file: str):
-        """
-        Reads Mesh file
-        """
-        import meshio
+        if not os.path.exists(file):
+            raise FileNotFoundError(f"Mesh file not found: {file}")  # TODO: test this
 
-        return meshio.read(file)
+        self._msh: Any = self._readMesh(file)
+        self.config = config
+        self._points: List[Any] = getattr(
+            self._msh, "points", []
+        )  # TODO: test try to call
+        self._triangles: List[Any] = getattr(self._msh, "cells_dict", {}).get(
+            "triangle", []
+        )
+
+        self._cellFactory = CellFactory(self._msh, self.config)  # TODO: test try to call
+        self._cells = self._cellFactory()  # TODO: test try to call
+
+    def _readMesh(self, file: str) -> Any:
+        try:  # TODO: test this
+            import meshio
+
+            msh = meshio.read(file)
+            return msh
+        except Exception as exc:  # TODO: test this
+            raise RuntimeError(f"Could not read mesh file {file}: {exc}") from exc
+
+    @property
+    def points(self) -> Any:  # TODO: test this, try set and get
+        return self._points
+
+    @property
+    def triangles(
+        self,
+    ) -> List[Any]:  # TODO: not just triangle # TODO: test this, try set and get
+        return list(self._triangles)
+
+    @property
+    def cells(self) -> Any:  # TODO: test this, try set and get
+        return self._cells
+
+    # --- Utility ---
+    def reload(
+        self, file: str
+    ) -> (
+        None
+    ):  # TODO: test this, with valid and invalid paths, With same path, different path
+        """Reload the mesh from a new file path."""
+        if not isinstance(file, str):
+            raise TypeError("file must be a path string")
+        if not os.path.exists(file):
+            raise FileNotFoundError(f"Mesh file not found: {file}")
+
+        self._msh = self._readMesh(file)
+        self._points = getattr(self._msh, "points", [])
+        self._triangles = getattr(self._msh, "cells_dict", {}).get("triangle", [])
+        self._cells = CellFactory(self._msh)

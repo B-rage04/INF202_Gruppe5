@@ -6,6 +6,7 @@ from src.Cells.cell import Cell
 from src.Cells.triangle import Triangle
 
 
+# TODO: tests should be short and only test/assert one thing each
 class MockMesh:
     def __init__(self):
         # Define 3 points forming a right triangle in the XY plane
@@ -30,11 +31,6 @@ def mesh():
 
 
 @pytest.fixture
-def cell(mesh):
-    return Cell(mesh, mesh.triangles[0], 0)
-
-
-@pytest.fixture
 def triangle(mesh):
     return Triangle(mesh, mesh.triangles[0], 0)
 
@@ -48,16 +44,6 @@ def test_triangle_coordinates(triangle):
 
     for c, e in zip(triangle.cords, expected):
         npt.assert_array_equal(c, e)
-
-
-class DummyVisualizer:
-    def __init__(self, msh):
-        self.msh = msh
-        self.last_plotted = None
-
-    def plotting(self, oil_vals, run=None, step=None, **kwargs):
-        self.last_plotted = list(oil_vals)
-
 
 class MockMeshTriangles:
     def __init__(self):

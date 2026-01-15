@@ -4,7 +4,7 @@ import pytest
 
 from src.Cells.triangle import Triangle
 
-from .test_Shered import cell, mesh, triangle
+from .test_Shered import  mesh, triangle
 
 
 def test_center_point(triangle):
@@ -16,7 +16,7 @@ def test_center_point(triangle):
         ]
     )
 
-    npt.assert_allclose(triangle.midpoint, expected_center)
+    npt.assert_allclose(triangle.midPoint, expected_center)
 
 
 def test_area(triangle):

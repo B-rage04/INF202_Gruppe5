@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "OilSpillGruppeFive"
 version = "1.0.0"
-description = "A simulation of an oil spil on a lake"
+description = "A simulation of an oil spill on a lake"
 readme = "README.md"
 authors = [{ name = "Gabriel Røer", email = "NorgeSkiFollo@gmail.com" }
           ,{ name = "Lasse Lindholm", email = "lasse.lindholm@nmbu.no" }
@@ -18,7 +18,11 @@ dependencies = [
   "meshio==5.3.5",
   "pytest>=8.0",
   "pytest-cov",
-  "tox"
+  "tox",
+  "PyYAML>=6.0.2,<7.0",
+  "meshio==5.3.5",
+  "matplotlib==3.10.8",
+  "opencv-python>=4.8.0"
 ]
 
 classifiers = [
