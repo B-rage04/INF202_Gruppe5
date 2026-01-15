@@ -216,11 +216,18 @@ def main(**kwargs: Any) -> None:
                     config["IO"] = {}
                 config["IO"]["logName"] = "logfile"
             
-            # Get output directory from config or use default
-            images_dir = config.get("IO", {}).get("imagesDir", "Output/images/")
+            # Create result folder based on config file name (not the output config path)
+            config_name = Path(config_path).stem
+            result_folder = _create_result_folder(config_name)
             
-            # Get next run number
-            run_number = _next_run_number(images_dir)
+            # Update config with output folder
+            if "IO" not in config:
+                config["IO"] = {}
+            config["IO"]["imagesDir"] = f"{result_folder}/images/"
+            config["IO"]["videosDir"] = f"{result_folder}/videos/"
+            
+            # Get next run number for this result folder
+            run_number = _next_run_number(f"{result_folder}/images/")
             
             sim = Simulation(config)
             print(f"\nRunning simulation from {config_path}...")

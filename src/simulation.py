@@ -27,6 +27,8 @@ class Simulation:
 
         self._visualizer = Visualizer(self._msh)
 
+        self._fishingOil = []
+
         # Output directory for images/videos; default to Output/images/
         self._imageDir: Path = Path(
             self._config.get("IO", {}).get("imagesDir", "Output/images/")
@@ -188,6 +190,10 @@ class Simulation:
         # return a copy to avoid accidental external mutation
         return list(self._oilVals)
 
+    @property
+    def fishingOil(self):
+        return self._fishingOil
+    
     def getOilVals(self):
         # it reads through all cells each step. Can this be optimized? TODO
         self._oilVals.append(
@@ -198,6 +204,10 @@ class Simulation:
         self._fish_vals.append(
             [cell._isFishing for cell in self._msh.cells if cell.type == "triangle"]
             )
+
+        self._fishingOil.append(
+            sum([cell.oil for cell in self._msh.cells if cell.isFishing == True])
+        )
 
     def _computeFlux(
         self, i: int, cell: Any, ngb: int
@@ -296,7 +306,9 @@ class Simulation:
                 self.updateOil()
                 self._currentTime = self._timeStart + stepIdx * self._dt
                 self.getOilVals()
+
                 if self._writeFrequency != 0 and stepIdx % self._writeFrequency == 0:
+                    logger.info(f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}")
                     self._visualizer.plotting(
                         self._oilVals[-1],
                         filepath=str(self._imageDir),
@@ -309,7 +321,7 @@ class Simulation:
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         print(f"Simulation completed in {elapsed_ms:.2f} ms")
                 
-        if stepIdx % self._writeFrequency == 0:
+        if self._writeFrequency is not 0 and stepIdx % self._writeFrequency == 0:
             self._visualizer.plotting(
                 self._oilVals[-1],
                 filepath=str(self._imageDir),

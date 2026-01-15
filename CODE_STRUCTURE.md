@@ -27,12 +27,12 @@ Domain & Initial Conditions
 
 Fishing Grounds
 
-[ ] Fishing grounds defined as:
+[x] Fishing grounds defined as:
 x in [0.0, 0.45]
 y in [0.0, 0.2]
 
-[ ] I compute oil inside fishing grounds correctly
-[ ] I log oil in fishing grounds over time
+[] I compute oil inside fishing grounds correctly
+[] I log oil in fishing grounds over time
 
 ================================================
 SECTION 2 – NUMERICAL SIMULATION DETAILS
@@ -156,9 +156,9 @@ Optional Parameters
 SECTION 6 – COMMAND LINE INTERFACE
 Config Selection
 
-[ ] Default config = input.toml
-[ ] -c file.toml works
-[ ] --config file.toml works
+[] Default config = input.toml
+[] -c file.toml works
+[] --config file.toml works
 
 Multiple Configs
 
@@ -169,9 +169,9 @@ Multiple Configs
 
 Folder Selection
 
-[ ] -f folder works
-[ ] --folder folder works
-[ ] --folder test --find all works
+[] -f folder works
+[] --folder folder works
+[] --folder test --find all works
 
 Safety
 
@@ -183,7 +183,7 @@ SECTION 7 – OUTPUT & VISUALIZATION
 
 [x] Plot of final oil distribution
 [x] Video of oil evolution over time
-[ ] writeFrequency respected
+[] writeFrequency respected
 [x] Images saved correctly
 
 ================================================
@@ -191,7 +191,7 @@ SECTION 8 – LOGGING
 
 [Lasse] Logger used (not print)
 [ ] All config parameters logged
-[ ] Oil in fishing grounds logged over time
+[x] Oil in fishing grounds logged over time
 [ ] Log saved to file
 
 ================================================
@@ -206,7 +206,7 @@ Code Design
 
 Efficiency
 
-[x] No repeated geometry computation
+[Brage] No repeated geometry computation
 [ ] No unnecessary loops
 [ ] No unnecessary memory usage
 
