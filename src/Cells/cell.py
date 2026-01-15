@@ -48,14 +48,23 @@ class Cell(ABC):
         self._isFishing = self.isFishingCheck(config)
 
     def isFishingCheck(self, config=None):
-        cfg = config or self._config
-        if not cfg or "geometry" not in cfg.__dict__ and "geometry" not in getattr(cfg, "__dict__", {}):
+        cfg = config if config is not None else self._config
+        if cfg is None:
             return False
 
-        fishxmin = cfg.geometry["borders"][0][0]
-        fishxmax = cfg.geometry["borders"][0][1]
-        fishymin = cfg.geometry["borders"][1][0]
-        fishymax = cfg.geometry["borders"][1][1]
+        # Support both Config instances and plain dicts used in tests
+        if isinstance(cfg, dict):
+            geom = cfg.get("geometry")
+        else:
+            geom = getattr(cfg, "geometry", None)
+
+        if not geom or "borders" not in geom:
+            return False
+
+        fishxmin = geom["borders"][0][0]
+        fishxmax = geom["borders"][0][1]
+        fishymin = geom["borders"][1][0]
+        fishymax = geom["borders"][1][1]
         x = self._midPoint[0]
         y = self._midPoint[1]
         return fishxmin < x < fishxmax and fishymin < y < fishymax
