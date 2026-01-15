@@ -13,45 +13,94 @@ class Cell(ABC):
     stores all values each cell needs
 
     with the exception of oil and newOil all values are fixed
+
+    Notes:
+    - This class assumes triangular cell geometry for area/neighbor calculations.
+      Subclasses should implement `findArea` accordingly (see `Triangle`).
     """
 
-    def __init__(self, msh, cell_points, cell_id, config:Config=None):
+    def __init__(self, msh, cell_points, cell_id, config: Config = None):
         self.type = None
         self._id = cell_id
+        # mesh is treated as an opaque object with a `points` sequence
         self._msh = msh
-        # validate config: require Config instance
-        if config is not isinstance(config, Config):
-            raise TypeError("config must be a Config instance")
+
+        # validate config once: allow None for legacy compatibility but
+        # raise when a non-Config object is passed
+        if config is not None and not isinstance(config, Config):
+            raise TypeError("config must be a Config instance or None")
         self._config = config
-        
+
+        # internal state / caches (private)
         self._cords = [msh.points[i] for i in cell_points]
-        self._midPoint = self.findMidPoint()
-        self._area = self.findArea()
+        self._midPoint = None
+        self._area = None
         self._scaledNormal = None
         self._pointSet = None
         self._ngb = []
+        self._flow = None
+        self._oil = None
+        self.newOil = []
+
+        # compute derived values using centralized update routines
+        self._update_geometry()
         self._flow = np.array(self.findFlow())
         self._oil = self.findOil()
-        self.newOil = []
         self._isFishing = self.isFishingCheck(config)
-        
 
+    def isFishingCheck(self, config=None):
+        cfg = config or self._config
+        if not cfg or "geometry" not in cfg.__dict__ and "geometry" not in getattr(cfg, "__dict__", {}):
+            return False
 
-
-    def isFishingCheck(self, config):
-
-        fishxmin =  self._config.geometry["borders"][0][0]
-        fishxmax =  self._config.geometry["borders"][0][1]
-        fishymin =  self._config.geometry["borders"][1][0]
-        fishymax =  self._config.geometry["borders"][1][1]
+        fishxmin = cfg.geometry["borders"][0][0]
+        fishxmax = cfg.geometry["borders"][0][1]
+        fishymin = cfg.geometry["borders"][1][0]
+        fishymax = cfg.geometry["borders"][1][1]
         x = self._midPoint[0]
         y = self._midPoint[1]
         return fishxmin < x < fishxmax and fishymin < y < fishymax
 
-            
+    # --- cache & update helpers -----------------------------------------
+    def _update_cords(self, cords):
+        self._cords = list(cords)
+        self._update_geometry()
+        self.invalidate_physics_cache()
+
+    def _update_geometry(self):
+        self._midPoint = self.findMidPoint()
+        self._area = self.findArea()
+        self.invalidate_geometry_cache()
+
+    def invalidate_geometry_cache(self):
+        self._scaledNormal = None
+        self._pointSet = None
+
+    def invalidate_physics_cache(self):
+        self._flow = None
+        self._oil = None
+
+    def invalidate_all_caches(self):
+        self.invalidate_geometry_cache()
+        self.invalidate_physics_cache()
+
+    def _validate_and_clamp_oil(self, value):
+        try:
+            v = float(value)
+        except Exception:
+            raise TypeError("oil value must be numeric")
+
+        if v < 0.0:
+            v = 0.0
+        elif v > 1.0:
+            v = 1.0
+        return v
+
+    # --- public properties ----------------------------------------------
     @property
     def isFishing(self):
         return self._isFishing
+
     @property
     def id(self):
         return self._id
@@ -66,13 +115,7 @@ class Cell(ABC):
 
     @cords.setter
     def cords(self, value):
-        self._cords = list(value)
-        self._midPoint = self.findMidPoint()
-        self._area = self.findArea()
-        self._scaledNormal = self.findScaledNormales()
-        self._pointSet = None
-        self._flow = self.findFlow()
-        self._oil = self.findOil()
+        self._update_cords(value)
 
     @property
     def midPoint(self):
@@ -85,13 +128,11 @@ class Cell(ABC):
     @property  # TODO Brage: test getters and setters
     def scaledNormal(self):
         if self._scaledNormal is None:
-            # try to compute scaled normals with access to all cells when available
             if getattr(self, "_msh", None) is not None:
-                val = self.findScaledNormales(self._msh.cells)
+                val = self.findScaledNormales(getattr(self._msh, "cells", None))
             else:
                 val = self.findScaledNormales()
-            # ensure numpy array
-            self._scaledNormal = np.array(val) if val is not None else np.zeros(3)
+            self._scaledNormal = np.array(val) if val is not None else np.array([])
         return self._scaledNormal
 
     @property  # TODO Brage: test getters and setters
@@ -112,7 +153,11 @@ class Cell(ABC):
 
     @flow.setter
     def flow(self, value):
-        self._flow = np.array(value)
+        try:
+            arr = np.array(value)
+        except Exception:
+            raise TypeError("flow must be convertible to a numpy array")
+        self._flow = arr
 
     @property
     def oil(self):
@@ -122,29 +167,18 @@ class Cell(ABC):
 
     @oil.setter  # TODO: this might be the wrong solution but I got an error that oil was set negatively
     def oil(self, value):
-        try:
-            v = float(value)
-        except Exception:
-            raise TypeError("oil value must be numeric")
-
-        if v < 0.0:
-            #print(f"Clamping oil for cell {self.id} from {v} to 0.0")
-            v = 0.0
-        elif v > 1.0:
-            #print(f"Clamping oil for cell {self.id} from {v} to 1.0")
-            v = 1.0
-
-        self._oil = v
+        self._oil = self._validate_and_clamp_oil(value)
 
     @abstractmethod
     def findArea(self):
         """
         See child class for individual calculations
         """
-        pass
+        raise NotImplementedError()
 
+    # --- geometric computations -----------------------------------------
     def findMidPoint(self):  # TODO Brage: test this
-        return np.mean(self.cords, axis=0)
+        return np.mean(self._cords, axis=0)
 
     def findScaledNormales(self, allCells=None):
         if not allCells or not self.ngb:
@@ -162,7 +196,7 @@ class Cell(ABC):
         # cache point sets
         selfPoints = getattr(self, "_pointSet", None)
         if selfPoints is None:
-            selfPoints = set(tuple(p) for p in self.cords)
+            selfPoints = set(tuple(p) for p in self._cords)
             self._pointSet = selfPoints
 
         scaledNormals = []
@@ -184,7 +218,7 @@ class Cell(ABC):
 
             ngbPoints = getattr(ngbCell, "_pointSet", None)
             if ngbPoints is None:
-                ngbPoints = set(tuple(p) for p in ngbCell.cords)
+                ngbPoints = set(tuple(p) for p in ngbCell._cords)
                 ngbCell._pointSet = ngbPoints
 
             # find up to two shared points without creating intermediate lists
@@ -202,7 +236,7 @@ class Cell(ABC):
             if np.dot(n, v) > 0:
                 n = -n
             scaledNormals.append(n)
-        
+
         if not disable_ngb_tqdm:
             elapsed_ms = (time.perf_counter() - start_time) * 1000
             print(f"Triangle {self.id:04d} normals completed in {elapsed_ms:.2f} ms")
@@ -210,12 +244,8 @@ class Cell(ABC):
         self._scaledNormal = scaledNormals
         return self._scaledNormal
 
-        # TODO Brage: else calculate it and set and return it
-
     def findNGB(self, allCells):
-        Localmsh = getattr(
-            self, "_msh", None
-        )  # local mesh for the cell to store neighbor references. This is so the next cell can just look at the data and not calculate it
+        Localmsh = getattr(self, "_msh", None)
 
         # Build or reuse a mapping from point (tuple) -> list of cell ids
         if Localmsh is not None:
@@ -223,7 +253,7 @@ class Cell(ABC):
                 # create a table that gives all cell IDs that share a point
                 pointMap = {}
                 for cell in allCells:
-                    for pungt in cell.cords:
+                    for pungt in cell._cords:
                         key = tuple(pungt)
                         pointMap.setdefault(key, []).append(cell.id)
                 Localmsh._point_to_cells = pointMap
@@ -238,13 +268,13 @@ class Cell(ABC):
             pointMap = {}
             idMap = {cell.id: cell for cell in allCells}
             for cell in allCells:
-                for pungt in cell.cords:
+                for pungt in cell._cords:
                     key = tuple(pungt)
                     pointMap.setdefault(key, []).append(cell.id)
 
         # Find IDs of neighbor cells that have shared points
         counts = {}
-        for pungt in self.cords:
+        for pungt in self._cords:
             for cellID in pointMap.get(tuple(pungt), []):
                 if cellID == self.id:
                     continue
@@ -262,14 +292,7 @@ class Cell(ABC):
                     other._ngb.append(self.id)
 
     def findFlow(self):  # TODO Brage: add ability to set flow function
-        return np.array(
-            [self.midPoint[1] - self.midPoint[0] * 0.2, -self.midPoint[0]]
-        )  # TODO Brage: test this
-
-        # TODO Brage: if has attribute return it
-        # TODO Brage: else calculate it and set and return it
+        return np.array([self.midPoint[1] - self.midPoint[0] * 0.2, -self.midPoint[0]])
 
     def findOil(self):  # TODO Brage: add ability to set oil function
-        return np.exp(
-            -(np.linalg.norm(self.midPoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01
-        )  # TODO Brage: test this
+        return np.exp(-(np.linalg.norm(self.midPoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01)
