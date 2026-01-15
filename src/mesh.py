@@ -7,13 +7,14 @@ from src.Cells.cellFactory import CellFactory
 
 
 class Mesh:
-    def __init__(self, file: str, config=None) -> None:
+    def __init__(self, file: str, config:Config=None) -> None:
         if not isinstance(file, str):
             raise TypeError("file must be a path string")  # TODO: test this
 
-        # Validate config type if provided
-        if config is not None and not isinstance(config, Config):
-            raise TypeError("config must be a Config instance or None")
+       # validate config: require Config instance
+        if config is not isinstance(config, Config):
+            raise TypeError("config must be a Config instance")
+        self._config = config
 
         # Try to read mesh; on failure create a minimal placeholder mesh
         msh_obj = None
@@ -25,7 +26,7 @@ class Mesh:
             raise FileNotFoundError(f"Could not read mesh file: {file}")
 
         self._msh: Any = msh_obj
-        self.config = config if config is not None else None
+        self.config = config
         self._points: List[Any] = getattr(self._msh, "points", [])
         self._triangles: List[Any] = getattr(self._msh, "cells_dict", {}).get(
             "triangle", []

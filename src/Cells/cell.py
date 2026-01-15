@@ -15,17 +15,15 @@ class Cell(ABC):
     with the exception of oil and newOil all values are fixed
     """
 
-    def __init__(self, msh, cell_points, cell_id, config=None):
+    def __init__(self, msh, cell_points, cell_id, config:Config=None):
         self.type = None
         self._id = cell_id
-        # keep reference to mesh so we can compute geometry against all cells
         self._msh = msh
-        # validate config: require Config instance or None
-        if config is not None and not isinstance(config, Config):
-            raise TypeError("config must be a Config instance or None")
-        # store config (may be Config or empty dict for legacy)
-        self._config = config or {}
-        # set backing fields directly to avoid invoking property setters
+        # validate config: require Config instance
+        if config is not isinstance(config, Config):
+            raise TypeError("config must be a Config instance")
+        self._config = config
+        
         self._cords = [msh.points[i] for i in cell_points]
         self._midPoint = self.findMidPoint()
         self._area = self.findArea()
