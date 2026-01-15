@@ -245,16 +245,58 @@ class Cell(ABC):
                     other._ngb.append(self.id)
 
     def findFlow(self):  # TODO Brage: add ability to set flow function
-        return np.array([self.midPoint[1] - self.midPoint[0] * 0.2, -self.midPoint[0]])
+        mp = self._midPoint if self._midPoint is not None else self.findMidPoint()
+        return np.array([mp[1] - mp[0] * 0.2, -mp[0]])
 
     def findOil(self):  # TODO Brage: add ability to set oil function
-        return np.exp(-(np.linalg.norm(self.midPoint - np.array([0.35, 0.45, 0])) ** 2) / 0.01)
-    
-    def isFishingCheck(self):
-        fishxmin = self._config.geometry["borders"][0][0]
-        fishxmax = self._config.geometry["borders"][0][1]
-        fishymin = self._config.geometry["borders"][1][0]
-        fishymax = self._config.geometry["borders"][1][1]
-        x = self._midPoint[0]
-        y = self._midPoint[1]
+        mp = self._midPoint if self._midPoint is not None else self.findMidPoint()
+        return np.exp(-(np.linalg.norm(mp - np.array([0.35, 0.45, 0])) ** 2) / 0.01)
+
+    def _update_cords(self, value):
+        try:
+            pts = [np.array(v) for v in value]
+        except Exception:
+            raise TypeError("cords must be an iterable of numeric points")
+        self._cords = pts
+        self.invalidate_all_caches()
+
+    def _update_geometry(self):
+        try:
+            self._midPoint = self.findMidPoint()
+        except Exception:
+            self._midPoint = None
+        try:
+            self._area = self.findArea()
+        except Exception:
+            self._area = None
+
+    def invalidate_geometry_cache(self):
+        self._midPoint = None
+        self._area = None
+        self._scaledNormal = None
+        self._pointSet = None
+
+    def invalidate_physics_cache(self):
+        self._flow = None
+        self._oil = None
+
+    def invalidate_all_caches(self):
+        self.invalidate_geometry_cache()
+        self.invalidate_physics_cache()
+
+    def isFishingCheck(self, config=None):
+        cfg = config if config is not None else self._config
+        if cfg is None:
+            return False
+        if isinstance(cfg, dict):
+            cfg = Config.from_dict(cfg)
+
+        fishxmin = cfg.geometry["borders"][0][0]
+        fishxmax = cfg.geometry["borders"][0][1]
+        fishymin = cfg.geometry["borders"][1][0]
+        fishymax = cfg.geometry["borders"][1][1]
+        x = self._midPoint[0] if self._midPoint is not None else None
+        y = self._midPoint[1] if self._midPoint is not None else None
+        if x is None or y is None:
+            return False
         return fishxmin < x < fishxmax and fishymin < y < fishymax

@@ -17,11 +17,8 @@ class CellFactory:
             raise TypeError("config must be a Config instance or dict")
 
         self._config = config
-    
-    @property
-    def config(self):
-        return self._config
 
+        # store mesh and initialize type registry + cell list
         self.msh = msh
         self.cellTypes = {
             "triangle": Triangle,
@@ -29,6 +26,10 @@ class CellFactory:
             "vertex": Vertex,
         }
         self.cellList = []
+
+    @property
+    def config(self):
+        return self._config
 
     def register(self, key, ctype):
         if key not in self.cellTypes:
