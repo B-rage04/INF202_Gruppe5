@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
 import numpy as np
 
+from src.config import Config
+
 class Visualizer:
     def __init__(self, mesh):
         self.mesh = mesh
