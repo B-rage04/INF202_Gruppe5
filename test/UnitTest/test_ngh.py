@@ -5,12 +5,16 @@ from src.Cells.triangle import Triangle
 
 from .test_Shered import MockMeshTriangles
 
+from src.LoadTOML import LoadTOML
+
+configloader = LoadTOML()
+config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
 
 @pytest.fixture
 def triangles():
     mesh = MockMeshTriangles()
-    t0 = Triangle(mesh, [0, 1, 2], 0)
-    t1 = Triangle(mesh, [1, 2, 3], 1)
+    t0 = Triangle(mesh, [0, 1, 2], 0, config)
+    t1 = Triangle(mesh, [1, 2, 3], 1, config)
 
     cells = [t0, t1]
     for c in cells:

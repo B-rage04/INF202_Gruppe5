@@ -50,7 +50,7 @@ class Mesh:
 
     # --- Utility ---
     def reload(
-        self, file: str
+        self, file: str, config
     ) -> (
         None
     ):  # TODO: test this, with valid and invalid paths, With same path, different path
@@ -63,4 +63,4 @@ class Mesh:
         self._msh = self._readMesh(file)
         self._points = getattr(self._msh, "points", [])
         self._triangles = getattr(self._msh, "cells_dict", {}).get("triangle", [])
-        self._cells = CellFactory(self._msh)
+        self._cells = CellFactory(self._msh, config)
