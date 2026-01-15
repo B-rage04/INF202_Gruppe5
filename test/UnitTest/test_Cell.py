@@ -12,9 +12,12 @@ msh = meshTest()
 
 print(len(msh.cells))
 
+for cell in msh.cells:
+    print(cell.type)
+
 @pytest.fixture
 def triangle():
-    return Triangle(msh, msh.cells[0].points, 0, config)
+    return Triangle(msh, msh.cells[-1], 0, config)
 
 
 def testGetterId(triangle):
