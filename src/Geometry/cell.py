@@ -12,8 +12,7 @@ class Cell(ABC):
     with the exception of oil and newOil all values are fixed
 
     Notes:
-    - This class assumes triangular cell geometry for area/neighbor calculations.
-      Subclasses should implement `findArea` accordingly (see `Triangle`).
+    - This class assumes independent implementation of `findArea` accordingly (see `Triangle`).
     """
 
     def __init__(self, msh, cell_points, cell_id, config: Config = None):
@@ -21,9 +20,6 @@ class Cell(ABC):
         self._id = cell_id
 
         self._msh = msh
-        # validate config: require Config instance
-        if not isinstance(config, Config) and config is not None:
-            raise TypeError("config must be a Config instance")
         self._config = config
 
         # internal state / caches
@@ -38,10 +34,7 @@ class Cell(ABC):
         self._isFishing = None
 
         self.newOil = []
-
-        # compute derived values using centralized update routines
-        #self._update_geometry()
-
+        
     def _update_geometry(self,cellList=None):
         """Update all values that depend on cordinates in the right order.
 
@@ -56,28 +49,6 @@ class Cell(ABC):
         self._oil = self.oil
         self._isFishing = self.isFishing
         
-
-    # --- public properties ----------------------------------------------
-
-    @property
-    def id(self):
-        return self._id
-
-    @id.setter
-    def id(self, value):
-        if not self._id:
-            self._id = value
-
-    @property
-    def cords(self):
-        return self._cords
-    
-    @property  # TODO Brage: test getters and setters
-    def pointSet(self):
-        if self._pointSet is None:
-            self._pointSet = set(tuple(p) for p in self._cords)
-        return self._pointSet
-
     # --- area computations -----------------------------------------
 
     @property
@@ -92,6 +63,50 @@ class Cell(ABC):
         See child class for individual calculations
         """
         pass
+
+    # --- fishing zone check ----------------------------------------------
+
+    @property
+    def isFishing(self):
+        if self._isFishing is None:
+            try:
+                self._isFishing = self.isFishingCheck()
+            except Exception:
+                # TODO log warning?
+                self._isFishing = False
+        return self._isFishing
+
+    def isFishingCheck(self):
+        
+        fishxmin = self._config.geometry["borders"][0][0]
+        fishxmax = self._config.geometry["borders"][0][1]
+        fishymin = self._config.geometry["borders"][1][0]
+        fishymax = self._config.geometry["borders"][1][1]
+        x = self.midPoint[0]
+        y = self.midPoint[1]
+        if x is None or y is None:
+            return False
+        return fishxmin < x < fishxmax and fishymin < y < fishymax
+
+    # --- flow computations -----------------------------------------
+
+    @property
+    def flow(self):
+        if self._flow is None:
+            self._flow = np.array(self.findFlow())
+        return self._flow
+
+    @flow.setter
+    def flow(self, value):
+        try:
+            arr = np.array(value)
+        except Exception:
+            raise TypeError("flow must be convertible to a numpy array")
+        self._flow = arr
+
+    def findFlow(self):  # TODO Brage: add ability to set flow function
+        mp = self.midPoint
+        return np.array([mp[1] - mp[0] * 0.2, -mp[0]])
 
     # --- midpoint computations -----------------------------------------
 
@@ -111,80 +126,8 @@ class Cell(ABC):
         """
         return np.mean(self._cords, axis=0)
 
-    # --- normal vector computations -----------------------------------------
-
-    @property  # TODO Brage: test getters and setters
-    def scaledNormal(self):
-        if self._scaledNormal is None:
-            val = self.findScaledNormales(self._msh.cells)
-            self._scaledNormal = np.array(val)
-        return self._scaledNormal
-
-    def findScaledNormales(self, allCells=None):
-        """
-        Find the outward pointing normals for each neighboring cell.
-        """
-
-        # If we have no cells or no neighbors, there is nothing to do
-        if not allCells or not self.ngb:
-            self._scaledNormal = []
-            return self._scaledNormal
-
-        # Try to get the mesh
-        msh = getattr(self, "_msh", None)
-
-        # Make a dictionary so we can quickly find a cell by its id
-        if msh is not None and hasattr(msh, "_id_to_cell"):
-            cellsDict = msh._id_to_cell
-        else:
-            cellsDict = {cell.id: cell for cell in allCells}
-
-        # This will store all cells normals
-        scaledNormals = []
-
-        # Go through every neighbor cell
-        for ngbId in self.ngb:
-
-            # Get the neighbor cell
-            ngbCell = cellsDict.get(ngbId)
-            if ngbCell is None:
-                continue
-
-            # Find the points that both cells share
-            # These two points form the shared edge (the stick they touch with)
-            shared = self.pointSet & ngbCell.pointSet
-            if len(shared) < 2:
-                # If they don’t share a full edge, skip
-                continue
-
-            # Pick the two shared points in a stable order
-            shared_iter = sorted(shared)
-            A = np.array(shared_iter[0])
-            B = np.array(shared_iter[1])
-
-            # Make a vector along the shared edge (A → B)
-            d = np.array([B[0] - A[0], B[1] - A[1]])
-
-            # Turn that vector sideways to get a normal (an arrow)
-            # Sideways means 90 degrees
-            n = np.array([d[1], -d[0]])
-
-            # Vector from the edge to the middle of *this* cell
-            v = np.array([self.midPoint[0] - A[0], self.midPoint[1] - A[1]])
-
-            # If the arrow points inside the cell, flip it
-            # We want arrows pointing outward
-            if np.dot(n, v) > 0:
-                n = -n
-
-            # Save the arrow
-            scaledNormals.append(n)
-
-        # Store and return all arrows
-        self._scaledNormal = scaledNormals
-        return self._scaledNormal
-
     # --- neighbor computations -----------------------------------------
+
     @property
     def ngb(self):
         if self._ngb is None:
@@ -275,24 +218,78 @@ class Cell(ABC):
                 if self.id not in other._ngb:
                     other._ngb.append(self.id)
 
-    # --- flow computations -----------------------------------------
-    @property
-    def flow(self):
-        if self._flow is None:
-            self._flow = np.array(self.findFlow())
-        return self._flow
+    # --- normal vector computations -----------------------------------------
 
-    @flow.setter
-    def flow(self, value):
-        try:
-            arr = np.array(value)
-        except Exception:
-            raise TypeError("flow must be convertible to a numpy array")
-        self._flow = arr
+    @property  # TODO Brage: test getters and setters
+    def scaledNormal(self):
+        if self._scaledNormal is None:
+            val = self.findScaledNormales(self._msh.cells)
+            self._scaledNormal = np.array(val)
+        return self._scaledNormal
 
-    def findFlow(self):  # TODO Brage: add ability to set flow function
-        mp = self.midPoint
-        return np.array([mp[1] - mp[0] * 0.2, -mp[0]])
+    def findScaledNormales(self, allCells=None):
+        """
+        Find the outward pointing normals for each neighboring cell.
+        """
+
+        # If we have no cells or no neighbors, there is nothing to do
+        if not allCells or not self.ngb:
+            self._scaledNormal = []
+            return self._scaledNormal
+
+        # Try to get the mesh
+        msh = getattr(self, "_msh", None)
+
+        # Make a dictionary so we can quickly find a cell by its id
+        if msh is not None and hasattr(msh, "_id_to_cell"):
+            cellsDict = msh._id_to_cell
+        else:
+            cellsDict = {cell.id: cell for cell in allCells}
+
+        # This will store all cells normals
+        scaledNormals = []
+
+        # Go through every neighbor cell
+        for ngbId in self.ngb:
+
+            # Get the neighbor cell
+            ngbCell = cellsDict.get(ngbId)
+            if ngbCell is None:
+                continue
+
+            # Find the points that both cells share
+            # These two points form the shared edge (the stick they touch with)
+            shared = self.pointSet & ngbCell.pointSet
+            if len(shared) < 2:
+                # If they don’t share a full edge, skip
+                continue
+
+            # Pick the two shared points in a stable order
+            shared_iter = sorted(shared)
+            A = np.array(shared_iter[0])
+            B = np.array(shared_iter[1])
+
+            # Make a vector along the shared edge (A → B)
+            d = np.array([B[0] - A[0], B[1] - A[1]])
+
+            # Turn that vector sideways to get a normal (an arrow)
+            # Sideways means 90 degrees
+            n = np.array([d[1], -d[0]])
+
+            # Vector from the edge to the middle of *this* cell
+            v = np.array([self.midPoint[0] - A[0], self.midPoint[1] - A[1]])
+
+            # If the arrow points inside the cell, flip it
+            # We want arrows pointing outward
+            if np.dot(n, v) > 0:
+                n = -n
+
+            # Save the arrow
+            scaledNormals.append(n)
+
+        # Store and return all arrows
+        self._scaledNormal = scaledNormals
+        return self._scaledNormal
 
     # --- oil computations -----------------------------------------
     @property
@@ -325,25 +322,23 @@ class Cell(ABC):
             # TODO log warning?
         return v
 
-    # --- fishing zone check ----------------------------------------------
-    @property
-    def isFishing(self):
-        if self._isFishing is None:
-            try:
-                self._isFishing = self.isFishingCheck()
-            except Exception:
-                # TODO log warning?
-                self._isFishing = False
-        return self._isFishing
+    # --- public properties ----------------------------------------------
 
-    def isFishingCheck(self):
-        
-        fishxmin = self._config.geometry["borders"][0][0]
-        fishxmax = self._config.geometry["borders"][0][1]
-        fishymin = self._config.geometry["borders"][1][0]
-        fishymax = self._config.geometry["borders"][1][1]
-        x = self.midPoint[0]
-        y = self.midPoint[1]
-        if x is None or y is None:
-            return False
-        return fishxmin < x < fishxmax and fishymin < y < fishymax
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, value):
+        if not self._id:
+            self._id = value
+
+    @property
+    def cords(self):
+        return self._cords
+    
+    @property  # TODO Brage: test getters and setters
+    def pointSet(self):
+        if self._pointSet is None:
+            self._pointSet = set(tuple(p) for p in self._cords)
+        return self._pointSet
