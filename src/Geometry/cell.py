@@ -343,6 +343,12 @@ class Cell(ABC):
     # --- fishing zone check ----------------------------------------------
     @property
     def isFishing(self):
+        if self._isFishing is None:
+            try:
+                self._isFishing = self.isFishingCheck()
+            except Exception:
+                # TODO log warning?
+                self._isFishing = False
         return self._isFishing
 
     def isFishingCheck(self, config=None):
