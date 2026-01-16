@@ -106,6 +106,5 @@ def testGetterIsFishing(triangle):
                           ([[0.0],[0.0],[0.0]], False)])
 
 def testFishingCheck(triangle, cords, bool):
-    triangle._cords = cords
-    triangle._update_geometry()
+    triangle.cords = cords
     assert triangle.isFishingCheck() == bool
