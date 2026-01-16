@@ -16,12 +16,12 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-import argparse as argparse
 import os
 from typing import Any, List
 
 from src.IO.config import Config
 from src.IO.LoadTOML import LoadTOML
+from src.IO import cmd
 from src.Simulation.simulation import Simulation
 
 
@@ -90,43 +90,8 @@ def _create_result_folder(base_name: str, output_dir: str = "Output") -> str:
     return str(folder_path)
 
 
-def _parse_arguments() -> argparse.Namespace:
-    """Parse and return command-line arguments."""
-    p = argparse.ArgumentParser(
-        prog="oil_spill_simulation",
-        description="Oil spill simulation tool with configurable config files",
-    )
-    p.add_argument(
-        "-c",
-        "--config",
-        dest="config_file",
-        default=None,
-        help="Specific config file to read (default: input.toml if --find all not specified)",
-    )
-    p.add_argument(
-        "-f",
-        "--folder",
-        dest="folder",
-        default=None,
-        help="Folder to search for config files (used with --find all)",
-    )
-    p.add_argument(
-        "--find_all",
-        dest="find_all",
-        action="store_true",
-        help="Find and run all config files in the specified or current folder",
-    )
-    return p.parse_args()
-
-
 def _resolve_config_path(config_file: str, folder: str = None) -> str:
-    """Resolve the full path to a config file based on arguments."""
-    if folder:
-        return str(Path(folder) / config_file)
-    elif config_file:
-        return config_file
-    else:
-        return str(Path("Defaults") / config_file)
+    return cmd.resolve_config_path(config_file, folder)
 
 
 def _setup_config_output(config: Config, config_name: str) -> str:
@@ -218,7 +183,7 @@ def main(**kwargs: Any) -> None:
     logging.info("Running...")
 
     try:
-        args = _parse_arguments()
+        args = cmd.parse_arguments()
         config_loader = LoadTOML()
 
         if args.find_all:
