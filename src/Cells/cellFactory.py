@@ -31,9 +31,6 @@ class CellFactory:
     def config(self):
         return self._config
 
-    def register(self, key, ctype):
-        if key not in self.cellTypes:
-            self.cellTypes[key] = ctype
 
     def __call__(self):
         IDx = 0
