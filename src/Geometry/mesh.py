@@ -7,7 +7,22 @@ from src.IO.config import Config
 
 
 class Mesh:
+    """
+    Class for handling mesh data, creates easy access to cell data from cell objects
+
+    Attributes:
+        _msh (meshio.Mesh): mesh object from meshio
+        _points (list): list of all points in mesh
+        _cells (list): list of all cell objects in mesh
+    """
+
     def __init__(self, file: str, config: Config = None) -> None:
+        """
+        Initialize the mesh object by reading from configurationfile
+        
+        :param file: path string to .msh file
+        :param config: dict with simulation parameters
+        """
         if not isinstance(file, str):
             raise TypeError("file must be a path string")  # TODO: test this
 
@@ -38,6 +53,12 @@ class Mesh:
         self._cells = self._cellFactory()
 
     def _readMesh(self, file: str) -> Any:
+        """
+        Reads mesh and creates a meshio.Mesh object
+        
+        :param file: path to .msh file as a string
+        :return: A meshio.Mesh object
+        """
         try:  # TODO: test this
             import meshio
 
@@ -48,16 +69,19 @@ class Mesh:
 
     @property
     def points(self) -> Any:  # TODO: test this, try set and get
+        """Returns points in mesh as list"""
         return self._points
 
     @property
     def triangles(
         self,
     ) -> List[Any]:  # TODO: not just triangle # TODO: test this, try set and get
+        """Returns triangles in mesh as list"""
         return list(self._triangles)
 
     @property
     def cells(self) -> Any:  # TODO: test this, try set and get
+        """returns cells as a list"""
         return self._cells
 
     # --- Utility ---
