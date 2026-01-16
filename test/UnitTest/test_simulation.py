@@ -49,29 +49,29 @@ def config():
 
 # --- Tests ---
 def test_sim_init_dt(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
-    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     assert sim._dt == 0.01
 
 
 def test_sim_init_ct(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
-    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     assert sim._currentTime == 0
 
 
 def test_sim_init_ov(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
-    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     assert len(sim._oilVals) == 0
 
 
 def test_get_oil_vals(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
-    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     sim.getOilVals()
     assert sim.oilVals[-1] == [1.0, 2.0]
@@ -79,8 +79,8 @@ def test_get_oil_vals(monkeypatch, config):
 
 
 def test_flux_upwind(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
-    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     c0, c1 = sim._msh.cells
     f = sim._computeFlux(0, c0, 1)
@@ -88,8 +88,8 @@ def test_flux_upwind(monkeypatch, config):
 
 
 def test_flux_downwind(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
-    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     c0, c1 = sim._msh.cells
     c0.scaledNormal = [np.array([-1.0, 0.0])]
@@ -98,8 +98,8 @@ def test_flux_downwind(monkeypatch, config):
 
 
 def test_update_oil_changes_oil(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
-    monkeypatch.setattr("src.simulation.Visualizer", MagicMock)
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", MagicMock)
     sim = Simulation(config)
     before = [c.oil for c in sim._msh.cells]
     sim.updateOil(sim._dt)
@@ -108,9 +108,9 @@ def test_update_oil_changes_oil(monkeypatch, config):
 
 
 def test_run_sim_video(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
     mock_vs = MagicMock()
-    monkeypatch.setattr("src.simulation.Visualizer", lambda *args, **kwargs: mock_vs)
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", lambda *args, **kwargs: mock_vs)
 
     class MockVideo:
         def __init__(self, **kwargs):
@@ -121,21 +121,21 @@ def test_run_sim_video(monkeypatch, config):
             return "video.mp4"
 
     video = MockVideo()
-    monkeypatch.setattr("src.simulation.VideoCreator", lambda **kwargs: video)
+    monkeypatch.setattr("src.IO.video.VideoCreator", lambda **kwargs: video)
     sim = Simulation(config)
     sim.run_sim(runNumber=1, create_video=True)
     assert video.called
 
 
 def test_run_sim_no_video(monkeypatch, config):
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
     mock_vs = MagicMock()
-    monkeypatch.setattr("src.simulation.Visualizer", lambda *args, **kwargs: mock_vs)
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", lambda *args, **kwargs: mock_vs)
     config = clone_config(
         config,
         IO={"writeFrequency": 0},
     )
-    monkeypatch.setattr("src.simulation.VideoCreator", MagicMock)
+    monkeypatch.setattr("src.IO.video.VideoCreator", MagicMock)
     sim = Simulation(config)
     sim.run_sim(runNumber=None, create_video=False)
     assert not mock_vs.plotting.called
@@ -146,10 +146,10 @@ def test_run_sim_multiple_steps(monkeypatch, config):
         config,
         settings={"tStart": 0, "tEnd": 2, "nSteps": 2},
     )
-    monkeypatch.setattr("src.simulation.Mesh", lambda *args, **kwargs: FakeMesh())
+    monkeypatch.setattr("src.Geometry.mesh.Mesh", lambda *args, **kwargs: FakeMesh())
     mock_vs = MagicMock()
-    monkeypatch.setattr("src.simulation.Visualizer", lambda *args, **kwargs: mock_vs)
-    monkeypatch.setattr("src.simulation.VideoCreator", MagicMock)
+    monkeypatch.setattr("src.Simulation.simulation.Visualizer", lambda *args, **kwargs: mock_vs)
+    monkeypatch.setattr("src.IO.video.VideoCreator", MagicMock)
     sim = Simulation(config)
     sim.run_sim(runNumber=1, create_video=False)
     assert mock_vs.plotting.called

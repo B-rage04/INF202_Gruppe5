@@ -24,8 +24,12 @@ class MockMesh:
         # Single triangle using all three points
         self.triangles = np.array([[0, 1, 2]])
 
-        # Provide ready-made cells for Simulation (list of Cell objects)
-        self.cells = [Triangle(self, self.triangles[0], 0, config)]
+        # Avoid populating `cells` before creating triangle instances; create
+        # an empty placeholder and fill it afterwards so initialization
+        # doesn't cache incomplete state.
+        self.cells = None
+        t = Triangle(self, self.triangles[0], 0, config)
+        self.cells = [t]
 
 
 @pytest.fixture
@@ -59,3 +63,5 @@ class MockMeshTriangles:
                 [0.0, 1.0, 0.0],
             ]
         )
+        # minimal attribute used by Cell.scaledNormal during init
+        self.cells = None
