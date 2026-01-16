@@ -37,11 +37,15 @@ def testGetterArea(triangle):
 
 
 def testGetterScaledNormal(triangle):  # TODO: write test
-    assert True
-
-
-def testPointSet(triangle):  # TODO: write test
     pass
+
+
+def testGetterPointSet(triangle):
+    assert triangle.pointSet == triangle._pointSet
+
+def testGetterPointSetNone(triangle):
+    triangle._pointSet = None
+    assert triangle.pointSet == triangle._pointSet
 
 
 def testGetterNGB(triangle):

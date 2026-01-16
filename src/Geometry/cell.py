@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
-from logging import config
-
 import numpy as np
-
 from src.IO.config import Config
 
 
@@ -70,23 +67,6 @@ class Cell(ABC):
     def cords(self):
         return self._cords
     
-    @cords.setter
-    def cords(self, value):
-        try:
-            self._cords = [np.array(p) for p in value]
-        except Exception:
-            raise TypeError("cords must be an iterable of points")
-        # Invalidate caches and recompute derived geometry
-        self._pointSet = None
-        self._midPoint = None
-        self._area = None
-        self._scaledNormal = None
-        self._ngb = None
-        self._flow = None
-        self._oil = None
-        self._isFishing = None
-        self._update_geometry()
-
     @property  # TODO Brage: test getters and setters
     def pointSet(self):
         if self._pointSet is None:
@@ -98,11 +78,7 @@ class Cell(ABC):
     @property
     def area(self):
         if self._area is None:
-            try:
-                self._area = self.findArea()
-            except Exception:
-                # TODO log warning?
-                self._area = None
+            self._area = self.findArea()
         return self._area
 
     @abstractmethod
@@ -110,18 +86,13 @@ class Cell(ABC):
         """
         See child class for individual calculations
         """
-        raise NotImplementedError()
 
     # --- midpoint computations -----------------------------------------
 
     @property
     def midPoint(self):
         if self._midPoint is None:
-            try:
-                self._midPoint = self.findMidPoint()
-            except Exception:
-                # TODO log warning?
-                self._midPoint = None
+            self._midPoint = self.findMidPoint()
         return self._midPoint
 
     def findMidPoint(self):
@@ -138,11 +109,8 @@ class Cell(ABC):
     @property  # TODO Brage: test getters and setters
     def scaledNormal(self):
         if self._scaledNormal is None:
-            if getattr(self, "_msh", None) is not None:
-                val = self.findScaledNormales(getattr(self._msh, "cells", None))
-            else:
-                val = self.findScaledNormales()
-            self._scaledNormal = np.array(val) if val is not None else np.array([])
+            val = self.findScaledNormales(self._msh.cells)
+            self._scaledNormal = np.array(val)
         return self._scaledNormal
 
     def findScaledNormales(self, allCells=None):
@@ -155,8 +123,6 @@ class Cell(ABC):
             self._scaledNormal = []
             return self._scaledNormal
 
-        # Try to get the mesh
-        msh = getattr(self, "_msh", None)
 
         # Make a dictionary so we can quickly find a cell by its id
         if msh is not None and hasattr(msh, "_id_to_cell"):
