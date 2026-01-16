@@ -170,7 +170,6 @@
     \newfontfamily{\arial}{Arial}
 \else
     \RequirePackage{helvet}
-    \newcommand*\arial{\sffamily}
     \RequirePackage[T1]{fontenc}
 \fi
 

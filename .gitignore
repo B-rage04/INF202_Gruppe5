@@ -250,4 +250,24 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+% Source - https://stackoverflow.com/a
+% Posted by Avi Parshan
+% Retrieved 2026-01-16, License - CC BY-SA 4.0
+
+## Core latex/pdflatex auxiliary files:
+**/*.aux
+**/*.lof
+**/*.log
+**/*.lot
+**/*.fls
+**/*.out
+**/*.toc
+**/*.fmt
+**/*.fot
+**/*.cb
+**/*.cb2
+**/*.lb
+
+
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos,python
