@@ -1,16 +1,23 @@
 import time
 from pathlib import Path
 
-import cv2
+try:
+    import cv2
+except Exception:
+    cv2 = None
 import numpy as np
 from tqdm import tqdm
 
 
 class VideoCreator:
 
-    def __init__(self, imageDir="Output/images/", fps=10, **kwargs):
+    def __init__(self, image_dir="Output/images/", fps=10, **kwargs):
+        # Accept snake_case `image_dir` (used by tests) while keeping
+        # camelCase attribute names for backwards compatibility.
+        # Also accept a legacy `imageDir` kwarg if passed.
+        image_dir = kwargs.get("imageDir", image_dir)
 
-        self.image_dir = Path(imageDir)
+        self.image_dir = Path(image_dir)
         self.imageDir = self.image_dir
         self.fps = fps
 
@@ -34,6 +41,9 @@ class VideoCreator:
         else:
             outputPath = Path(outputPath)
             outputPath.parent.mkdir(parents=True, exist_ok=True)
+
+        if cv2 is None:
+            raise ImportError("OpenCV (cv2) is required to create videos")
 
         firstImage = cv2.imread(str(image_files[0]))
         height, width, _ = firstImage.shape
@@ -68,6 +78,9 @@ class VideoCreator:
 
         outputPath = Path(outputPath)
         outputPath.parent.mkdir(parents=True, exist_ok=True)
+
+        if cv2 is None:
+            raise ImportError("OpenCV (cv2) is required to create videos")
 
         firstImage = cv2.imread(str(imageFiles[0]))
         height, width, _ = firstImage.shape
@@ -132,6 +145,9 @@ class VideoCreator:
             outputPath = Path(outputPath)
             outputPath.parent.mkdir(parents=True, exist_ok=True)
 
+        if cv2 is None:
+            raise ImportError("OpenCV (cv2) is required to create videos")
+
         firstFrames = [cv2.imread(str(images[0])) for images in allRunImages]
         height, width, _ = firstFrames[0].shape
 
@@ -171,3 +187,13 @@ class VideoCreator:
 
         videoWriter.release()
         return str(outputPath)
+
+    # snake_case compatibility wrappers expected by tests
+    def create_video_from_run(self, runNumber, outputPath=None):
+        return self.createVideoFromRun(runNumber, outputPath=outputPath)
+
+    def create_video_from_images(self, imagePattern, outputPath):
+        return self.createVideoFromImages(imagePattern, outputPath)
+
+    def create_comparison_video(self, runNumbers, outputPath=None):
+        return self.createComparisonVideo(runNumbers, outputPath=outputPath)

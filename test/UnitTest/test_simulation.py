@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from src.simulation import Simulation
+from src.Simulation.simulation import Simulation
 
 from test.utilitiesTests.ConfigTest import configTest
 from src.IO.LoadTOML import LoadTOML

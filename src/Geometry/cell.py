@@ -69,6 +69,23 @@ class Cell(ABC):
     @property
     def cords(self):
         return self._cords
+    
+    @cords.setter
+    def cords(self, value):
+        try:
+            self._cords = [np.array(p) for p in value]
+        except Exception:
+            raise TypeError("cords must be an iterable of points")
+        # Invalidate caches and recompute derived geometry
+        self._pointSet = None
+        self._midPoint = None
+        self._area = None
+        self._scaledNormal = None
+        self._ngb = None
+        self._flow = None
+        self._oil = None
+        self._isFishing = None
+        self._update_geometry()
 
     @property  # TODO Brage: test getters and setters
     def pointSet(self):

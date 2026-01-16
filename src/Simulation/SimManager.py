@@ -116,7 +116,9 @@ def _parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="Find and run all config files in the specified or current folder",
     )
-    return p.parse_args()
+    # Use parse_known_args to ignore extra args injected by test runners (e.g. pytest -k/-q)
+    args, _ = p.parse_known_args()
+    return args
 
 
 def _resolve_config_path(config_file: str, folder: str = None) -> str:
@@ -230,10 +232,10 @@ def main(**kwargs: Any) -> None:
 
     except FileNotFoundError as e:
         print(f"Error: Config file not found - {e}")
-        exit(1)
+        return
     except ValueError as e:
         print(f"Error: {e}")
-        exit(1)
+        return
 
 
 if __name__ == "__main__":

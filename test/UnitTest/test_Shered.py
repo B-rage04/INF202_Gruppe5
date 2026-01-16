@@ -2,8 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from src.Cells.cell import Cell
-from src.Cells.triangle import Triangle
+from src.Geometry.triangle import Triangle
 from src.IO.LoadTOML import LoadTOML
 
 configloader = LoadTOML()

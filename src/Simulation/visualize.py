@@ -60,10 +60,13 @@ class Visualizer:
     def _draw_fishing_zones(self, ax):
         """Draw fishing zones as red transparent polygons."""
         fishing_triangles = [
-            cell.cords
+            getattr(cell, "cords", None)
             for cell in self.mesh.cells
-            if cell.type == "triangle" and cell._isFishing
+            if getattr(cell, "type", None) == "triangle" and getattr(cell, "_isFishing", False)
         ]
+
+        # Filter out any None entries
+        fishing_triangles = [t for t in fishing_triangles if t is not None]
 
         if fishing_triangles:
             verts = [np.array(t)[:, :2] for t in fishing_triangles]

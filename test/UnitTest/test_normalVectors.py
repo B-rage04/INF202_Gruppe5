@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from src.Cells.line import Line
-from src.Cells.triangle import Triangle
+from src.Geometry.line import Line
+from src.Geometry.triangle import Triangle
 
 
 class MockMesh:

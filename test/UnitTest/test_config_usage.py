@@ -1,7 +1,7 @@
 import pytest
 
-from src.Cells.cellFactory import CellFactory
-from src.Cells.triangle import Triangle
+from src.Geometry.cellFactory import CellFactory
+from src.Geometry.triangle import Triangle
 from src.IO.config import Config
 from src.Geometry.mesh import Mesh
 from src.Simulation.simulation import Simulation

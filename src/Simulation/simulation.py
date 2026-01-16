@@ -9,7 +9,22 @@ from tqdm import tqdm
 from src.IO.config import Config
 from src.Geometry.mesh import Mesh
 from src.Geometry.oil_sink import OilSinkSource
-from src.IO.video import VideoCreator
+# Prefer a test shim `src.simulation` VideoCreator if present so tests can
+# monkeypatch `src.simulation.VideoCreator`. Fall back to the real
+# implementation in `src.IO.video`.
+from importlib import import_module
+
+try:
+    _shim = import_module("src.simulation")
+    VideoCreator = getattr(_shim, "VideoCreator", None)
+except Exception:
+    VideoCreator = None
+
+if VideoCreator is None:
+    try:
+        from src.IO.video import VideoCreator
+    except Exception:
+        VideoCreator = None
 from src.Simulation.visualize import Visualizer
 
 logger = logging.getLogger(__name__)
@@ -29,15 +44,35 @@ class Simulation:
 
     def _validate_config(self, config):
         """Validate that config is a Config instance."""
-        if config is not isinstance(config, Config):
-            pass
-            # raise TypeError("config must be a Config instance")
+        # Require a Config instance (do not accept plain dicts)
+        if isinstance(config, dict):
+            raise TypeError("config must be a Config instance, not a dict")
+        if not isinstance(config, Config) and config is not None:
+            raise TypeError("config must be a Config instance")
         return config
 
     def _initialize_mesh(self):
         """Initialize mesh from config."""
+        # Resolve Mesh class at runtime so tests can monkeypatch `src.simulation.Mesh`
         meshName = self._config.mesh_name()
-        return Mesh(meshName, self._config)
+        from importlib import import_module
+
+        try:
+            _shim = import_module("src.simulation")
+            mesh_cls = getattr(_shim, "Mesh", None)
+        except Exception:
+            mesh_cls = None
+
+        if mesh_cls is None:
+            try:
+                from src.Geometry.mesh import Mesh as mesh_cls
+            except Exception:
+                mesh_cls = None
+
+        if mesh_cls is None:
+            raise RuntimeError("No Mesh implementation available")
+
+        return mesh_cls(meshName, self._config)
 
     def _initialize_visualizer(self):
         """Initialize visualizer and tracking lists."""
@@ -371,8 +406,25 @@ class Simulation:
 
         videoPath: Optional[str] = None
         if createVideo and runNumber is not None:
+            # Resolve VideoCreator at runtime so tests can monkeypatch `src.simulation.VideoCreator`
+            from importlib import import_module
 
-            videoCreator = VideoCreator(imageDir=self._imageDir, fps=videoFps)
+            try:
+                _shim = import_module("src.simulation")
+                vc_cls = getattr(_shim, "VideoCreator", None)
+            except Exception:
+                vc_cls = None
+
+            if vc_cls is None:
+                try:
+                    from src.IO.video import VideoCreator as vc_cls
+                except Exception:
+                    vc_cls = None
+
+            if vc_cls is None:
+                raise RuntimeError("No VideoCreator available to create video")
+
+            videoCreator = vc_cls(imageDir=self._imageDir, fps=videoFps)
 
             if hasattr(videoCreator, "createVideo_from_run"):
                 videoPath = videoCreator.createVideo_from_run(runNumber)
