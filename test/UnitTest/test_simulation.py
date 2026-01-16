@@ -7,6 +7,11 @@ import pytest
 from src.simulation import Simulation
 
 from test.utilitiesTests.ConfigTest import configTest
+from src.IO.LoadTOML import LoadTOML
+from src.Simulation.simulation import Simulation
+
+configloader = LoadTOML()
+config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
 
 class FakeCell:

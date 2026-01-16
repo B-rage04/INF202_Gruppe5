@@ -6,17 +6,16 @@ aliases and documentation for readability.
 
 import os
 import time
-from typing import List, Dict
-
 import tomllib as toml
+from typing import Dict, List
+
 from tqdm import tqdm
 
-from src.config import Config
+from src.IO.config import Config
 
 
 class LoadTOML:
-    """Load TOML files and optionally return validated `Config` objects.
-    """
+    """Load TOML files and optionally return validated `Config` objects."""
 
     def loadTomlFile(self, filePath: str) -> Dict:
         """Load a TOML file and return its raw dictionary.
@@ -31,7 +30,6 @@ class LoadTOML:
         """Load a TOML file and return a validated `Config` instance."""
         data = self.loadTomlFile(filePath)
         return Config.from_dict(data)
-
 
     def loadSimConfigs(self, sysConfig: Dict, as_config: bool = False) -> List:
         """Load simulation config(s) from a configured path.
@@ -55,11 +53,18 @@ class LoadTOML:
                 ascii="-#",
             ):
                 fullPath = os.path.join(simConfigPath, fileName)
-                sim_configs.append(self.loadConfigFile(fullPath) if as_config else self.loadTomlFile(fullPath))
+                sim_configs.append(
+                    self.loadConfigFile(fullPath)
+                    if as_config
+                    else self.loadTomlFile(fullPath)
+                )
             elapsed_ms = (time.perf_counter() - start_time) * 1000
             print(f"Loading configuration files completed in {elapsed_ms:.2f} ms")
         else:
-            sim_configs.append(self.loadConfigFile(simConfigPath) if as_config else self.loadTomlFile(simConfigPath))
+            sim_configs.append(
+                self.loadConfigFile(simConfigPath)
+                if as_config
+                else self.loadTomlFile(simConfigPath)
+            )
 
         return sim_configs
-

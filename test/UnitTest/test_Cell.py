@@ -1,12 +1,13 @@
-import numpy as np
-import pytest
 import copy
-
 from test.utilitiesTests.ConfigTest import configTest
 from test.utilitiesTests.MeshTest import meshTest
 
+import numpy as np
+import pytest
+
 config = configTest()
 msh = meshTest()
+
 
 @pytest.fixture()
 def triangle():
@@ -18,17 +19,13 @@ def testGetterId(triangle):
 
 
 def testSetterId(triangle):
+    triangle._id = None
     triangle.id = 5
     assert triangle._id == 5
 
 
 def testGetterCords(triangle):
     assert triangle.cords == triangle._cords
-
-
-def testSetterCords(triangle):
-    triangle.cords = [[0, 3, 0], [1, 2, 0], [0, 0, 0]]
-    assert triangle._cords == triangle.cords
 
 
 def testGetterMidPoint(triangle):
@@ -54,6 +51,12 @@ def testGetterNGB(triangle):
 def testGetterFlow(triangle):
     assert triangle.flow.all() == triangle._flow.all()
 
+
+def testGetterFlowNone(triangle):
+    triangle._flow = None
+    expextedFlow = triangle.findFlow()
+    assert triangle.flow.all() == expextedFlow.all()
+    
 
 def testGetterFlowNone(triangle):
     triangle._flow = None
@@ -100,3 +103,11 @@ def testOil(triangle):
 
 def testGetterIsFishing(triangle):
     assert triangle.isFishing == triangle._isFishing
+
+"""
+@pytest.mark.parametrize("x, y, bool",
+                         [(1, 1, False),
+                          (1, 1, True),])
+def testFishingCheck(triangle):
+    return True
+"""

@@ -1,3 +1,3 @@
-import src.SimManager as SimManager
+import src.Simulation.SimManager as SimManager
 
 SimManager.main()

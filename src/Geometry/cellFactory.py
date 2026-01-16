@@ -2,14 +2,15 @@ import time
 
 from tqdm import tqdm
 
-from src.Cells.line import Line
-from src.Cells.triangle import Triangle
-from src.Cells.vertex import Vertex
+from src.Geometry.line import Line
+from src.Geometry.triangle import Triangle
+from src.Geometry.vertex import Vertex
+
 
 class CellFactory:
     def __init__(self, msh, config=None):
         # Accept plain dict or Config instance for backwards compatibility
-        from src.config import Config as _Config
+        from src.IO.config import Config as _Config
 
         if isinstance(config, dict):
             config = _Config.from_dict(config)
@@ -31,9 +32,6 @@ class CellFactory:
     def config(self):
         return self._config
 
-    def register(self, key, ctype):
-        if key not in self.cellTypes:
-            self.cellTypes[key] = ctype
 
     def __call__(self):
         IDx = 0
@@ -46,7 +44,7 @@ class CellFactory:
             for cell in cellblock.data:
                 self.cellList.append(cellCls(self.msh, cell, IDx, self._config))
                 IDx += 1
-        
+
         for cell in self.cellList:
             cell.findNGB(self.cellList)
             cell.findScaledNormales(self.cellList)

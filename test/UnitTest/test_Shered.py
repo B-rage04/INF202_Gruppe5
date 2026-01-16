@@ -4,10 +4,11 @@ import pytest
 
 from src.Cells.cell import Cell
 from src.Cells.triangle import Triangle
-from src.LoadTOML import LoadTOML
+from src.IO.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
 config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
+
 
 # TODO: tests should be short and only test/assert one thing each
 class MockMesh:
@@ -47,6 +48,7 @@ def test_triangle_coordinates(triangle):
 
     for c, e in zip(triangle.cords, expected):
         npt.assert_array_equal(c, e)
+
 
 class MockMeshTriangles:
     def __init__(self):

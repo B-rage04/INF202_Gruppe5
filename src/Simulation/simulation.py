@@ -1,25 +1,23 @@
 import logging
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
-import time
 
 import numpy as np
 from tqdm import tqdm
 
-from src.mesh import Mesh
-from src.video import VideoCreator
-from src.visualize import Visualizer
-
-from src.oil_sink import OilSinkSource
-from src.config import Config
+from src.IO.config import Config
+from src.Geometry.mesh import Mesh
+from src.Geometry.oil_sink import OilSinkSource
+from src.IO.video import VideoCreator
+from src.Simulation.visualize import Visualizer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 class Simulation:
-    def __init__(self, config:Config=None):
+    def __init__(self, config: Config = None):
         self._config = self._validate_config(config)
         self._msh = self._initialize_mesh()
         self._initialize_visualizer()
@@ -33,7 +31,7 @@ class Simulation:
         """Validate that config is a Config instance."""
         if config is not isinstance(config, Config):
             pass
-            #raise TypeError("config must be a Config instance")
+            # raise TypeError("config must be a Config instance")
         return config
 
     def _initialize_mesh(self):
@@ -62,11 +60,11 @@ class Simulation:
         """Initialize ship sink configuration."""
         shipSink = {}
         ship_cfg = self._config.geometry.get("ship", None)
-        
+
         if isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
             try:
                 ship_pos = [float(ship_cfg[0]), float(ship_cfg[1])]
-                from src.oil_sink import compute_ship_sink
+                from src.Geometry.oil_sink import compute_ship_sink
 
                 shipSink = compute_ship_sink(
                     self._msh,
@@ -76,29 +74,31 @@ class Simulation:
                     strength=100.0,
                     mode="gaussian",
                 )
-                
+
                 if shipSink:
                     max_coeff = max(shipSink.values())
-                    logger.info(f"Ship at {ship_pos}: {len(shipSink)} cells affected (max coeff: {max_coeff:.4f})")
+                    logger.info(
+                        f"Ship at {ship_pos}: {len(shipSink)} cells affected (max coeff: {max_coeff:.4f})"
+                    )
                 else:
                     logger.info(f"Ship at {ship_pos}: no cells found in range")
             except (TypeError, ValueError):
                 pass
             except Exception as e:
                 logger.warning(f"Failed to initialize ship sink: {e}")
-        
+
         return shipSink
 
     def _initialize_oil_sources(self):
         """Initialize oil sources from config."""
         sourceSink = {}
         sources_array = self._config.geometry.get("source", [])
-        
+
         if isinstance(sources_array, list) and sources_array:
             for idx, source_pos in enumerate(sources_array):
                 if isinstance(source_pos, list) and len(source_pos) >= 2:
                     try:
-                        from src.oil_sink import compute_source
+                        from src.Geometry.oil_sink import compute_source
 
                         source_coeffs = compute_source(
                             self._msh,
@@ -108,26 +108,30 @@ class Simulation:
                             strength=50.0,
                             mode="gaussian",
                         )
-                        
+
                         for cell_id, coeff in source_coeffs.items():
                             sourceSink[cell_id] = sourceSink.get(cell_id, 0.0) + coeff
-                        
-                        max_coeff = max(source_coeffs.values()) if source_coeffs else 0.0
-                        logger.info(f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected (max coeff: {max_coeff:.4f})")
+
+                        max_coeff = (
+                            max(source_coeffs.values()) if source_coeffs else 0.0
+                        )
+                        logger.info(
+                            f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected (max coeff: {max_coeff:.4f})"
+                        )
                     except Exception as e:
                         logger.warning(f"Failed to add source {idx}: {e}")
-        
+
         return sourceSink
 
     def _initialize_additional_sinks(self):
         """Initialize additional sinks from config."""
         sinks_array = self._config.geometry.get("sink", [])
-        
+
         if isinstance(sinks_array, list) and sinks_array:
             for idx, sink_pos in enumerate(sinks_array):
                 if isinstance(sink_pos, list) and len(sink_pos) >= 2:
                     try:
-                        from src.oil_sink import compute_ship_sink
+                        from src.Geometry.oil_sink import compute_ship_sink
 
                         sink_coeffs = compute_ship_sink(
                             self._msh,
@@ -137,20 +141,44 @@ class Simulation:
                             strength=100.0,
                             mode="gaussian",
                         )
-                        
+
                         for cell_id, coeff in sink_coeffs.items():
-                            self.oilSinks[cell_id] = self.oilSinks.get(cell_id, 0.0) + coeff  # Changed from shipSink
-                        
-                        logger.info(f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected")
+                            self.oilSinks[cell_id] = (
+                                self.oilSinks.get(cell_id, 0.0) + coeff
+                            )  # Changed from shipSink
+
+                        logger.info(
+                            f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected"
+                        )
                     except Exception as e:
                         logger.warning(f"Failed to add sink {idx}: {e}")
 
     def _log_configuration_summary(self):
         """Log summary of all sources and sinks."""
         ship_cfg = self._config.geometry.get("ship", None)
-        num_ships = 1 if (isinstance(ship_cfg, list) and len(ship_cfg) >= 2 and not isinstance(ship_cfg[0], list)) else 0
-        num_sources = len([s for s in self._config.geometry.get("source", []) if isinstance(s, list) and len(s) >= 2])
-        num_sinks = len([s for s in self._config.geometry.get("sink", []) if isinstance(s, list) and len(s) >= 2])
+        num_ships = (
+            1
+            if (
+                isinstance(ship_cfg, list)
+                and len(ship_cfg) >= 2
+                and not isinstance(ship_cfg[0], list)
+            )
+            else 0
+        )
+        num_sources = len(
+            [
+                s
+                for s in self._config.geometry.get("source", [])
+                if isinstance(s, list) and len(s) >= 2
+            ]
+        )
+        num_sinks = len(
+            [
+                s
+                for s in self._config.geometry.get("sink", [])
+                if isinstance(s, list) and len(s) >= 2
+            ]
+        )
 
         summary_parts = []
         if num_ships > 0:
@@ -159,7 +187,9 @@ class Simulation:
             summary_parts.append("0 ships")
 
         if num_sources > 0:
-            summary_parts.append(f"{num_sources} source{'s' if num_sources != 1 else ''}")
+            summary_parts.append(
+                f"{num_sources} source{'s' if num_sources != 1 else ''}"
+            )
         else:
             summary_parts.append("0 sources")
 
@@ -214,7 +244,7 @@ class Simulation:
     @property
     def fishingOil(self):
         return self._fishingOil
-    
+
     def getOilVals(self):
         # it reads through all cells each step. Can this be optimized? TODO
         self._oilVals.append(
@@ -224,12 +254,11 @@ class Simulation:
         self._fishingOil.append(
             sum([cell.oil for cell in self._msh.cells if cell.isFishing])
         )
-    
+
     def getFishing(self):
         self._fish_vals.append(
             [cell._isFishing for cell in self._msh.cells if cell.type == "triangle"]
-            )
-
+        )
 
     def _computeFlux(
         self, i: int, cell: Any, ngb: int
@@ -247,8 +276,8 @@ class Simulation:
     def updateOil(self, dt):
         """Update oil concentration using predictor-corrector with sources/sinks."""
         # Get source and sink coefficients
-        source_coeffs = self.oilSources if hasattr(self, 'oilSources') else {}
-        sink_coeffs = self.oilSinks if hasattr(self, 'oilSinks') else {}
+        source_coeffs = self.oilSources if hasattr(self, "oilSources") else {}
+        sink_coeffs = self.oilSinks if hasattr(self, "oilSinks") else {}
 
         oil_half = np.zeros(len(self._msh.cells))
 
@@ -268,8 +297,8 @@ class Simulation:
         for cell in self._msh.cells:
             if getattr(cell, "type", None) != "triangle":
                 continue
-            S_plus = source_coeffs.get(cell.id, 0.0)   # Source term
-            S_minus = sink_coeffs.get(cell.id, 0.0)   # Sink term
+            S_plus = source_coeffs.get(cell.id, 0.0)  # Source term
+            S_minus = sink_coeffs.get(cell.id, 0.0)  # Sink term
 
             # Apply spec: u_new = u_half / (1 + dt*S_minus - dt*S_plus)
             denominator = 1.0 + dt * S_minus - dt * S_plus
@@ -287,7 +316,7 @@ class Simulation:
         runNumber: Optional[int] = None,
         **kwargs,
     ) -> Optional[str]:
-        
+
         # self.ship = OilSinkSource(self._msh,configuration=None) #TODO implement oil sink source class
 
         createVideo = False
@@ -297,7 +326,7 @@ class Simulation:
         videoFps: int = int(self._config.video.get("videoFPS", 30))
 
         totalSteps = self._nSteps
-    
+
         start_time = time.perf_counter()
         with tqdm(
             total=totalSteps,
@@ -318,12 +347,16 @@ class Simulation:
                 # Always write first image, last image, or at writeFrequency intervals
                 should_write = False
                 if self._writeFrequency != 0:
-                    should_write = (stepIdx == 1 or 
-                                   stepIdx == totalSteps or 
-                                   stepIdx % self._writeFrequency == 0)
-                
+                    should_write = (
+                        stepIdx == 1
+                        or stepIdx == totalSteps
+                        or stepIdx % self._writeFrequency == 0
+                    )
+
                 if should_write:
-                    logger.info(f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}")
+                    logger.info(
+                        f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}"
+                    )
                     self._visualizer.plotting(
                         self._oilVals[-1],
                         filepath=str(self._imageDir),

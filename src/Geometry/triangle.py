@@ -1,7 +1,6 @@
 import numpy as np
 
-
-from src.Cells.cell import Cell
+from src.Geometry.cell import Cell
 
 
 class Triangle(Cell):

@@ -1,9 +1,10 @@
 import argparse
-import pytest
-from pathlib import Path
 import sys
+from pathlib import Path
 
-import src.SimManager as Manager
+import pytest
+
+import src.Simulation.SimManager as Manager
 
 
 def test_next_run_number_nonexistent_directory():
@@ -58,6 +59,7 @@ def test_get_config_files_correct_read_toml():
     result = Manager._get_config_files("test/utilitiesTests")
     assert len(result) > 0
 
+
 def test_is_result_folder_positive(tmp_path):
     (tmp_path / "images").mkdir()
     (tmp_path / "videos").mkdir()
@@ -104,6 +106,7 @@ def test_create_result_folder_allows_overwrite_result(tmp_path):
 
     result = Manager._create_result_folder("test_config", str(tmp_path))
     assert result == str(config_folder)
+
 
 def test_parse_arguments_correct_output_type(monkeypatch):
     monkeypatch.setattr(sys, "argv", ["prog"])  # minimal argv for the parser
@@ -159,20 +162,23 @@ def test_resolve_config_path_defaults():
 
 def test_setup_config_output():
     """Should create result folder and update config IO paths."""
-    from src.config import Config
     from unittest.mock import patch
-    
+
+    from src.IO.config import Config
+
     # Create a minimal valid config
     config = Config(
         geometry={"meshName": "test.msh"},
         settings={"tStart": 0, "tEnd": 100, "nSteps": 10},
-        IO={}
+        IO={},
     )
-    
+
     # Mock _create_result_folder to avoid creating actual directories
-    with patch.object(Manager, '_create_result_folder', return_value="Output/test_config"):
+    with patch.object(
+        Manager, "_create_result_folder", return_value="Output/test_config"
+    ):
         result_folder = Manager._setup_config_output(config, "test_config")
-    
+
     assert config.IO["imagesDir"] == "Output/test_config/images/"
     assert config.IO["videosDir"] == "Output/test_config/videos/"
     assert result_folder == "Output/test_config"
@@ -182,7 +188,7 @@ def test_print_video_summary_with_videos(capsys):
     """Should print all video paths."""
     video_paths = ["path/to/video1.mp4", "path/to/video2.mp4"]
     Manager._print_video_summary(video_paths)
-    
+
     captured = capsys.readouterr()
     assert "All videos created" in captured.out
     assert "video1.mp4" in captured.out
@@ -192,6 +198,6 @@ def test_print_video_summary_with_videos(capsys):
 def test_print_video_summary_empty_list(capsys):
     """Should not print anything when no videos created."""
     Manager._print_video_summary([])
-    
+
     captured = capsys.readouterr()
     assert "All videos created" not in captured.out
