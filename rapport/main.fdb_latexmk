@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1768574845.90442 "main.aux" "main.bbl" "main" 1768575117.73903 0
-  "./mainNotes.bib" 1768575116 104 4d8bb863c86f3d7b03a471e9d4707f34 ""
+["bibtex main"] 1768575279.74899 "main.aux" "main.bbl" "main" 1768575379.32618 0
+  "./mainNotes.bib" 1768575378 104 4d8bb863c86f3d7b03a471e9d4707f34 ""
   "C:/Users/oskar/AppData/Local/Programs/MiKTeX/bibtex/bst/revtex/apsrev4-2.bst" 1685674058 69609 e9dea59f0e753ccda3ddc8f5806d846d ""
-  "main.aux" 1768575116 1111 871f4136d06bcca3c411c7c642f8e1a6 "pdflatex"
+  "main.aux" 1768575378 1111 871f4136d06bcca3c411c7c642f8e1a6 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1768575115.00887 "c:/Users/oskar/OneDrive/Dokumenter/GitHub/INF202_Gruppe5/rapport/main.tex" "main.pdf" "main" 1768575117.74146 0
+["pdflatex"] 1768575376.34201 "c:/Users/oskar/OneDrive/Dokumenter/GitHub/INF202_Gruppe5/rapport/main.tex" "main.pdf" "main" 1768575379.32859 0
   "C:/Users/oskar/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1768574837 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/oskar/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx0900.pk" 1768570262 22504 7947d7fd179ead233329a80d941a579a ""
   "C:/Users/oskar/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ecbx1200.pk" 1768516300 31952 5fc151c5e59934fff8cd65801394eceb ""
@@ -159,11 +159,11 @@
   "C:/Users/oskar/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/oskar/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "NMBU.cls" 1768574663 87543 49d95bcf00d770042c72fa954910842c ""
-  "c:/Users/oskar/OneDrive/Dokumenter/GitHub/INF202_Gruppe5/rapport/main.tex" 1768575114 1083 a49693159e5ff013b39388a5e4762d1c ""
-  "main.aux" 1768575116 1111 871f4136d06bcca3c411c7c642f8e1a6 "pdflatex"
-  "main.bbl" 1768574846 2035 35453d3875d823f0ec9445e740a573d9 "bibtex main"
-  "main.out" 1768575116 627 f2a1b984c4b30ec10a6fa0a7bb2768fc "pdflatex"
-  "main.tex" 1768575114 1083 a49693159e5ff013b39388a5e4762d1c ""
+  "c:/Users/oskar/OneDrive/Dokumenter/GitHub/INF202_Gruppe5/rapport/main.tex" 1768575375 1220 15fa99c9194956f9bc1225ea22631225 ""
+  "main.aux" 1768575378 1111 871f4136d06bcca3c411c7c642f8e1a6 "pdflatex"
+  "main.bbl" 1768575280 2035 35453d3875d823f0ec9445e740a573d9 "bibtex main"
+  "main.out" 1768575378 627 f2a1b984c4b30ec10a6fa0a7bb2768fc "pdflatex"
+  "main.tex" 1768575375 1220 15fa99c9194956f9bc1225ea22631225 ""
   (generated)
   "main.aux"
   "main.log"
