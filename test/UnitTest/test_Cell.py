@@ -1,20 +1,16 @@
 import numpy as np
-import numpy.testing as npt
 import pytest
+import copy
 
-from src.Cells.triangle import Triangle
+from test.utilitiesTests.ConfigTest import configTest
+from test.utilitiesTests.MeshTest import meshTest
 
-from test.utilitiesTests.config import ConfigTest
-from test.utilitiesTests.MeshTest import MeshTest
-config1 = ConfigTest()
-config2 = config1()
-msh = MeshTest()()
+config = configTest()
+msh = meshTest()
 
-print(msh.cells[0].points)
-
-@pytest.fixture
+@pytest.fixture()
 def triangle():
-    return Triangle(msh, msh.cells[0].points, 0, config2)
+    return copy.deepcopy(msh.cells[-1])
 
 
 def testGetterId(triangle):
@@ -72,6 +68,7 @@ def testGetterOil(triangle):
     "value, bool", [(0.5, True), (0.9, True), (2.1, False), (-0.3, False)]
 )
 def testSetterOil(triangle, value, bool):
+    print(id(triangle))
     if bool:
         triangle.oil = value
         assert triangle._oil == triangle.oil
@@ -82,10 +79,11 @@ def testSetterOil(triangle, value, bool):
 def testFindFlow(triangle):
     cx, cy = triangle.midPoint[0], triangle.midPoint[1]
     expectedFlow = np.array([cy - cx * 0.2, -cx])
-    npt.assert_allclose(triangle.flow, expectedFlow)
+    assert triangle.flow.all() == expectedFlow.all()
 
 
 def testOil(triangle):
+    print(id(triangle))
     center = triangle.midPoint
     reference = np.array([0.35, 0.45, 0.0])
     expectedOil = np.exp(-(np.linalg.norm(center - reference) ** 2) / 0.01)
