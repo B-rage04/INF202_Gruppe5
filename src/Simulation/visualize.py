@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import logging
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import PolyCollection
@@ -79,26 +81,30 @@ class Visualizer:
 
             ax.add_collection(coll)
 
+
     def _draw_ship_marker(self, ax, config):
         """Draw ship marker if configured."""
         if not isinstance(config, Config):
+            logging.info("No ship in config")
             return False
 
         geometry = config.geometry if isinstance(config, Config) else {}
-        ship_cfg = geometry.get("ship") if isinstance(geometry, dict) else None
+        ship_cfg = geometry.get("ship", []) if isinstance(geometry, dict) else []
 
-        if ship_cfg and isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
-            ax.plot(
-                ship_cfg[0],
-                ship_cfg[1],
-                marker="s",
-                markersize=12,
-                color="red",
-                markeredgecolor="white",
-                markeredgewidth=2,
-                label="Ship (sink)",
-                zorder=10,
-            )
+        if isinstance(ship_cfg, list) and ship_cfg:
+            for idx, source_pos in enumerate(ship_cfg):
+                if isinstance(source_pos, list) and len(source_pos) >= 2:
+                    ax.plot(
+                        source_pos[0],
+                        source_pos[1],
+                        marker="s",
+                        markersize=12,
+                        color="lime",
+                        markeredgecolor="white",
+                        markeredgewidth=2,
+                        label=f"Source {idx+1}" if idx == 0 else "",
+                        zorder=10,
+                    )
             return True
 
         return False
