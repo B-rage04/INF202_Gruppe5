@@ -45,8 +45,4 @@ class CellFactory:
                 self.cellList.append(cellCls(self.msh, cell, IDx, self._config))
                 IDx += 1
 
-        for cell in self.cellList:
-            cell.findNGB(self.cellList)
-            cell.findScaledNormales(self.cellList)
-
         return self.cellList
