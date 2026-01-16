@@ -86,13 +86,15 @@ class Cell(ABC):
         """
         See child class for individual calculations
         """
+        pass
 
     # --- midpoint computations -----------------------------------------
 
     @property
     def midPoint(self):
         if self._midPoint is None:
-            self._midPoint = self.findMidPoint()
+                self._midPoint = self.findMidPoint()
+
         return self._midPoint
 
     def findMidPoint(self):
@@ -125,7 +127,7 @@ class Cell(ABC):
 
 
         # Make a dictionary so we can quickly find a cell by its id
-        if msh is not None and hasattr(msh, "_id_to_cell"):
+        if self.msh is not None and hasattr(msh, "_id_to_cell"):
             cellsDict = msh._id_to_cell
         else:
             cellsDict = {cell.id: cell for cell in allCells}
