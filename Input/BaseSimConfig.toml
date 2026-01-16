@@ -11,7 +11,7 @@ ship = [0.45, 0.4] # Oil collection ship position [x, y]
 
 [IO]
 logName = "log" #TODO this need to do somthing
-writeFrequency = 20 # Frequency of writing output data 0 is no output
+writeFrequency = 100 # Frequency of writing output data 0 is no output
 
 [video]
 videoFPS = 5 # Frames per second for the video
