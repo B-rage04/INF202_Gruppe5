@@ -1,3 +1,4 @@
 import src.Simulation.SimManager as SimManager
 
-SimManager.main()
+if __name__ == "__main__":
+    SimManager.main()
