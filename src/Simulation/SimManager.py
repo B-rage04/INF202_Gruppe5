@@ -29,7 +29,8 @@ def _next_run_number(images_dir: str = "Output/images") -> int:
     """
     Compute the next run index based on existing run folders in the images dir.
     
-    :param images_dir: string of where output images should be
+    :param images_dir: The directory path where output image folders are stored.
+    :return: The next available integer index for a run folder.
     """
     base = Path(images_dir)
     if not base.exists():
@@ -75,10 +76,10 @@ def _get_config_files(folder: str) -> List[str]:
 
 def _is_result_folder(folder_path: Path) -> bool:
     """
-    Check if a folder looks like a result folder (contains images/videos).
+    Check if a folder is a valid simulation output directory.
     
-    :param folder:path: Path to result folder
-    :return: status of wether output path exists
+    :param folder_path: Path object pointing to the directory to check.
+    :return: True if the folder contains 'images' or 'videos' subdirectories.
     """
     return (folder_path / "images").exists() or (folder_path / "videos").exists()
 
@@ -155,11 +156,12 @@ def _resolve_config_path(config_file: str, folder: str = None) -> str:
 
 
 def _setup_config_output(config: Config, config_name: str) -> str:
-    """Create output folder and update config IO paths. Returns result folder path.
+    """
+    Create output folder structure and update the Config instance with IO paths.
     
-    :param config: config as a dictionary
-    :param config_name: config name as string to create output directory for simulation with correct name
-    :return path as string
+    :param config: The Config instance to be updated with new paths.
+    :param config_name: Name used to create the specific output directory.
+    :return: The absolute path to the newly created result folder.
     """
     result_folder = _create_result_folder(config_name)
     config.IO["imagesDir"] = f"{result_folder}/images/"
@@ -168,10 +170,12 @@ def _setup_config_output(config: Config, config_name: str) -> str:
 
 
 def _run_single_simulation(config: Config, config_path: str, **kwargs: Any) -> str:
-    """Execute a single simulation and return video path if created.
+    """
+    Execute a single simulation instance and return the path to the resulting video.
     
-    :param config: config as dicitonary
-    :param config_path: string of where to find config
+    :param config: The Config object containing simulation parameters.
+    :param config_path: The file path to the source configuration file for logging.
+    :return: Path to the generated video file, or None if no video was created.
     """
     sim = Simulation(config)
     print(f"\nRunning simulation from {config_path}...")
@@ -204,11 +208,12 @@ def _process_single_config(
 def _process_all_configs(
     config_loader: LoadTOML, search_folder: str, **kwargs: Any
 ) -> List[str]:
-    """Find and run all configs in folder. Returns list of video paths.
+    """
+    Find and execute all configuration files within a specified directory.
     
-    :param config_loader: LoadTOML object to handle .toml loading
-    :param seach_folde: string to the folder program should search for .toml files (simulation configurations)
-    :return: paths to videos
+    :param config_loader: LoadTOML instance used to parse the files.
+    :param search_folder: Directory path to search for .toml files.
+    :return: A list of file paths to all successfully created videos.
     """
     video_paths = []
     config_files = _get_config_files(search_folder)
