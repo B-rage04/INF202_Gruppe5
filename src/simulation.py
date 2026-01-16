@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Simulation:
-    def __init__(self, config:Config=None):
+    def __init__(self, config: Config = None):
         self._config = self._validate_config(config)
         self._msh = self._initialize_mesh()
         self._initialize_visualizer()
@@ -31,7 +31,7 @@ class Simulation:
         """Validate that config is a Config instance."""
         if config is not isinstance(config, Config):
             pass
-            #raise TypeError("config must be a Config instance")
+            # raise TypeError("config must be a Config instance")
         return config
 
     def _initialize_mesh(self):
@@ -60,7 +60,7 @@ class Simulation:
         """Initialize ship sink configuration."""
         shipSink = {}
         ship_cfg = self._config.geometry.get("ship", None)
-        
+
         if isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
             try:
                 ship_pos = [float(ship_cfg[0]), float(ship_cfg[1])]
@@ -74,24 +74,26 @@ class Simulation:
                     strength=100.0,
                     mode="gaussian",
                 )
-                
+
                 if shipSink:
                     max_coeff = max(shipSink.values())
-                    logger.info(f"Ship at {ship_pos}: {len(shipSink)} cells affected (max coeff: {max_coeff:.4f})")
+                    logger.info(
+                        f"Ship at {ship_pos}: {len(shipSink)} cells affected (max coeff: {max_coeff:.4f})"
+                    )
                 else:
                     logger.info(f"Ship at {ship_pos}: no cells found in range")
             except (TypeError, ValueError):
                 pass
             except Exception as e:
                 logger.warning(f"Failed to initialize ship sink: {e}")
-        
+
         return shipSink
 
     def _initialize_oil_sources(self):
         """Initialize oil sources from config."""
         sourceSink = {}
         sources_array = self._config.geometry.get("source", [])
-        
+
         if isinstance(sources_array, list) and sources_array:
             for idx, source_pos in enumerate(sources_array):
                 if isinstance(source_pos, list) and len(source_pos) >= 2:
@@ -106,21 +108,25 @@ class Simulation:
                             strength=50.0,
                             mode="gaussian",
                         )
-                        
+
                         for cell_id, coeff in source_coeffs.items():
                             sourceSink[cell_id] = sourceSink.get(cell_id, 0.0) + coeff
-                        
-                        max_coeff = max(source_coeffs.values()) if source_coeffs else 0.0
-                        logger.info(f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected (max coeff: {max_coeff:.4f})")
+
+                        max_coeff = (
+                            max(source_coeffs.values()) if source_coeffs else 0.0
+                        )
+                        logger.info(
+                            f"Oil source {idx} at {source_pos}: {len(source_coeffs)} cells affected (max coeff: {max_coeff:.4f})"
+                        )
                     except Exception as e:
                         logger.warning(f"Failed to add source {idx}: {e}")
-        
+
         return sourceSink
 
     def _initialize_additional_sinks(self):
         """Initialize additional sinks from config."""
         sinks_array = self._config.geometry.get("sink", [])
-        
+
         if isinstance(sinks_array, list) and sinks_array:
             for idx, sink_pos in enumerate(sinks_array):
                 if isinstance(sink_pos, list) and len(sink_pos) >= 2:
@@ -135,11 +141,15 @@ class Simulation:
                             strength=100.0,
                             mode="gaussian",
                         )
-                        
+
                         for cell_id, coeff in sink_coeffs.items():
-                            self.oilSinks[cell_id] = self.oilSinks.get(cell_id, 0.0) + coeff  # Changed from shipSink
-                        
-                        logger.info(f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected")
+                            self.oilSinks[cell_id] = (
+                                self.oilSinks.get(cell_id, 0.0) + coeff
+                            )  # Changed from shipSink
+
+                        logger.info(
+                            f"Additional sink {idx} at {sink_pos}: {len(sink_coeffs)} cells affected"
+                        )
                     except Exception as e:
                         logger.warning(f"Failed to add sink {idx}: {e}")
 
@@ -266,8 +276,8 @@ class Simulation:
     def updateOil(self, dt):
         """Update oil concentration using predictor-corrector with sources/sinks."""
         # Get source and sink coefficients
-        source_coeffs = self.oilSources if hasattr(self, 'oilSources') else {}
-        sink_coeffs = self.oilSinks if hasattr(self, 'oilSinks') else {}
+        source_coeffs = self.oilSources if hasattr(self, "oilSources") else {}
+        sink_coeffs = self.oilSinks if hasattr(self, "oilSinks") else {}
 
         oil_half = np.zeros(len(self._msh.cells))
 
@@ -287,8 +297,8 @@ class Simulation:
         for cell in self._msh.cells:
             if getattr(cell, "type", None) != "triangle":
                 continue
-            S_plus = source_coeffs.get(cell.id, 0.0)   # Source term
-            S_minus = sink_coeffs.get(cell.id, 0.0)   # Sink term
+            S_plus = source_coeffs.get(cell.id, 0.0)  # Source term
+            S_minus = sink_coeffs.get(cell.id, 0.0)  # Sink term
 
             # Apply spec: u_new = u_half / (1 + dt*S_minus - dt*S_plus)
             denominator = 1.0 + dt * S_minus - dt * S_plus
@@ -337,12 +347,16 @@ class Simulation:
                 # Always write first image, last image, or at writeFrequency intervals
                 should_write = False
                 if self._writeFrequency != 0:
-                    should_write = (stepIdx == 1 or 
-                                   stepIdx == totalSteps or 
-                                   stepIdx % self._writeFrequency == 0)
-                
+                    should_write = (
+                        stepIdx == 1
+                        or stepIdx == totalSteps
+                        or stepIdx % self._writeFrequency == 0
+                    )
+
                 if should_write:
-                    logger.info(f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}")
+                    logger.info(
+                        f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}"
+                    )
                     self._visualizer.plotting(
                         self._oilVals[-1],
                         filepath=str(self._imageDir),

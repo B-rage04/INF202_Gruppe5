@@ -13,7 +13,9 @@ class Visualizer:
         self.vmin = None
         self.vmax = None
 
-        self.triangle_cells = [cell for cell in mesh.cells if getattr(cell, "type", None) == "triangle"]
+        self.triangle_cells = [
+            cell for cell in mesh.cells if getattr(cell, "type", None) == "triangle"
+        ]
 
     def _initialize_color_range(self, oil):
         """Initialize vmin and vmax based on oil concentration."""
@@ -65,7 +67,7 @@ class Visualizer:
 
         if fishing_triangles:
             verts = [np.array(t)[:, :2] for t in fishing_triangles]
-            
+
             coll = PolyCollection(
                 verts,
                 facecolors="red",
@@ -84,7 +86,7 @@ class Visualizer:
 
         geometry = config.geometry if isinstance(config, Config) else {}
         ship_cfg = geometry.get("ship") if isinstance(geometry, dict) else None
-        
+
         if ship_cfg and isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
             ax.plot(
                 ship_cfg[0],
@@ -98,7 +100,7 @@ class Visualizer:
                 zorder=10,
             )
             return True
-        
+
         return False
 
     def _draw_source_markers(self, ax, config):
@@ -108,7 +110,7 @@ class Visualizer:
 
         geometry = config.geometry if isinstance(config, Config) else {}
         sources = geometry.get("source", []) if isinstance(geometry, dict) else []
-        
+
         if isinstance(sources, list) and sources:
             for idx, source_pos in enumerate(sources):
                 if isinstance(source_pos, list) and len(source_pos) >= 2:
@@ -124,7 +126,7 @@ class Visualizer:
                         zorder=10,
                     )
             return True
-        
+
         return False
 
     def _draw_sink_markers(self, ax, config):
@@ -134,7 +136,7 @@ class Visualizer:
 
         geometry = config.geometry if isinstance(config, Config) else {}
         sinks = geometry.get("sink", []) if isinstance(geometry, dict) else []
-        
+
         if isinstance(sinks, list) and sinks:
             for idx, sink_pos in enumerate(sinks):
                 if isinstance(sink_pos, list) and len(sink_pos) >= 2:
@@ -150,7 +152,7 @@ class Visualizer:
                         zorder=10,
                     )
             return True
-        
+
         return False
 
     def _add_legend(self, ax, has_ship, has_sources, has_sinks):
@@ -164,7 +166,7 @@ class Visualizer:
             return
 
         totalOilFlag = bool(config.video.get("totalOilFlag", False))
-        
+
         if totalOilFlag:
             try:
                 total_oil = 0.0
@@ -224,20 +226,20 @@ class Visualizer:
     ):
         """Create and save/show a visualization of oil concentration."""
         self._initialize_color_range(oil)
-        
+
         config = self._get_config(kwargs)
-        
+
         cmap = plt.cm.get_cmap("viridis")
         fig, ax = self._create_base_plot(oil, cmap)
-        
+
         self._draw_fishing_zones(ax)
-        
+
         has_ship = self._draw_ship_marker(ax, config)
         has_sources = self._draw_source_markers(ax, config)
         has_sinks = self._draw_sink_markers(ax, config)
-        
+
         self._add_legend(ax, has_ship, has_sources, has_sinks)
-        
+
         self._add_total_oil_annotation(ax, config)
-        
+
         return self._save_or_show_plot(fig, filepath, run, step)
