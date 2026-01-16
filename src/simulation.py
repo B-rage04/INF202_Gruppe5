@@ -20,10 +20,11 @@ logging.basicConfig(level=logging.INFO)
 
 class Simulation:
     def __init__(self, config:Config=None):
-        # validate config: require Config instance
-        if config is not isinstance(config, Config):
-            pass
-            #raise TypeError("config must be a Config instance")
+        # validate config: accept plain dict or Config instance
+        if isinstance(config, dict):
+            config = Config.from_dict(config)
+        elif not isinstance(config, Config) and config is not None:
+            raise TypeError("config must be a Config instance or dict")
         self._config = config
 
         meshName = self._config.mesh_name()
