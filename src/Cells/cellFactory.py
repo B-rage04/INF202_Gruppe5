@@ -6,6 +6,7 @@ from src.Cells.line import Line
 from src.Cells.triangle import Triangle
 from src.Cells.vertex import Vertex
 
+
 class CellFactory:
     def __init__(self, msh, config=None):
         # Accept plain dict or Config instance for backwards compatibility
@@ -46,7 +47,7 @@ class CellFactory:
             for cell in cellblock.data:
                 self.cellList.append(cellCls(self.msh, cell, IDx, self._config))
                 IDx += 1
-        
+
         for cell in self.cellList:
             cell.findNGB(self.cellList)
             cell.findScaledNormales(self.cellList)

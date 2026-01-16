@@ -3,9 +3,8 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from src.simulation import Simulation
-
 from src.LoadTOML import LoadTOML
+from src.simulation import Simulation
 
 configloader = LoadTOML()
 config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
@@ -30,9 +29,6 @@ class FakeMesh:
         c0.ngb = [1]
         c1.ngb = [0]
         self.cells = [c0, c1]
-
-
-
 
 
 @pytest.fixture

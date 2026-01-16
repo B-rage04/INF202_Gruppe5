@@ -4,12 +4,12 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from src.mesh import Mesh
-
 from src.LoadTOML import LoadTOML
+from src.mesh import Mesh
 
 configloader = LoadTOML()
 config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
+
 
 class DummyMeshIO:
     def __init__(self):

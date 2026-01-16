@@ -1,7 +1,6 @@
-import re
 import logging
+import re
 from pathlib import Path
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOG_DIR = BASE_DIR / "Output" / "log"
@@ -14,16 +13,16 @@ print("Logging to:", LOG_FILE)
 logging.basicConfig(
     filename="Output/log/sim.log",
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 import argparse as argparse
+import os
 from typing import Any, List
+
+from src.config import Config
 from src.LoadTOML import LoadTOML
 from src.simulation import Simulation
-from src.config import Config
-
-import os
 
 
 def _next_run_number(images_dir: str = "Output/images") -> int:
@@ -31,7 +30,7 @@ def _next_run_number(images_dir: str = "Output/images") -> int:
     base = Path(images_dir)
     if not base.exists():
         return 0
-    
+
     run_pattern = re.compile(r"run(\d+)$")
     existing = []
     for entry in base.iterdir():
@@ -62,7 +61,7 @@ def _get_config_files(folder: str) -> List[str]:
 
     if not config_files:
         raise ValueError(f"No TOML config files found in '{folder}'")
-    
+
     return [str(f) for f in config_files]
 
 
@@ -78,15 +77,15 @@ def _create_result_folder(base_name: str, output_dir: str = "Output") -> str:
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    
+
     folder_path = output_path / base_name
-    
+
     if folder_path.exists() and not _is_result_folder(folder_path):
         raise ValueError(
             f"Cannot create output folder '{folder_path}'. "
             f"A non-result folder with this name already exists."
         )
-    
+
     folder_path.mkdir(parents=True, exist_ok=True)
     return str(folder_path)
 
@@ -95,25 +94,27 @@ def _parse_arguments() -> argparse.Namespace:
     """Parse and return command-line arguments."""
     p = argparse.ArgumentParser(
         prog="oil_spill_simulation",
-        description="Oil spill simulation tool with configurable config files"
+        description="Oil spill simulation tool with configurable config files",
     )
     p.add_argument(
-        "-c", "--config",
+        "-c",
+        "--config",
         dest="config_file",
         default=None,
-        help="Specific config file to read (default: input.toml if --find all not specified)"
+        help="Specific config file to read (default: input.toml if --find all not specified)",
     )
     p.add_argument(
-        "-f", "--folder",
+        "-f",
+        "--folder",
         dest="folder",
         default=None,
-        help="Folder to search for config files (used with --find all)"
+        help="Folder to search for config files (used with --find all)",
     )
     p.add_argument(
         "--find_all",
         dest="find_all",
         action="store_true",
-        help="Find and run all config files in the specified or current folder"
+        help="Find and run all config files in the specified or current folder",
     )
     return p.parse_args()
 
@@ -141,58 +142,66 @@ def _run_single_simulation(config: Config, config_path: str, **kwargs: Any) -> s
     sim = Simulation(config)
     print(f"\nRunning simulation from {config_path}...")
     path = sim.run_sim(runNumber=_next_run_number(config.images_dir()), **kwargs)
-    
+
     if path is not None:
         print(f"Video created at: {path}")
-    
+
     return path
 
 
-def _process_single_config(config_loader: LoadTOML, config_path: str, **kwargs: Any) -> str:
+def _process_single_config(
+    config_loader: LoadTOML, config_path: str, **kwargs: Any
+) -> str:
     """Load, setup, and run a single config file. Returns video path or None."""
     config: Config = config_loader.loadConfigFile(config_path)
     config.IO.setdefault("logName", "logfile")
-    
+
     config_name = Path(config_path).stem
     _setup_config_output(config, config_name)
-    
+
     return _run_single_simulation(config, config_path, **kwargs)
 
 
-def _process_all_configs(config_loader: LoadTOML, search_folder: str, **kwargs: Any) -> List[str]:
+def _process_all_configs(
+    config_loader: LoadTOML, search_folder: str, **kwargs: Any
+) -> List[str]:
     """Find and run all configs in folder. Returns list of video paths."""
     video_paths = []
     config_files = _get_config_files(search_folder)
-    
+
     for config_path in config_files:
         try:
             video_path = _process_single_config(config_loader, config_path, **kwargs)
             if video_path:
                 video_paths.append(video_path)
-            
+
             config_name = Path(config_path).stem
             print(f"Simulation from {config_name} complete.")
         except (ValueError, FileNotFoundError) as e:
             print(f"Error processing {config_path}: {e}")
             continue
-    
+
     return video_paths
 
 
-def _run_find_all_mode(config_loader: LoadTOML, args: argparse.Namespace, **kwargs: Any) -> List[str]:
+def _run_find_all_mode(
+    config_loader: LoadTOML, args: argparse.Namespace, **kwargs: Any
+) -> List[str]:
     """Run all configs in specified or current folder."""
     search_folder = args.folder if args.folder else "."
     return _process_all_configs(config_loader, search_folder, **kwargs)
 
 
-def _run_single_file_mode(config_loader: LoadTOML, args: argparse.Namespace, **kwargs: Any) -> List[str]:
+def _run_single_file_mode(
+    config_loader: LoadTOML, args: argparse.Namespace, **kwargs: Any
+) -> List[str]:
     """Run a single config file."""
     config_file = args.config_file if args.config_file else "input.toml"
     config_path = _resolve_config_path(config_file, args.folder)
-    
+
     video_path = _process_single_config(config_loader, config_path, **kwargs)
     print(f"Simulation complete.")
-    
+
     return [video_path] if video_path else []
 
 
@@ -204,22 +213,21 @@ def _print_video_summary(video_paths: List[str]) -> None:
             print(f"{path}")
 
 
-
 def main(**kwargs: Any) -> None:
     """Main entry point: parse args and run simulations."""
     logging.info("Running...")
-    
+
     try:
         args = _parse_arguments()
         config_loader = LoadTOML()
-        
+
         if args.find_all:
             video_paths = _run_find_all_mode(config_loader, args, **kwargs)
         else:
             video_paths = _run_single_file_mode(config_loader, args, **kwargs)
-        
+
         _print_video_summary(video_paths)
-    
+
     except FileNotFoundError as e:
         print(f"Error: Config file not found - {e}")
         exit(1)
@@ -230,4 +238,3 @@ def main(**kwargs: Any) -> None:
 
 if __name__ == "__main__":
     main()
-
