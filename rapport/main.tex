@@ -4,6 +4,7 @@
 \usepackage{multirow}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
+\usepackage{pythonhighlight}
 
 \credits{10}
 \studyprogramme{INF202}
@@ -19,6 +20,9 @@ Write your abstract here.
 
 \begin{document}
 
+
+
+
 \section{Introduction}
 
 In this project we where tasked with the challenge of simulating a oil spill in a fictional City. 
@@ -29,7 +33,21 @@ Describe your methods here.
 
 \section{Results}
 
-Present your results here.
+This is a tiny chunk of the finished code
+
+\begin{python}
+
+def __init__(
+        self, 
+        imageDir="Output/images/", 
+        fps=10, **kwargs
+        ): 
+
+        self.image_dir = Path(imageDir)
+        self.imageDir = self.image_dir
+        self.fps = fps
+
+\end{python}
 
 \section{Discussion and Conclusion}
 
