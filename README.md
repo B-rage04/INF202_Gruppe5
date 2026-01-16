@@ -185,26 +185,28 @@ totalOilFlag = false      # Optional: Show total oil amount in visualization
 
 ```
 INF202_Gruppe5/
-├── Defaults/              # Default configuration and mesh files
-│   ├── bay.msh           # Default mesh geometry
-│   └── input.toml        # Default simulation configuration
-├── Input/                 # Example simulation configurations
-│   ├── BaseSimConfig.toml
-│   ├── HighRESSimConfig.toml
-│   └── NoVidSimConfig.toml
-├── Output/                # Simulation output (auto-generated)
-│   ├── images/           # Generated visualization images
-│   ├── videos/           # Generated simulation videos
-│   └── log/              # Simulation logs
-├── src/                   # Source code
-│   ├── Cells/            # Cell classes for mesh elements
-│   ├── mesh.py           # Mesh handling
-│   ├── simulation.py     # Main simulation logic
-│   ├── visualize.py      # Visualization functions
-│   ├── video.py          # Video creation
-│   └── SimManager.py     # Command-line interface
-├── test/                  # Unit tests
-├── main.py               # Entry point
-└── README.md             # This file
+├── Defaults/             
+│   ├── bay.msh           
+│   └── input.toml        
+├── Input/                
+│   ├── mesh/
+│   ├── toml/
+├── Output/               
+│   ├── [Name_toml_file]
+│   │   └── videos/       
+│   │   └── images/             
+│   └── log/              
+├── src/                  
+│   ├── Geometry/         
+│   │   └──       
+│   ├── IO/        
+│   │   └──         
+│   ├── Simulation/               
+│   │   └──         
+├── test/        
+├── rapport/             
+├── main.py      
+├── image.png #BATMELON 
+└── README.md            
 ```
 
