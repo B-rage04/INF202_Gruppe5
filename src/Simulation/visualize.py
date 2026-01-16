@@ -232,7 +232,7 @@ class Visualizer:
 
         config = self._get_config(kwargs)
 
-        cmap = plt.cm.get_cmap("viridis")
+        cmap = plt.get_cmap("viridis")
         fig, ax = self._create_base_plot(oil, cmap)
 
         self._draw_fishing_zones(ax)

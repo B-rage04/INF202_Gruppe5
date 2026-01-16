@@ -16,7 +16,7 @@ from src.Simulation.visualize import Visualizer
 # TODO: Fix names and Fixtures of "repeat" tests
 
 
-class TestMesh:
+class MeshDummy:
     def __init__(self):
         self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
         self.cells_dict = {"triangle": np.array([[0, 1, 2]])}
@@ -26,7 +26,7 @@ class TestMesh:
 
 @pytest.fixture
 def test_mesh():
-    return TestMesh()
+    return MeshDummy()
 
 
 @pytest.fixture
