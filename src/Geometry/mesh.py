@@ -73,9 +73,7 @@ class Mesh:
         return self._points
 
     @property
-    def triangles(
-        self,
-    ) -> List[Any]:  # TODO: not just triangle # TODO: test this, try set and get
+    def triangles(self) -> List[Any]:  # TODO: not just triangle # TODO: test this, try set and get
         """Returns triangles in mesh as list"""
         return list(self._triangles)
 
