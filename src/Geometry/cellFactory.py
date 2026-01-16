@@ -8,7 +8,23 @@ from src.Geometry.vertex import Vertex
 
 
 class CellFactory:
+    """
+    A factory class for creating and initializing cells from a mesh
+
+    This class parses mesh data and assigns corresponding cell types (vertex, line, triangle)
+    and handles initial calculations of neighbors and normals
+
+    Attributes:
+        CellList (List): List of cell objects
+        msh (mesh): mesh object
+    """
     def __init__(self, msh, config=None):
+        """
+        Initializes Cellfactory using a mesh and configuration
+
+        :param msh: meshobject (from Meshio)
+        :param config: dict containing infromation about the mesh and simulation overall
+        """
         # Accept plain dict or Config instance for backwards compatibility
         from src.IO.config import Config as _Config
 
@@ -30,10 +46,21 @@ class CellFactory:
 
     @property
     def config(self):
+        """ Returns the configuration dictionary from the factory"""
         return self._config
 
 
     def __call__(self):
+        """
+        Processes the mesh with the provided configuration to initialize all cells
+
+        1. Creates cells based on mesh \n
+        2. runs neghborcheck for every cell
+        3. runs findScaledNormals for every cell
+
+        Returns: a list of all cell objects with their initialized values
+        """
+
         IDx = 0
         for cellblock in self.msh.cells:
             cellType = cellblock.type

@@ -79,19 +79,23 @@ class Cell(ABC):
 
     @property
     def id(self):
+        """Returns id of cell"""
         return self._id
 
     @id.setter
     def id(self, value):
+        """Sets id of cell"""
         if not self._id:
             self._id = value
 
     @property
     def cords(self):
+        """Returns cords for cell (coordinates)"""
         return self._cords
 
     @property  # TODO Brage: test getters and setters
     def pointSet(self):
+        """Returns a set(2) of points"""
         if self._pointSet is None:
             self._pointSet = set(tuple(p) for p in self._cords)
         return self._pointSet
@@ -100,6 +104,7 @@ class Cell(ABC):
 
     @property
     def area(self):
+        """Returns area of cell"""
         return self._area
 
     @abstractmethod
@@ -113,6 +118,7 @@ class Cell(ABC):
 
     @property
     def midPoint(self):
+        """Returns midpoint of cell"""
         if self._midPoint is None:
             self._midPoint = self.findMidPoint()
         return self._midPoint
@@ -130,6 +136,7 @@ class Cell(ABC):
 
     @property  # TODO Brage: test getters and setters
     def scaledNormal(self):
+        """returns the scaled normals of the cell as a list"""
         if self._scaledNormal is None:
             if getattr(self, "_msh", None) is not None:
                 val = self.findScaledNormales(getattr(self._msh, "cells", None))
@@ -205,6 +212,7 @@ class Cell(ABC):
     # --- neighbor computations -----------------------------------------
     @property
     def ngb(self):
+        """Returns neighbors of cell"""
         return self._ngb
 
     def findNGB(self, allCells):
@@ -291,12 +299,14 @@ class Cell(ABC):
     # --- flow computations -----------------------------------------
     @property
     def flow(self):
+        """Returns the flow of the cell in two variables (x, y)"""
         if self._flow is None:
             self._flow = np.array(self.findFlow())
         return self._flow
 
     @flow.setter
     def flow(self, value):
+        """Function that allows setting the flow"""
         try:
             arr = np.array(value)
         except Exception:
@@ -304,27 +314,32 @@ class Cell(ABC):
         self._flow = arr
 
     def findFlow(self):  # TODO Brage: add ability to set flow function
+        """Finds the flow of the cell based on the formula x: x - y*0.2 and y: -x"""
         mp = self.midPoint
         return np.array([mp[1] - mp[0] * 0.2, -mp[0]])
 
     # --- oil computations -----------------------------------------
     @property
     def oil(self):
+        """Returns oil in cell"""
         if self._oil is None:
             self._oil = self.findOil()
         return self._oil
 
     @oil.setter
     def oil(self, value):
+        """sets oil in cell"""
         self._oil = self._validate_and_clamp_oil(value)
 
     def findOil(self):  # TODO Brage: add ability to set oil function
+        """Finds oil in cell based on initial conditions"""
         mp = self.midPoint
         return np.exp(-(np.linalg.norm(mp - np.array([0.35, 0.45, 0])) ** 2) / 0.01)
 
     def _validate_and_clamp_oil(
         self, value
     ):  # TODO: this might be the wrong solution but I got an error that oil was set negatively
+        """make sure oil stays between 0 and 1"""
         try:
             v = float(value)
         except Exception:
@@ -341,11 +356,13 @@ class Cell(ABC):
     # --- fishing zone check ----------------------------------------------
     @property
     def isFishing(self):
+        """Returns if cell is in fishingarea"""
         # Ensure this is not just returning a method, but the calculated boolean
         return self._isFishing if hasattr(self, '_isFishing') else False
     
 
     def isFishingCheck(self, config=None):
+        """Checks position of cell compared to fishing area and returns true or false based on if it is within"""
         cfg = config if config is not None else self._config
         if cfg is None:
             return False
