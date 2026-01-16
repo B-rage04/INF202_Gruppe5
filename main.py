@@ -1,4 +1,4 @@
-from src.Cells.cell import Cell
-from src.mesh import Mesh
+import src.Simulation.SimManager as SimManager
 
-msh = Mesh()
+if __name__ == "__main__":
+    SimManager.main()

@@ -1,0 +1,20 @@
+
+[settings]
+nSteps = 500 # Number of Total steps
+tStart = 0.0 # Start time of simulation
+tEnd = 0.5 # End time of simulation
+
+[geometry]
+meshName = "Defaults/bay.msh" # Path to mesh file
+borders = [[0, 0.45], [0, 0.2]] # Borders for Fish [x_min, y_min], [x_max, y_max]
+ship = [] # Oil collection ship position [x, y] (acts as a sink)
+source = [[0.8, 0.6]] # Optional: Array of oil source positions [[x1, y1], [x2, y2], ...]
+sink = [] # Optional: Array of additional sink positions [[x1, y1], [x2, y2], ...]
+
+[IO]
+logName = "log" #TODO this need to do somthing
+writeFrequency = 20 # Frequency of writing output data 0 is no output
+
+[video]
+videoFPS = 5 # Frames per second for the video
+totalOilFlag = true # Show total oil amount in the visualization

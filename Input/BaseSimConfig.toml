@@ -1,0 +1,18 @@
+
+[settings]
+nSteps = 500 # Number of Total steps
+tStart = 0.0 # Start time of simulation
+tEnd = 0.5 # End time of simulation
+
+[geometry]
+meshName = "Defaults/bay.msh" # Path to mesh file
+borders = [[0, 0.45], [0.0, 0.2]] # Borders for Fish [x_min, x_max], [y_min, y_max]
+ship = [0.45, 0.4] # Oil collection ship position [x, y]
+
+[IO]
+logName = "log" #TODO this need to do somthing
+writeFrequency = 100 # Frequency of writing output data 0 is no output
+
+[video]
+videoFPS = 5 # Frames per second for the video
+totalOilFlag = false # Show total oil amount in the visualization
