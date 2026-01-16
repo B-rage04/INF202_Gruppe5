@@ -62,9 +62,8 @@ class Visualizer:
     def _draw_fishing_zones(self, ax):
         """Draw fishing zones as red transparent polygons."""
         fishing_triangles = [
-            cell.cords
-            for cell in self.mesh.cells
-            if cell.type == "triangle" and cell._isFishing
+            cell.cords for cell in self.mesh.cells
+            if getattr(cell, "type", None) == "triangle" and cell.isFishing
         ]
 
         if fishing_triangles:
@@ -77,6 +76,7 @@ class Visualizer:
                 edgecolors="none",
                 linewidth=0,
                 antialiased=False,
+                zorder=5
             )
 
             ax.add_collection(coll)
@@ -92,17 +92,17 @@ class Visualizer:
         ship_cfg = geometry.get("ship", []) if isinstance(geometry, dict) else []
 
         if isinstance(ship_cfg, list) and ship_cfg:
-            for idx, source_pos in enumerate(ship_cfg):
-                if isinstance(source_pos, list) and len(source_pos) >= 2:
+            for idx, ship_pos in enumerate(ship_cfg):
+                if isinstance(ship_pos, list) and len(ship_pos) >= 2:
                     ax.plot(
-                        source_pos[0],
-                        source_pos[1],
+                        ship_pos[0],
+                        ship_pos[1],
                         marker="s",
                         markersize=12,
-                        color="lime",
+                        color="red",
                         markeredgecolor="white",
                         markeredgewidth=2,
-                        label=f"Source {idx+1}" if idx == 0 else "",
+                        label=f"Ship {idx+1}" if idx == 0 else "",
                         zorder=10,
                     )
             return True

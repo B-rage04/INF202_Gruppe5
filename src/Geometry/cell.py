@@ -70,10 +70,10 @@ class Cell(ABC):
             self._oil = None
 
         try:
-            self._isFishing = self.isFishingCheck(config)
+            self._isFishing = self.isFishingCheck(self._config)
         except Exception:
             # TODO log warning?
-            self._isFishing = None
+            self._isFishing = False
 
     # --- public properties ----------------------------------------------
 
@@ -341,7 +341,9 @@ class Cell(ABC):
     # --- fishing zone check ----------------------------------------------
     @property
     def isFishing(self):
-        return self._isFishing
+        # Ensure this is not just returning a method, but the calculated boolean
+        return self._isFishing if hasattr(self, '_isFishing') else False
+    
 
     def isFishingCheck(self, config=None):
         cfg = config if config is not None else self._config
@@ -358,4 +360,8 @@ class Cell(ABC):
         y = self.midPoint[1]
         if x is None or y is None:
             return False
+        
+        if fishxmin < x < fishxmax and fishymin < y < fishymax:
+            self.oil = 1.0
+
         return fishxmin < x < fishxmax and fishymin < y < fishymax
