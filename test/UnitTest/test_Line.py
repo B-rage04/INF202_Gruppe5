@@ -6,7 +6,7 @@ from src.Cells.line import Line
 from src.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
-config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
+config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
 def test_line_initialization_and_area1():  # TODO: Fix names and Fixtures of "repeat" tests
     class DummyMesh:

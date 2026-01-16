@@ -8,7 +8,7 @@ from src.simulation import Simulation
 from src.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
-config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
+config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
 
 class FakeCell:

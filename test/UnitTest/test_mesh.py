@@ -9,7 +9,7 @@ from src.mesh import Mesh
 from src.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
-config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
+config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
 class DummyMeshIO:
     def __init__(self):
