@@ -19,7 +19,7 @@ def triangles():
     t1 = msh.cells[10]
     cells = [t0, t1]
     for cell in cells:
-        cell.findNGB()
+        cell.findNGB(cells)
     return t0, t1
 
 
@@ -146,5 +146,4 @@ def test_triangle_t1_neighbor_to_t0_with_ID(triangles):
 
 def test_triangle_t0_neighbor_to_t1_with_ID(triangles):
     t0, t1 = triangles
-
     assert t0.ngb.count(t1.id) == 1
