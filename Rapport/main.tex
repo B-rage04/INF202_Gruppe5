@@ -1,0 +1,229 @@
+\documentclass[nn]{NMBU}
+
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\credits{10}
+\studyprogramme{Environmental Physics and Renewable Energy}
+\course{INF202 Advanced Programming Project} % Include the name of the course
+\courseyear{2024} % Include the year of the course
+
+\setauthor{Jonas Kusch}
+\settitle{Test title}
+
+\begin{abstract}
+Here I can write some text as I would do in word.
+\end{abstract}
+
+%\firstauthor{Firstname Othernames Lastname}
+
+\begin{document}
+
+\section{Introduction}
+
+This here is my report for INF202. I am going to document the functionality of my software.
+
+\subsection{Use of software development tools}
+This is \textbf{now} the text that \textbf{I am writing} in \textit{the} software \underline{development section}. Now I want to tell you about the formula $f(x) = \int \alpha x_{2}^{9} \sin(2\pi) dx$.
+\begin{align}\label{eq:g}
+    g(x) = \frac{1}{2\pi} \sin(x)
+\end{align}
+Now I want to reference equation \eqref{eq:g}. You can also have an equation without a label. In this case we have
+\begin{align*}
+    h(x) =& \cos(x) \\
+    f(x) = \sin(x)&
+\end{align*}
+
+\begin{align}
+\vec{x} = 
+    \begin{pmatrix}
+        x_1 \\ x_2 \\ x_3
+    \end{pmatrix}
+\end{align}
+
+\begin{enumerate}
+    \item Some text for bullet point 1.
+    \item Some text here as well.
+\end{enumerate}
+
+We have added a Figure \ref{fig:placeholder}.
+
+\subsection{Linear algebra}
+
+To define matrices and vectors, use the \texttt{pmatrix} environment. Use
+\begin{align*}
+    b = \begin{pmatrix} 
+    1 \\ 2 \\ 3
+  \end{pmatrix}
+\end{align*}
+for vectors. We can for example use
+\begin{align}
+    v(\vec{x}) = \begin{pmatrix}
+        y-0.2 x \\
+        -x
+    \end{pmatrix}.
+\end{align}
+
+\section{Pseudo-Code}
+
+You can include pseudo-code and reference it as Algorithm~\ref{alg:cap}.
+
+\begin{algorithm}[H]
+\caption{An algorithm with caption}\label{alg:cap}
+\begin{algorithmic}
+\Require $n \geq 0$
+\Ensure $y = x^n$
+\State $y \gets 1$
+\State $X \gets x$
+\State $N \gets n$
+\While{$N \neq 0$}
+\If{$N$ is even}
+    \State $X \gets X \times X$
+    \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
+\ElsIf{$N$ is odd}
+    \State $y \gets y \times X$
+    \State $N \gets N - 1$
+\EndIf
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+The positioning of the pseudo-code and images can sometimes jump around.
+
+\section{Images}
+\label{ch:images}
+To include images use
+\begin{figure}
+    \centering % This puts the image in the center
+    \includegraphics[width=0.7\linewidth]{example_image.png}
+    \caption{Caption}
+    \label{fig:example_image}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Figures/ex2.png}
+    \caption{This is the pixel image of a robot.}
+    \label{fig:placeholder}
+\end{figure}
+
+
+You can also include multiple images:
+
+\begin{figure}[H]
+    \centering % This puts the image in the center
+    \includegraphics[width=0.3\linewidth]{example_image.png}%
+    \includegraphics[width=0.3\linewidth]{example_image.png}%
+    \includegraphics[width=0.3\linewidth]{example_image.png}
+    \caption{Three images with the same caption}
+    \label{fig:example_image2}
+\end{figure}
+
+\section{Tables}
+\label{ch:tables}
+
+Tables should be used to for example define simulation parameters. Include tables in the following way:
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+\hline
+test & col2 & col3 \\
+\hline
+\multirow{3}{4em}{Multiple row} & cell2 & cell3 \\ 
+& cell5 & cell6 \\ 
+& cell8 & cell9 \\ 
+\hline
+Single row & cell10 & cell11 \\
+\hline
+a & b & c \\
+\hline
+\end{tabular}
+\end{center}
+
+% This is a comments
+
+\begin{itemize}
+\item \textbf{Context and Background}: Briefly introduce the topic, providing necessary background information.
+\item \textbf{Problem Statement}: Clearly state the study problem or question the report addresses.
+\item \textbf{Objectives}: Outline the aims or objectives of the study.
+\item \textbf{Significance}: Explain the importance of the study and its potential impact.
+\item \textbf{(Thesis or Hypothesis, \textit{if any})}: Present the hypothesis or the main argument of the report.
+\end{itemize}
+
+\section{Literature review}
+
+For the literature review, you have to find reliable sources that you can use, such as scientific publications (`papers'). Try using \textit{Google Scholar} or simply \textit{Google} to locate those. \textbf{Talk with your potential supervisors and ask them for some references}.
+
+
+
+\begin{itemize}
+\item \textbf{Overview of Existing Research}: Summarise key studies related to your topic, highlighting major findings and trends.
+\item \textbf{Theoretical and Conceptual Frameworks}: Discuss the theories and concepts that have been used in the literature to approach the problem.
+\item \textbf{(Identification of Gaps, \textit{if present})}: Point out gaps, inconsistencies, or areas where further research is needed.
+\end{itemize}
+
+\section{Theory}
+
+\begin{itemize}
+\item \textbf{Theoretical Framework}: Outline the theories or models that guide your research.
+\item \textbf{Conceptual Definitions}: Define key concepts and variables relevant to your study.
+\item \textbf{Hypotheses}: If applicable, present specific hypotheses that stem from the theoretical framework.
+\end{itemize}
+
+\section{Methods}
+
+\begin{itemize}
+\item \textbf{Study Design}: Describe the overall research approach (e.g., qualitative, quantitative, experimental).
+\item \textbf{Participants or Subjects}: Provide details on the sample size, selection criteria, and characteristics of participants.
+\item \textbf{Materials and Instruments}: List tools, instruments, or materials used for data collection.
+\item \textbf{Procedure}: Explain the steps of the research process, ensuring clarity on how the study was conducted.
+\item \textbf{Data Analysis}: Detail the methods used to analyze the data, including any statistical or qualitative techniques.
+\end{itemize}
+
+\section{Results}
+
+\textit{This section is not present in your report since you are expected to solely perform a literature review. Generally, your results would go here.}
+
+\section{Discussion and conclusion}
+
+\begin{itemize}
+\item \textbf{Interpretation of Results}: Discuss the meaning of the results in relation to your hypothesis or research question.
+\item \textbf{Implications}: Explore the broader implications of your findings for the field or practice.
+\item \textbf{Limitations}: Acknowledge any limitations that may affect the validity or generalisability of the study.
+\item \textbf{Future Research}: Suggest potential directions for further research.
+\item \textbf{Final Summary}: Conclude by summarising the key findings and their relevance.
+\end{itemize}
+
+\section*{Todos for a perfect report}
+A good report, a Master's Thesis or a PhD thesis, are documents that are published for posterity (your report will not be published, \textit{but you can use it for your thesis}). This means that it is important they are well structured, well organised, and devoid of typos and trailing comments.
+
+\subsection{Figures and Tables}
+When referring to tables and figures, do not write ``in the figure below'' or ``in the table above'', always refer to a figure or table using a \verb|\ref{}|. A few pointers:
+\begin{itemize}
+    \item Captions (\verb|\caption{...}|) for tables go \textit{above} the table; Captions for figures go \textit{below} the figures;
+    \item The label of a figure/table 
+    \item For each figure/table, the \verb|\label{...}| most be attached to the caption: \\ \verb|\caption{...}\label{...}|. \LaTeX~gets confused otherwise.
+    \begin{itemize}
+        \item Keep things organised: for figures/tables, use \verb|\label{fig:}|/\verb|\label{tab:}| and after the colon \verb|:| be explicit, so it is easy for you to remember which label refers to each figure/table.
+    \end{itemize}
+\end{itemize}
+
+\subsection{References}
+All the documents, scientific papers, reports, books, manuals, news articles, websites, government communications, and art exhibitions, need to be documented in the \textit{bibliography}. To cite any of these you can use \verb|\cite{}|. To help you organise your citations, use simple helpful citation keys, e.g.~  \verb|\cite{Jozefowicz2015empirical}| with the last name of the first author, the year, and the first (relevant) word of the title. 
+
+We sometimes have to cite two scientific publications or two reports, or just two citations together in general. For that, you can use \verb|\cite{citation1, citation2}|, i.e., separate the citations with a comma, like~\cite{Beck2000application, Beck2005timeseries}.
+
+When you are closely following a book to explain something, which is often the case in a theory section, you can write at the start of the section you are about to introduce: ``This section follows closely the reference book by Sumiyoshi Abe and Yuko Okamoto, \emph{Nonextensive Statistical Mechanics and Its Applications}~\cite{Abe2001nonextensive}.'' This is usually helpful in the theory section.
+
+A Master's~\cite{LastName2045norwegian} or a PhD thesis~\cite{Temult2038binding} should include the name of the university wherein it was written, as well as the year. Moreover, it should include a URL to the work, when available.
+
+Articles and proceedings are practically the same in science, but in your bibliography, you should use \verb|@article| for articles and \verb|@inproceedings| for proceedings. The work by Jozefowivz et al. (2015)~\cite{Jozefowicz2015empirical} is an example of a proceedings.
+
+% Note that the appendices should come after the bibliography, not before.
+
+\bibliography{bib} % this command prints out your bibliography
+
+
+
+\end{document}
