@@ -8,7 +8,7 @@ from .test_Shered import MockMeshTriangles
 from src.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
-config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
+config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
 @pytest.fixture
 def triangles():

@@ -7,7 +7,7 @@ from src.Cells.triangle import Triangle
 from src.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
-config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
+config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
 # TODO: tests should be short and only test/assert one thing each
 class MockMesh:
