@@ -55,7 +55,11 @@ def _get_config_files(folder: str) -> List[str]:
     if not folder_path.exists() or not folder_path.is_dir():
         raise ValueError(f"Folder '{folder}' does not exist or is not a directory")
     
-    config_files = sorted(folder_path.glob("*.toml"))
+    config_files = sorted(
+                            f for f in folder_path.glob("*.toml") 
+                            if f.name != "pyproject.toml"
+                            )
+
     if not config_files:
         raise ValueError(f"No TOML config files found in '{folder}'")
     
