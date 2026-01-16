@@ -45,11 +45,12 @@ class Cell(ABC):
         """Update all values that depend on cordinates in the right order"""
         self._midPoint = self.midPoint
         self._area = self.area
+        self._ngb = self.ngb
+        self._scaledNormal = self.scaledNormal
         self._flow = self.flow
         self._oil = self.oil
         self._isFishing = self.isFishing
-        self._ngb = self.ngb
-        self._scaledNormal = self.scaledNormal
+        
 
 
     # --- public properties ----------------------------------------------
