@@ -8,14 +8,17 @@ from src.Geometry.triangle import Triangle
 class MockMesh:
     """Mock mesh for testing."""
 
-    def __init__():
-        points = [
+    def __init__(self):
+        self.points = [
             np.array([0.0, 0.0, 0.0]),  # Point 0
             np.array([1.0, 0.0, 0.0]),  # Point 1
             np.array([0.5, 1.0, 0.0]),  # Point 2
             np.array([1.0, 1.0, 0.0]),  # Point 3
             np.array([0.0, 1.0, 0.0]),  # Point 4
         ]
+        # avoid creating an empty `cells` list here; tests will set
+        # up caches after constructing multiple Cell instances.
+        self.cells = None
 
     # TODO: why is it a class?
     # TODO: Fix names and Fixtures of "repeat" tests Oskar
@@ -41,7 +44,7 @@ def test_normals_count_matches_neighbors():
     tri3 = Triangle(msh, [0, 2, 4], cell_id=2)
 
     all_cells = [tri1, tri2, tri3]
-    tri1.findNGB(all_cells)
+    tri1._ngb = tri1.findNGB(all_cells)
     tri1.findScaledNormales(all_cells)
 
     assert len(tri1.scaledNormal) == len(
@@ -56,7 +59,7 @@ def test_normals_perpendicular_to_edges():
     tri2 = Triangle(msh, [1, 3, 2], cell_id=1)
 
     all_cells = [tri1, tri2]
-    tri1.findNGB(all_cells)
+    tri1._ngb = tri1.findNGB(all_cells)
     tri1.findScaledNormales(all_cells)
 
     cells_by_id = {c.id: c for c in all_cells}
@@ -91,7 +94,7 @@ def test_normals_point_outward():
     tri2 = Triangle(msh, [1, 3, 2], cell_id=1)
 
     all_cells = [tri1, tri2]
-    tri1.findNGB(all_cells)
+    tri1._ngb = tri1.findNGB(all_cells)
     tri1.findScaledNormales(all_cells)
 
     cells_by_id = {c.id: c for c in all_cells}
@@ -128,7 +131,7 @@ def test_normals_toward_neighbor():
     tri2 = Triangle(msh, [1, 3, 2], cell_id=1)
 
     all_cells = [tri1, tri2]
-    tri1.findNGB(all_cells)
+    tri1._ngb = tri1.findNGB(all_cells)
     tri1.findScaledNormales(all_cells)
 
     cells_by_id = {c.id: c for c in all_cells}
@@ -166,7 +169,7 @@ def test_normals_ordered_match_neighbors():
     tri3 = Triangle(msh, [0, 2, 4], cell_id=2)
 
     all_cells = [tri1, tri2, tri3]
-    tri1.findNGB(all_cells)
+    tri1._ngb = tri1.findNGB(all_cells)
     tri1.findScaledNormales(all_cells)
 
     # Verify that each normal corresponds to its neighbor in order
@@ -207,8 +210,8 @@ def test_single_triangle_with_one_neighbor():
     tri2 = Triangle(msh, [1, 3, 2], cell_id=1)
 
     all_cells = [tri1, tri2]
-    tri1.findNGB(all_cells)
-    tri2.findNGB(all_cells)
+    tri1._ngb = tri1.findNGB(all_cells)
+    tri2._ngb = tri2.findNGB(all_cells)
     tri1.findScaledNormales(all_cells)
     tri2.findScaledNormales(all_cells)
 

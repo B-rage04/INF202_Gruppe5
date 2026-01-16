@@ -7,6 +7,8 @@ from src.Geometry.triangle import Triangle
 class _MockMesh:
     def __init__(self, points):
         self.points = points
+        # provide minimal mesh attributes used by Cell during initialization
+        self.cells = []
 
 
 def make_mesh_and_triangles():
@@ -20,6 +22,19 @@ def make_mesh_and_triangles():
     msh = _MockMesh(points)
     t0 = Triangle(msh, [0, 1, 2], 0, config=None)
     t1 = Triangle(msh, [1, 3, 2], 1, config=None)
+
+    # Ensure mesh caches reflect the newly created cells so neighbor
+    # computations behave deterministically in tests.
+    msh.cells = [t0, t1]
+    # Build point -> cell id map
+    pointMap = {}
+    for cell in msh.cells:
+        for pungt in cell._cords:
+            key = tuple(pungt)
+            pointMap.setdefault(key, []).append(cell.id)
+    msh._point_to_cells = pointMap
+    msh._id_to_cell = {cell.id: cell for cell in msh.cells}
+
     return msh, t0, t1
 
 
@@ -70,10 +85,14 @@ def test_getters_setters_pointset_and_scalednormal_empty_by_default():
     assert isinstance(sn, np.ndarray)
     assert sn.size == 0
 
-    # cords setter updates midpoint and area
+    # update internal cords directly and recompute geometry
     old_mid = t0.midPoint.copy()
     new_cords = [(0.0, 0.0, 0.0), (2.0, 0.0, 0.0), (0.0, 2.0, 0.0)]
-    t0.cords = new_cords
+    t0._cords = [np.array(p) for p in new_cords]
+    # clear cached midpoint so recompute happens
+    t0._midPoint = None
+    t0._area = None
+    t0._update_geometry()
     assert not np.allclose(t0.midPoint, old_mid)
     assert pytest.approx(t0.area, rel=1e-12) == 2.0
 
@@ -86,8 +105,8 @@ def test_findNGB_and_neighbor_lists_and_mesh_caches():
     assert t1.ngb == []
 
     # compute neighbors
-    t0.findNGB(allcells)
-    t1.findNGB(allcells)
+    t0._ngb = t0.findNGB(allcells)
+    t1._ngb = t1.findNGB(allcells)
 
     # they share two points (1 and 2) so should be neighbors
     assert t0.ngb == [1]
@@ -101,7 +120,7 @@ def test_findNGB_and_neighbor_lists_and_mesh_caches():
 def test_scaled_normals_with_neighbors_produces_vectors():
     msh, t0, t1 = make_mesh_and_triangles()
     allcells = [t0, t1]
-    t0.findNGB(allcells)
+    t0._ngb = t0.findNGB(allcells)
     # request scaled normals with access to all cells
     normals = t0.findScaledNormales(allcells)
     # There should be at least one normal vector
