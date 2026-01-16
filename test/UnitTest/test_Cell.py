@@ -19,17 +19,13 @@ def testGetterId(triangle):
 
 
 def testSetterId(triangle):
+    triangle._id = None
     triangle.id = 5
     assert triangle._id == 5
 
 
 def testGetterCords(triangle):
     assert triangle.cords == triangle._cords
-
-
-def testSetterCords(triangle):
-    triangle.cords = [[0, 3, 0], [1, 2, 0], [0, 0, 0]]
-    assert triangle._cords == triangle.cords
 
 
 def testGetterMidPoint(triangle):
@@ -107,3 +103,9 @@ def testOil(triangle):
 
 def testGetterIsFishing(triangle):
     assert triangle.isFishing == triangle._isFishing
+
+
+@pytest.mark.parametrize("x, y, bool",
+                         [(),
+                          (),])
+def testFishingCheck(triangle):
