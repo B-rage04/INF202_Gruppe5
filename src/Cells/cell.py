@@ -345,17 +345,11 @@ class Cell(ABC):
     def isFishing(self):
         return self._isFishing
     
-    def isFishingCheck(self, config=None):
-        cfg = config if config is not None else self._config
-        if cfg is None:
-            return False
-        if isinstance(cfg, dict):
-            cfg = Config.from_dict(cfg)
-
-        fishxmin = cfg.geometry["borders"][0][0]
-        fishxmax = cfg.geometry["borders"][0][1]
-        fishymin = cfg.geometry["borders"][1][0]
-        fishymax = cfg.geometry["borders"][1][1]
+    def isFishingCheck(self):
+        fishxmin = self._config.geometry["borders"][0][0]
+        fishxmax = self._config.geometry["borders"][0][1]
+        fishymin = self._config.geometry["borders"][1][0]
+        fishymax = self._config.geometry["borders"][1][1]
         x = self.midPoint[0]
         y = self.midPoint[1]
         if x is None or y is None:
