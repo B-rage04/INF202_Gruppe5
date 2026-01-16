@@ -49,7 +49,7 @@ class Cell(ABC):
         """Update all values that depend on cordinates in the right order"""
         self._midPoint = self.midPoint
         self._area = self.area
-        self._flow = self.Flow
+        self._flow = self.flow
         self._oil = self.oil
         self._isFishing = self.isFishing
         self._ngb = self.ngb
@@ -268,7 +268,9 @@ class Cell(ABC):
                 # Add one more shared point for this cell
                 counts[cellID] = counts.get(cellID, 0) + 1
 
-        # Any cell that shares 2 or more points is a neighbor
+        # Build neighbor list and add symmetric relationships
+        neighbors = []
+
         for cellID, SheredPoints in counts.items():
             if SheredPoints >= 2:
 
@@ -277,12 +279,17 @@ class Cell(ABC):
                 if other is None:
                     continue
 
-                # Add neighbor relationship both ways
-                if cellID not in self._ngb:
-                    self._ngb.append(cellID)
+                if cellID not in neighbors:
+                    neighbors.append(cellID)
+
+                # Ensure the other cell has a neighbor list we can update
+                if not hasattr(other, "_ngb") or other._ngb is None:
+                    other._ngb = []
 
                 if self.id not in other._ngb:
                     other._ngb.append(self.id)
+
+        return neighbors
 
     # --- flow computations -----------------------------------------
     @property
@@ -293,12 +300,10 @@ class Cell(ABC):
 
     @flow.setter
     def flow(self, value):
-        if self._flow is None:
-            try:
-                flow = np.array(value)
-            except Exception:
-                flow = None
-                raise TypeError("flow must be convertible to a numpy array")
+        try:
+            flow = np.array(value)
+        except Exception:
+            raise TypeError("flow must be convertible to a numpy array")
         self._flow = flow
 
     def findFlow(self):  # TODO Brage: add ability to set flow function
