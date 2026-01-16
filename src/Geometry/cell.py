@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
-from logging import config
-
 import numpy as np
-
 from src.IO.config import Config
 
 
@@ -38,43 +35,27 @@ class Cell(ABC):
         self._ngb = []
         self._flow = None
         self._oil = None
+        self._isFishing = None
+
         self.newOil = []
 
+        # compute derived values using centralized update routines
+        #self._update_geometry()
+
     def _update_geometry(self,cellList=None):
-        """Update all values that depend on cordinates in the right order"""
-        try:
-            self._midPoint = self.findMidPoint()
-        except Exception:
-            # TODO log warning?
-            self._midPoint = None
+        """Update all values that depend on cordinates in the right order.
 
+        Accept both `cells` (new API) and `cellList` (legacy callers).
+        """
+        
+        self._midPoint = self.midPoint
+        self._area = self.area
         self.findNGB(cellList)
-
-        self._scaledNormal = self.findScaledNormales(cellList)
-
-        try:
-            self._area = self.findArea()
-        except Exception:
-            # TODO log warning?
-            self._area = None
-
-        try:
-            self._flow = np.array(self.findFlow())
-        except Exception:
-            # TODO log warning?
-            self._flow = None
-
-        try:
-            self._oil = self.findOil()
-        except Exception:
-            # TODO log warning?
-            self._oil = None
-
-        try:
-            self._isFishing = self.isFishingCheck(config)
-        except Exception:
-            # TODO log warning?
-            self._isFishing = None
+        self.findScaledNormales(cellList)
+        self._flow = self.flow
+        self._oil = self.oil
+        self._isFishing = self.isFishing
+        
 
     # --- public properties ----------------------------------------------
 
@@ -90,7 +71,7 @@ class Cell(ABC):
     @property
     def cords(self):
         return self._cords
-
+    
     @property  # TODO Brage: test getters and setters
     def pointSet(self):
         if self._pointSet is None:
@@ -101,6 +82,8 @@ class Cell(ABC):
 
     @property
     def area(self):
+        if self._area is None:
+            self._area = self.findArea()
         return self._area
 
     @abstractmethod
@@ -108,14 +91,15 @@ class Cell(ABC):
         """
         See child class for individual calculations
         """
-        raise NotImplementedError()
+        pass
 
     # --- midpoint computations -----------------------------------------
 
     @property
     def midPoint(self):
         if self._midPoint is None:
-            self._midPoint = self.findMidPoint()
+                self._midPoint = self.findMidPoint()
+
         return self._midPoint
 
     def findMidPoint(self):
@@ -132,11 +116,8 @@ class Cell(ABC):
     @property  # TODO Brage: test getters and setters
     def scaledNormal(self):
         if self._scaledNormal is None:
-            if getattr(self, "_msh", None) is not None:
-                val = self.findScaledNormales(getattr(self._msh, "cells", None))
-            else:
-                val = self.findScaledNormales()
-            self._scaledNormal = np.array(val) if val is not None else np.array([])
+            val = self.findScaledNormales(self._msh.cells)
+            self._scaledNormal = np.array(val)
         return self._scaledNormal
 
     def findScaledNormales(self, allCells=None):
@@ -206,6 +187,12 @@ class Cell(ABC):
     # --- neighbor computations -----------------------------------------
     @property
     def ngb(self):
+        if self._ngb is None:
+            try:
+                self._ngb = self.findNGB(getattr(self._msh, "cells", None))
+            except Exception:
+                # TODO log warning?
+                self._ngb = []
         return self._ngb
 
     def findNGB(self, allCells):
@@ -223,7 +210,6 @@ class Cell(ABC):
 
             # If the mesh does not yet know which cells touch each point
             if not hasattr(Localmsh, "_point_to_cells"):
-                print("Building point-to-cells map for mesh")
 
                 # Make a table:
                 # point -> list of cell IDs that use this point
@@ -342,19 +328,20 @@ class Cell(ABC):
     # --- fishing zone check ----------------------------------------------
     @property
     def isFishing(self):
+        if self._isFishing is None:
+            try:
+                self._isFishing = self.isFishingCheck()
+            except Exception:
+                # TODO log warning?
+                self._isFishing = False
         return self._isFishing
 
-    def isFishingCheck(self, config=None):
-        cfg = config if config is not None else self._config
-        if cfg is None:
-            return False
-        if isinstance(cfg, dict):
-            cfg = Config.from_dict(cfg)
-
-        fishxmin = cfg.geometry["borders"][0][0]
-        fishxmax = cfg.geometry["borders"][0][1]
-        fishymin = cfg.geometry["borders"][1][0]
-        fishymax = cfg.geometry["borders"][1][1]
+    def isFishingCheck(self):
+        
+        fishxmin = self._config.geometry["borders"][0][0]
+        fishxmax = self._config.geometry["borders"][0][1]
+        fishymin = self._config.geometry["borders"][1][0]
+        fishymax = self._config.geometry["borders"][1][1]
         x = self.midPoint[0]
         y = self.midPoint[1]
         if x is None or y is None:
