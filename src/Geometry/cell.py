@@ -40,16 +40,17 @@ class Cell(ABC):
         self._oil = None
         self.newOil = []
 
-        # compute derived values using centralized update routines
-        self._update_geometry()
-
-    def _update_geometry(self):
+    def _update_geometry(self,cellList=None):
         """Update all values that depend on cordinates in the right order"""
         try:
             self._midPoint = self.findMidPoint()
         except Exception:
             # TODO log warning?
             self._midPoint = None
+
+        self.findNGB(cellList)
+
+        self._scaledNormal = self.findScaledNormales(cellList)
 
         try:
             self._area = self.findArea()

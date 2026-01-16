@@ -46,7 +46,8 @@ class CellFactory:
                 IDx += 1
 
         for cell in self.cellList:
-            cell.findNGB(self.cellList)
-            cell.findScaledNormales(self.cellList)
+            cell._update_geometry(cellList=self.cellList)
+            #cell.findNGB(self.cellList)
+            #cell.findScaledNormales(self.cellList)
 
         return self.cellList
