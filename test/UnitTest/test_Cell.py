@@ -1,12 +1,13 @@
-import numpy as np
-import pytest
 import copy
-
 from test.utilitiesTests.ConfigTest import configTest
 from test.utilitiesTests.MeshTest import meshTest
 
+import numpy as np
+import pytest
+
 config = configTest()
 msh = meshTest()
+
 
 @pytest.fixture()
 def triangle():
