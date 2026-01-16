@@ -20,9 +20,9 @@ import argparse as argparse
 import os
 from typing import Any, List
 
-from src.config import Config
-from src.LoadTOML import LoadTOML
-from src.simulation import Simulation
+from src.IO.config import Config
+from src.IO.LoadTOML import LoadTOML
+from src.Simulation.simulation import Simulation
 
 
 def _next_run_number(images_dir: str = "Output/images") -> int:

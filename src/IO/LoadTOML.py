@@ -11,7 +11,7 @@ from typing import Dict, List
 
 from tqdm import tqdm
 
-from src.config import Config
+from src.IO.config import Config
 
 
 class LoadTOML:

@@ -3,7 +3,7 @@ import pytest
 
 from src.Cells.cell import Cell
 from src.Cells.line import Line
-from src.LoadTOML import LoadTOML
+from src.IO.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
 config = configloader.loadTomlFile("Input\BaseSimConfig.toml")

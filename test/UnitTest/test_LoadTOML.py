@@ -3,7 +3,7 @@ import tomllib
 
 import pytest
 
-from src.LoadTOML import LoadTOML
+from src.IO.LoadTOML import LoadTOML
 
 
 def write_toml(path, content: str):

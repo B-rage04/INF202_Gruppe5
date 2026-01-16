@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import PolyCollection
 
-from src.config import Config
+from src.IO.config import Config
 
 
 class Visualizer:
@@ -243,3 +243,4 @@ class Visualizer:
         self._add_total_oil_annotation(ax, config)
 
         return self._save_or_show_plot(fig, filepath, run, step)
+    

@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from src.LoadTOML import LoadTOML
-from src.simulation import Simulation
+from src.IO.LoadTOML import LoadTOML
+from src.Simulation.simulation import Simulation
 
 configloader = LoadTOML()
 config = configloader.loadTomlFile("Input\BaseSimConfig.toml")

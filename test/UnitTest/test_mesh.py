@@ -4,8 +4,8 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from src.LoadTOML import LoadTOML
-from src.mesh import Mesh
+from src.IO.LoadTOML import LoadTOML
+from src.Geometry.mesh import Mesh
 
 configloader = LoadTOML()
 config = configloader.loadTomlFile("Input\BaseSimConfig.toml")

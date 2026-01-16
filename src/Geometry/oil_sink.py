@@ -2,7 +2,7 @@ from typing import Dict, Optional, Union
 
 import numpy as np
 
-from src.config import Config
+from src.IO.config import Config
 
 
 def _get_cells_from_mesh(msh) -> list:

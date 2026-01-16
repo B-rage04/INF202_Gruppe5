@@ -2,15 +2,15 @@ import time
 
 from tqdm import tqdm
 
-from src.Cells.line import Line
-from src.Cells.triangle import Triangle
-from src.Cells.vertex import Vertex
+from src.Geometry.line import Line
+from src.Geometry.triangle import Triangle
+from src.Geometry.vertex import Vertex
 
 
 class CellFactory:
     def __init__(self, msh, config=None):
         # Accept plain dict or Config instance for backwards compatibility
-        from src.config import Config as _Config
+        from src.IO.config import Config as _Config
 
         if isinstance(config, dict):
             config = _Config.from_dict(config)

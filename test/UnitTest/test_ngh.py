@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from src.Cells.triangle import Triangle
-from src.LoadTOML import LoadTOML
+from src.IO.LoadTOML import LoadTOML
 
 from .test_Shered import MockMeshTriangles
 

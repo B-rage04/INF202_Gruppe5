@@ -10,7 +10,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from src.visualize import Visualizer
+from src.Simulation.visualize import Visualizer
 
 # TODO: tests should be short and only test/assert one thing each
 # TODO: Fix names and Fixtures of "repeat" tests
