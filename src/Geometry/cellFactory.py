@@ -44,10 +44,11 @@ class CellFactory:
             for cell in cellblock.data:
                 self.cellList.append(cellCls(self.msh, cell, IDx, self._config))
                 IDx += 1
+        #print(f"Created {len(self.cellList)} cells.")
+        #print(f"first cell: {self.cellList[1000]} has atributes: {self.cellList[1000].__dict__}")
 
         for cell in self.cellList:
             cell._update_geometry(cellList=self.cellList)
-            #cell.findNGB(self.cellList)
-            #cell.findScaledNormales(self.cellList)
+
 
         return self.cellList
