@@ -100,11 +100,13 @@ def testGetterIsFishing(triangle):
     assert triangle.isFishing == triangle._isFishing
 
 
-@pytest.mark.parametrize("cords, bool",
-                         [([[0.0],[0.0],[0.0]], True),
-                          ([[5.0],[5.0],[5.0]], False),
-                          ([[0.0],[0.0],[0.0]], False)])
+@pytest.mark.parametrize("midPoint, bool",
+                         [([0.0, 0.0], True),
+                          ([5.0, 0.0], False),
+                          ([None, 0], False),
+                          ([0, None], False)
+                          ])
 
-def testFishingCheck(triangle, cords, bool):
-    triangle.cords = cords
+def testFishingCheck(triangle, midPoint, bool):
+    triangle._midPoint = midPoint
     assert triangle.isFishingCheck() == bool
