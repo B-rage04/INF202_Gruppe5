@@ -3,7 +3,7 @@ from logging import config
 
 import numpy as np
 
-from src.config import Config
+from src.IO.config import Config
 
 class Cell(ABC):
     """

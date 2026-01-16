@@ -2,9 +2,9 @@ import pytest
 
 from src.Cells.cellFactory import CellFactory
 from src.Cells.triangle import Triangle
-from src.config import Config
-from src.mesh import Mesh
-from src.simulation import Simulation
+from src.IO.config import Config
+from src.Geometry.mesh import Mesh
+from src.Simulation.simulation import Simulation
 
 
 def valid_config_dict():

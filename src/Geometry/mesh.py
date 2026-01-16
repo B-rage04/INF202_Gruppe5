@@ -2,8 +2,8 @@ import logging
 import os
 from typing import Any, List
 
-from src.Cells.cellFactory import CellFactory
-from src.config import Config
+from src.Geometry.cellFactory import CellFactory
+from src.IO.config import Config
 
 
 class Mesh:

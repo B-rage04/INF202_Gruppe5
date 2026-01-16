@@ -20,9 +20,9 @@ import argparse as argparse
 import os
 from typing import Any, List
 
-from src.config import Config
-from src.LoadTOML import LoadTOML
-from src.simulation import Simulation
+from src.IO.config import Config
+from src.IO.LoadTOML import LoadTOML
+from src.Simulation.simulation import Simulation
 
 
 def _next_run_number(images_dir: str = "Output/images") -> int:
@@ -53,8 +53,12 @@ def _get_config_files(folder: str) -> List[str]:
     folder_path = Path(folder)
     if not folder_path.exists() or not folder_path.is_dir():
         raise ValueError(f"Folder '{folder}' does not exist or is not a directory")
+    
+    config_files = sorted(
+                            f for f in folder_path.glob("*.toml") 
+                            if f.name != "pyproject.toml"
+                            )
 
-    config_files = sorted(folder_path.glob("*.toml"))
     if not config_files:
         raise ValueError(f"No TOML config files found in '{folder}'")
 

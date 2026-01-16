@@ -1,7 +1,7 @@
 def meshTest():
     from test.utilitiesTests.ConfigTest import configTest
 
-    from src.mesh import Mesh
+    from src.Geometry.mesh import Mesh
 
     config = configTest()
     print(type(config))

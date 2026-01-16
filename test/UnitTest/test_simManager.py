@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-import src.SimManager as Manager
+import src.Simulation.SimManager as Manager
 
 
 def test_next_run_number_nonexistent_directory():
@@ -164,7 +164,7 @@ def test_setup_config_output():
     """Should create result folder and update config IO paths."""
     from unittest.mock import patch
 
-    from src.config import Config
+    from src.IO.config import Config
 
     # Create a minimal valid config
     config = Config(

@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from src.Cells.cellFactory import CellFactory
-from src.LoadTOML import LoadTOML
+from src.IO.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
 config = configloader.loadConfigFile("Input\BaseSimConfig.toml")

@@ -1,6 +1,6 @@
 import pytest
 
-from src.video import VideoCreator
+from src.IO.video import VideoCreator
 
 
 def test_vid_init(tmp_path):

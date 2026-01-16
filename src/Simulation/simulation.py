@@ -6,11 +6,11 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from tqdm import tqdm
 
-from src.config import Config
-from src.mesh import Mesh
-from src.oil_sink import OilSinkSource
-from src.video import VideoCreator
-from src.visualize import Visualizer
+from src.IO.config import Config
+from src.Geometry.mesh import Mesh
+from src.Geometry.oil_sink import OilSinkSource
+from src.IO.video import VideoCreator
+from src.Simulation.visualize import Visualizer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -64,7 +64,7 @@ class Simulation:
         if isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
             try:
                 ship_pos = [float(ship_cfg[0]), float(ship_cfg[1])]
-                from src.oil_sink import compute_ship_sink
+                from src.Geometry.oil_sink import compute_ship_sink
 
                 shipSink = compute_ship_sink(
                     self._msh,
@@ -98,7 +98,7 @@ class Simulation:
             for idx, source_pos in enumerate(sources_array):
                 if isinstance(source_pos, list) and len(source_pos) >= 2:
                     try:
-                        from src.oil_sink import compute_source
+                        from src.Geometry.oil_sink import compute_source
 
                         source_coeffs = compute_source(
                             self._msh,
@@ -131,7 +131,7 @@ class Simulation:
             for idx, sink_pos in enumerate(sinks_array):
                 if isinstance(sink_pos, list) and len(sink_pos) >= 2:
                     try:
-                        from src.oil_sink import compute_ship_sink
+                        from src.Geometry.oil_sink import compute_ship_sink
 
                         sink_coeffs = compute_ship_sink(
                             self._msh,

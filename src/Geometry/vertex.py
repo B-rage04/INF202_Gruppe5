@@ -1,4 +1,4 @@
-from src.Cells.cell import Cell
+from src.Geometry.cell import Cell
 
 
 class Vertex(Cell):
