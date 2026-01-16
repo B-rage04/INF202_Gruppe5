@@ -216,6 +216,12 @@ class Simulation:
     # getters/setters
     @property
     def config(self) -> Config:
+        """
+        returns config
+        
+        :return: config as dictionary
+        """
+
         return self._config
 
     @property
