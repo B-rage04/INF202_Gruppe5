@@ -28,7 +28,7 @@ from src.IO.LoadTOML import LoadTOML
 # ---------------------------------------------------------------------
 
 configloader = LoadTOML()
-config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
+base_config = configloader.loadConfigFile("Input/BaseSimConfig.toml")
 
 
 # ---------------------------------------------------------------------

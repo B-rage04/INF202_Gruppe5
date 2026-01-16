@@ -9,7 +9,6 @@ from tqdm import tqdm
 from src.IO.config import Config
 from src.Geometry.mesh import Mesh
 from src.Geometry.oil_sink import OilSinkSource
-.
 from importlib import import_module
 
 try:
@@ -41,7 +40,8 @@ class Simulation:
     """
 
     def __init__(self, config: Config = None):
-        self._config = self._validate_config(config)
+        # Expect a validated `Config` instance (validation belongs to LoadTOML)
+        self._config = config
         self._msh = self._initialize_mesh()
         self._initialize_visualizer()
         self._initialize_time_parameters()
@@ -204,7 +204,12 @@ class Simulation:
                     logger.info(
                         f"total Fishing oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}"
                     )
-                    logger.info(f"total oil at time {self.currentTime}: {self.oilVals[-1]:.5f}")
+                    # Log the total oil (sum of last snapshot) to avoid formatting lists
+                    try:
+                        total_oil = sum(self._oilVals[-1])
+                    except Exception:
+                        total_oil = self._oilVals[-1]
+                    logger.info(f"total oil at time {self.currentTime}: {total_oil:.5f}")
 
                     self._visualizer.plotting( #TODO add Fishing Oil?
                         self._oilVals[-1],
