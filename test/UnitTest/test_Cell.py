@@ -78,6 +78,7 @@ def testGetterOilNone(triangle):
     "value, bool", [(0.5, True), (0.9, True), (2.1, False), (-0.3, False)]
 )
 def testSetterOil(triangle, value, bool):
+    if bool:
         triangle.oil = value
         assert triangle._oil == triangle.oil
     else:
