@@ -9,6 +9,7 @@ from src.LoadTOML import LoadTOML
 configloader = LoadTOML()
 config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
 
+
 # TODO: tests should be short and only test/assert one thing each
 class MockMesh:
     def __init__(self):
@@ -47,6 +48,7 @@ def test_triangle_coordinates(triangle):
 
     for c, e in zip(triangle.cords, expected):
         npt.assert_array_equal(c, e)
+
 
 class MockMeshTriangles:
     def __init__(self):

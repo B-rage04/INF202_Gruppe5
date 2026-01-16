@@ -5,7 +5,7 @@ from typing import Any, Dict
 @dataclass
 class Config:
     """
-    This is a fasade for the simulation configuration dictionary. and provides a getter for eatch seting that must be there. gives a error if somting critical is not set and a warning if somthing non critical is missing, and gives standard values for those. 
+    This is a fasade for the simulation configuration dictionary. and provides a getter for eatch seting that must be there. gives a error if somting critical is not set and a warning if somthing non critical is missing, and gives standard values for those.
     """
 
     geometry: Dict[str, Any]
@@ -29,7 +29,11 @@ class Config:
         settings = data.get("settings") or {}
         io = data.get("IO") or {}
         video = data.get("video") or {}
-        other = {k: v for k, v in data.items() if k not in ("geometry", "settings", "IO", "video")}
+        other = {
+            k: v
+            for k, v in data.items()
+            if k not in ("geometry", "settings", "IO", "video")
+        }
 
         cfg = cls(geometry=geometry, settings=settings, IO=io, video=video, other=other)
         cfg.validate()
@@ -63,6 +67,11 @@ class Config:
 
     def to_dict(self) -> Dict[str, Any]:
         """Return a plain dictionary representation compatible with older code."""
-        base = {"geometry": self.geometry, "settings": self.settings, "IO": self.IO, "video": self.video}
+        base = {
+            "geometry": self.geometry,
+            "settings": self.settings,
+            "IO": self.IO,
+            "video": self.video,
+        }
         base.update(self.other or {})
         return base

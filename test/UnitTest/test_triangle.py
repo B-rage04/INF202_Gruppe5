@@ -4,7 +4,7 @@ import pytest
 
 from src.Cells.triangle import Triangle
 
-from .test_Shered import  mesh, triangle
+from .test_Shered import mesh, triangle
 
 
 def test_center_point(triangle):

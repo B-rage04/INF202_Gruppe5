@@ -1,17 +1,17 @@
 import logging
 import os
 from typing import Any, List
-from src.config import Config
 
 from src.Cells.cellFactory import CellFactory
+from src.config import Config
 
 
 class Mesh:
-    def __init__(self, file: str, config:Config=None) -> None:
+    def __init__(self, file: str, config: Config = None) -> None:
         if not isinstance(file, str):
             raise TypeError("file must be a path string")  # TODO: test this
 
-       # validate config: accept plain dict or Config instance
+        # validate config: accept plain dict or Config instance
         if isinstance(config, dict):
             config = Config.from_dict(config)
         elif not isinstance(config, Config) and config is not None:
