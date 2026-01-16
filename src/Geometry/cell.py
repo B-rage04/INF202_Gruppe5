@@ -324,6 +324,8 @@ class Cell(ABC):
 
                 if self.id not in other._ngb:               # add this cell to the other cell's neighbor list
                     other._ngb.append(self.id)
+        # Return the neighbor list for callers that expect a return value.
+        return self._ngb
 
     # --- normal vector computations -----------------------------------------
 

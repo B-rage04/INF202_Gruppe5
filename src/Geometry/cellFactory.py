@@ -19,6 +19,10 @@ class CellFactory:
         # Accept plain dict or Config instance for backwards compatibility
         from src.IO.config import Config as _Config
 
+        # If user provided a plain dict, construct a Config instance
+        if isinstance(config, dict):
+            config = _Config.from_dict(config)
+
         self._config = config
 
         # store mesh and initialize type registry + cell list
