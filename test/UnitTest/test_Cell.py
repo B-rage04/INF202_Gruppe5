@@ -9,9 +9,19 @@ config = configTest()
 msh = meshTest()
 
 
-@pytest.fixture()
+@pytest.fixture
 def triangle():
     return copy.deepcopy(msh.cells[-1])
+
+@pytest.fixture
+def triangles():
+    t0 = msh.cells[8]
+    t1 = msh.cells[10]
+    cells = [t0, t1]
+    for cell in cells:
+        cell.findNGB()
+    return t0, t1
+
 
 
 def testGetterId(triangle):
@@ -114,3 +124,27 @@ def testGetterIsFishing(triangle):
 def testFishingCheck(triangle, midPoint, bool):
     triangle._midPoint = midPoint
     assert triangle.isFishingCheck() == bool
+
+
+def test_triangle_t1_neighbor_to_t0(triangles):
+    t0, t1 = triangles
+
+    assert t1.id in t0.ngb
+
+
+def test_triangle_t0_neighbor_to_t1(triangles):
+    t0, t1 = triangles
+
+    assert t0.id in t1.ngb
+
+
+def test_triangle_t1_neighbor_to_t0_with_ID(triangles):
+    t0, t1 = triangles
+
+    assert t1.ngb.count(t0.id) == 1
+
+
+def test_triangle_t0_neighbor_to_t1_with_ID(triangles):
+    t0, t1 = triangles
+
+    assert t0.ngb.count(t1.id) == 1
