@@ -35,9 +35,11 @@ class Cell(ABC):
         self._area = None
         self._scaledNormal = None
         self._pointSet = None
-        self._ngb = []
+        self._ngb = None
         self._flow = None
         self._oil = None
+        self._isFishing = None
+
         self.newOil = []
 
         # compute derived values using centralized update routines
@@ -45,35 +47,14 @@ class Cell(ABC):
 
     def _update_geometry(self):
         """Update all values that depend on cordinates in the right order"""
-        try:
-            self._midPoint = self.findMidPoint()
-        except Exception:
-            # TODO log warning?
-            self._midPoint = None
+        self._midPoint = self.midPoint
+        self._area = self.area
+        self._flow = self.flow
+        self._oil = self.oil
+        self._isFishing = self.isFishing
+        self._ngb = self.ngb
+        self._scaledNormal = self.scaledNormal
 
-        try:
-            self._area = self.findArea()
-        except Exception:
-            # TODO log warning?
-            self._area = None
-
-        try:
-            self._flow = np.array(self.findFlow())
-        except Exception:
-            # TODO log warning?
-            self._flow = None
-
-        try:
-            self._oil = self.findOil()
-        except Exception:
-            # TODO log warning?
-            self._oil = None
-
-        try:
-            self._isFishing = self.isFishingCheck(config)
-        except Exception:
-            # TODO log warning?
-            self._isFishing = None
 
     # --- public properties ----------------------------------------------
 
@@ -100,6 +81,12 @@ class Cell(ABC):
 
     @property
     def area(self):
+        if self._area is None:
+            try:
+                self._area = self.findArea()
+            except Exception:
+                # TODO log warning?
+                self._area = None
         return self._area
 
     @abstractmethod
@@ -114,7 +101,11 @@ class Cell(ABC):
     @property
     def midPoint(self):
         if self._midPoint is None:
-            self._midPoint = self.findMidPoint()
+            try:
+                self._midPoint = self.findMidPoint()
+            except Exception:
+                # TODO log warning?
+                self._midPoint = None
         return self._midPoint
 
     def findMidPoint(self):
@@ -205,6 +196,12 @@ class Cell(ABC):
     # --- neighbor computations -----------------------------------------
     @property
     def ngb(self):
+        if self._ngb is None:
+            try:
+                self._ngb = self.findNGB(getattr(self._msh, "cells", None))
+            except Exception:
+                # TODO log warning?
+                self._ngb = []
         return self._ngb
 
     def findNGB(self, allCells):
@@ -222,7 +219,6 @@ class Cell(ABC):
 
             # If the mesh does not yet know which cells touch each point
             if not hasattr(Localmsh, "_point_to_cells"):
-                print("Building point-to-cells map for mesh")
 
                 # Make a table:
                 # point -> list of cell IDs that use this point
@@ -272,7 +268,9 @@ class Cell(ABC):
                 # Add one more shared point for this cell
                 counts[cellID] = counts.get(cellID, 0) + 1
 
-        # Any cell that shares 2 or more points is a neighbor
+        # Build neighbor list and add symmetric relationships
+        neighbors = []
+
         for cellID, SheredPoints in counts.items():
             if SheredPoints >= 2:
 
@@ -281,12 +279,17 @@ class Cell(ABC):
                 if other is None:
                     continue
 
-                # Add neighbor relationship both ways
-                if cellID not in self._ngb:
-                    self._ngb.append(cellID)
+                if cellID not in neighbors:
+                    neighbors.append(cellID)
+
+                # Ensure the other cell has a neighbor list we can update
+                if not hasattr(other, "_ngb") or other._ngb is None:
+                    other._ngb = []
 
                 if self.id not in other._ngb:
                     other._ngb.append(self.id)
+
+        return neighbors
 
     # --- flow computations -----------------------------------------
     @property
@@ -298,10 +301,10 @@ class Cell(ABC):
     @flow.setter
     def flow(self, value):
         try:
-            arr = np.array(value)
+            flow = np.array(value)
         except Exception:
             raise TypeError("flow must be convertible to a numpy array")
-        self._flow = arr
+        self._flow = flow
 
     def findFlow(self):  # TODO Brage: add ability to set flow function
         mp = self.midPoint
@@ -311,7 +314,11 @@ class Cell(ABC):
     @property
     def oil(self):
         if self._oil is None:
-            self._oil = self.findOil()
+            try:
+                self._oil = self.findOil()
+            except Exception:
+                # TODO log warning?
+                self._oil = None
         return self._oil
 
     @oil.setter
@@ -341,6 +348,12 @@ class Cell(ABC):
     # --- fishing zone check ----------------------------------------------
     @property
     def isFishing(self):
+        if self._isFishing is None:
+            try:
+                self._isFishing = self.isFishingCheck()
+            except Exception:
+                # TODO log warning?
+                self._isFishing = False
         return self._isFishing
 
     def isFishingCheck(self, config=None):
