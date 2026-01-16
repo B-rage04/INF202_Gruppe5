@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{6}%
+\begin{thebibliography}{0}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -50,61 +50,4 @@
 \providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
 \let\auto@bib@innerbib\@empty
 %</preamble>
-\bibitem [{\citenamefont {Beck}(2000)}]{Beck2000application}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {C.}~\bibnamefont
-  {Beck}},\ }\bibfield  {title} {\bibinfo {title} {Application of generalized
-  thermostatistics to fully developed turbulence},\ }\href
-  {https://doi.org/10.1016/S0378-4371(99)00508-7} {\bibfield  {journal}
-  {\bibinfo  {journal} {Physica A: Statistical Mechanics and its Applications}\
-  }\textbf {\bibinfo {volume} {277}},\ \bibinfo {pages} {115} (\bibinfo {year}
-  {2000})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Beck}\ \emph {et~al.}(2005)\citenamefont {Beck},
-  \citenamefont {Cohen},\ and\ \citenamefont {Swinney}}]{Beck2005timeseries}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {C.}~\bibnamefont
-  {Beck}}, \bibinfo {author} {\bibfnamefont {E.~G.~D.}\ \bibnamefont {Cohen}},\
-  and\ \bibinfo {author} {\bibfnamefont {H.~L.}\ \bibnamefont {Swinney}},\
-  }\bibfield  {title} {\bibinfo {title} {From time series to superstatistics},\
-  }\href {https://doi.org/10.1103/PhysRevE.72.056133} {\bibfield  {journal}
-  {\bibinfo  {journal} {Physical Review E}\ }\textbf {\bibinfo {volume} {72}},\
-  \bibinfo {pages} {056133} (\bibinfo {year} {2005})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Abe}\ and\ \citenamefont
-  {Okamoto}(2001)}]{Abe2001nonextensive}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
-  {Abe}}\ and\ \bibinfo {author} {\bibfnamefont {Y.}~\bibnamefont {Okamoto}},\
-  }\href {https://doi.org/10.1007/3-540-40919-X} {\emph {\bibinfo {title}
-  {Nonextensive Statistical Mechanics and Its Applications}}},\ \bibinfo
-  {edition} {1st}\ ed.\ (\bibinfo  {publisher} {Springer Berlin},\ \bibinfo
-  {year} {2001})\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {LastName}(2045)}]{LastName2045norwegian}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {F.}~\bibnamefont
-  {LastName}},\ }\emph {\bibinfo {title} {Norwegian Hydropower Development
-  Strategies: An Analysis of Private Investments between 2010--2020}},\ \href
-  {https://hdl.handle.net/00000/0000000} {\bibinfo {type} {Master's thesis}},\
-  \bibinfo  {school} {Norwegian University of Life Sciences} (\bibinfo {year}
-  {2045})\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Temult}(2038)}]{Temult2038binding}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {L.}~\bibnamefont
-  {Temult}},\ }\emph {\bibinfo {title} {Binding strategies in molecular
-  dynamical modelling with Monte Carlo simulations}},\ \href
-  {https://hdl.handle.net/00000/0000000} {\bibinfo {type} {{PhD} thesis}},\
-  \bibinfo  {school} {Norwegian University of Life Sciences} (\bibinfo {year}
-  {2038})\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Jozefowicz}\ \emph {et~al.}(2015)\citenamefont
-  {Jozefowicz}, \citenamefont {Zaremba},\ and\ \citenamefont
-  {Sutskever}}]{Jozefowicz2015empirical}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
-  {Jozefowicz}}, \bibinfo {author} {\bibfnamefont {W.}~\bibnamefont
-  {Zaremba}},\ and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont
-  {Sutskever}},\ }\bibfield  {title} {\bibinfo {title} {An empirical
-  exploration of recurrent network architectures},\ }in\ \href
-  {https://proceedings.mlr.press/v37/jozefowicz15.html} {\emph {\bibinfo
-  {booktitle} {International Conference on Machine Learning}}},\ Vol.~\bibinfo
-  {volume} {37}\ (\bibinfo {year} {2015})\ pp.\ \bibinfo {pages}
-  {2342--2350}\BibitemShut {NoStop}%
 \end{thebibliography}%
