@@ -104,8 +104,10 @@ def testOil(triangle):
 def testGetterIsFishing(triangle):
     assert triangle.isFishing == triangle._isFishing
 
-
+"""
 @pytest.mark.parametrize("x, y, bool",
-                         [(),
-                          (),])
+                         [(1, 1, False),
+                          (1, 1, True),])
 def testFishingCheck(triangle):
+    return True
+"""

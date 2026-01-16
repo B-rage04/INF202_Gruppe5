@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from src.Cells.triangle import Triangle
+from src.Geometry.triangle import Triangle
 
 
 class _MockMesh:
