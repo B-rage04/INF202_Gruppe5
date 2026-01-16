@@ -4,11 +4,11 @@ import numpy as np
 import pytest
 
 from src.Cells.cellFactory import CellFactory
-
 from src.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
 config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
+
 
 @pytest.fixture
 def triangle_mesh():

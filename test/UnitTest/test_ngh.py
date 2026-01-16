@@ -2,13 +2,13 @@ import numpy as np
 import pytest
 
 from src.Cells.triangle import Triangle
+from src.LoadTOML import LoadTOML
 
 from .test_Shered import MockMeshTriangles
 
-from src.LoadTOML import LoadTOML
-
 configloader = LoadTOML()
 config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
+
 
 @pytest.fixture
 def triangles():

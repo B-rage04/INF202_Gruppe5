@@ -1,12 +1,13 @@
-import numpy as np
-import pytest
 import copy
-
 from test.utilitiesTests.ConfigTest import configTest
 from test.utilitiesTests.MeshTest import meshTest
 
+import numpy as np
+import pytest
+
 config = configTest()
 msh = meshTest()
+
 
 @pytest.fixture()
 def triangle():
@@ -54,6 +55,12 @@ def testGetterNGB(triangle):
 def testGetterFlow(triangle):
     assert triangle.flow.all() == triangle._flow.all()
 
+
+def testGetterFlowNone(triangle):
+    triangle._flow = None
+    expextedFlow = triangle.findFlow()
+    assert triangle.flow.all() == expextedFlow.all()
+    
 
 def testGetterFlowNone(triangle):
     triangle._flow = None

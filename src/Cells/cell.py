@@ -1,7 +1,8 @@
-from logging import config
 from abc import ABC, abstractmethod
+from logging import config
 
 import numpy as np
+
 from src.config import Config
 
 class Cell(ABC):
@@ -20,14 +21,14 @@ class Cell(ABC):
     def __init__(self, msh, cell_points, cell_id, config: Config = None):
         self.type = None
         self._id = cell_id
-        
+
         self._msh = msh
         # validate config: require Config instance
         if not isinstance(config, Config) and config is not None:
             raise TypeError("config must be a Config instance")
         self._config = config
 
-        # internal state / caches 
+        # internal state / caches
         self._cords = [msh.points[i] for i in cell_points]
         self._midPoint = None
         self._area = None
@@ -40,40 +41,38 @@ class Cell(ABC):
 
         # compute derived values using centralized update routines
         self._update_geometry()
-        
 
     def _update_geometry(self):
-        """ Update all values that depend on cordinates in the right order"""
+        """Update all values that depend on cordinates in the right order"""
         try:
             self._midPoint = self.findMidPoint()
         except Exception:
-            #TODO log warning?
+            # TODO log warning?
             self._midPoint = None
 
         try:
             self._area = self.findArea()
         except Exception:
-            #TODO log warning?
+            # TODO log warning?
             self._area = None
 
         try:
             self._flow = np.array(self.findFlow())
         except Exception:
-            #TODO log warning?
+            # TODO log warning?
             self._flow = None
 
         try:
             self._oil = self.findOil()
         except Exception:
-            #TODO log warning?
+            # TODO log warning?
             self._oil = None
 
         try:
             self._isFishing = self.isFishingCheck(config)
         except Exception:
-            #TODO log warning?
+            # TODO log warning?
             self._isFishing = None
-
 
     # --- public properties ----------------------------------------------
 
@@ -96,13 +95,12 @@ class Cell(ABC):
             self._pointSet = set(tuple(p) for p in self._cords)
         return self._pointSet
 
-    #--- area computations -----------------------------------------
+    # --- area computations -----------------------------------------
 
     @property
     def area(self):
         return self._area
 
-    
     @abstractmethod
     def findArea(self):
         """
@@ -111,7 +109,7 @@ class Cell(ABC):
         raise NotImplementedError()
 
     # --- midpoint computations -----------------------------------------
-    
+
     @property
     def midPoint(self):
         if self._midPoint is None:
@@ -171,7 +169,7 @@ class Cell(ABC):
 
             # Find the points that both cells share
             # These two points form the shared edge (the stick they touch with)
-            shared =  self.pointSet & ngbCell.pointSet
+            shared = self.pointSet & ngbCell.pointSet
             if len(shared) < 2:
                 # If they don’t share a full edge, skip
                 continue
@@ -207,7 +205,6 @@ class Cell(ABC):
     @property
     def ngb(self):
         return self._ngb
-
 
     def findNGB(self, allCells):
         """
@@ -290,7 +287,7 @@ class Cell(ABC):
                 if self.id not in other._ngb:
                     other._ngb.append(self.id)
 
-    #--- flow computations -----------------------------------------
+    # --- flow computations -----------------------------------------
     @property
     def flow(self):
         if self._flow is None:
@@ -309,14 +306,14 @@ class Cell(ABC):
         mp = self.midPoint
         return np.array([mp[1] - mp[0] * 0.2, -mp[0]])
 
-    #--- oil computations -----------------------------------------
+    # --- oil computations -----------------------------------------
     @property
     def oil(self):
         if self._oil is None:
             self._oil = self.findOil()
         return self._oil
 
-    @oil.setter 
+    @oil.setter
     def oil(self, value):
         self._oil = self._validate_and_clamp_oil(value)
 
@@ -324,8 +321,9 @@ class Cell(ABC):
         mp = self.midPoint
         return np.exp(-(np.linalg.norm(mp - np.array([0.35, 0.45, 0])) ** 2) / 0.01)
 
-
-    def _validate_and_clamp_oil(self, value):  # TODO: this might be the wrong solution but I got an error that oil was set negatively
+    def _validate_and_clamp_oil(
+        self, value
+    ):  # TODO: this might be the wrong solution but I got an error that oil was set negatively
         try:
             v = float(value)
         except Exception:
@@ -333,18 +331,17 @@ class Cell(ABC):
 
         if v < 0.0:
             v = 0.0
-            #TODO log warning?
+            # TODO log warning?
         elif v > 1.0:
             v = 1.0
-            #TODO log warning?
+            # TODO log warning?
         return v
 
-
-    #--- fishing zone check ----------------------------------------------
+    # --- fishing zone check ----------------------------------------------
     @property
     def isFishing(self):
         return self._isFishing
-    
+
     def isFishingCheck(self, config=None):
         cfg = config if config is not None else self._config
         if cfg is None:

@@ -8,6 +8,7 @@ from src.LoadTOML import LoadTOML
 configloader = LoadTOML()
 config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
+
 def test_line_initialization_and_area1():  # TODO: Fix names and Fixtures of "repeat" tests
     class DummyMesh:
         def __init__(self):
