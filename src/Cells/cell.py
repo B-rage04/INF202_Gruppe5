@@ -5,7 +5,6 @@ import numpy as np
 from tqdm import tqdm
 from src.config import Config
 
-
 class Cell(ABC):
     """
     General parent class for all cell types
@@ -34,12 +33,12 @@ class Cell(ABC):
         self._flow = np.array(self.findFlow())
         self._oil = self.findOil()
         self.newOil = []
-        self._isFishing = self.isFishingCheck(config)
+        self._isFishing = self.isFishingCheck()
         
 
 
 
-    def isFishingCheck(self, config):
+    def isFishingCheck(self):
 
         fishxmin =  self._config.geometry["borders"][0][0]
         fishxmax =  self._config.geometry["borders"][0][1]
@@ -57,6 +56,7 @@ class Cell(ABC):
     @property
     def isFishing(self):
         return self._isFishing
+    
     @property
     def id(self):
         return self._id

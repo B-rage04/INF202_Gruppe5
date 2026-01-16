@@ -28,10 +28,6 @@ class CellFactory:
         }
         self.cellList = []
 
-    def register(self, key, ctype):
-        if key not in self.cellTypes:
-            self.cellTypes[key] = ctype
-
     def __call__(self):
         IDx = 0
         start_time = time.perf_counter()
