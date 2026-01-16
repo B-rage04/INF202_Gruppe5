@@ -42,6 +42,191 @@ class Simulation:
         self._initialize_additional_sinks()
         self._log_configuration_summary()
 
+    def updateOil(self, dt):
+        """Update oil concentration using predictor-corrector with sources/sinks."""
+        # Get source and sink coefficients
+        source_coeffs = self.oilSources if hasattr(self, "oilSources") else {}
+        sink_coeffs = self.oilSinks if hasattr(self, "oilSinks") else {}
+
+        oil_half = np.zeros(len(self._msh.cells))
+
+        # Predictor step
+        for cell in self._msh.cells:
+            if getattr(cell, "type", None) != "triangle":
+                continue
+            flux_sum = 0.0
+            for i, ngb in enumerate(cell.ngb):
+                neighbor = self._msh.cells[ngb]
+                if getattr(neighbor, "type", None) != "triangle":
+                    continue
+                flux_sum += -(dt / cell.area) * self._computeFlux(i, cell, ngb)
+            oil_half[cell.id] = cell.oil + flux_sum
+
+        # Corrector step with sources/sinks (spec-compliant)
+        for cell in self._msh.cells:
+            if getattr(cell, "type", None) != "triangle":
+                continue
+            S_plus = source_coeffs.get(cell.id, 0.0)  # Source term
+            S_minus = sink_coeffs.get(cell.id, 0.0)  # Sink term
+
+            # Apply spec: u_new = u_half / (1 + dt*S_minus - dt*S_plus)
+            denominator = 1.0 + dt * S_minus - dt * S_plus
+            if abs(denominator) > 1e-12:
+                cell.oil = oil_half[cell.id] / denominator
+            else:
+                cell.oil = oil_half[cell.id]
+
+    def _computeFlux(
+        self, i: int, cell: Any, ngb: int
+    ) -> float:  # TODO: other formulas from config
+
+        neighbor = self._msh.cells[ngb]
+        flowAvg = (cell.flow + neighbor.flow) / 2.0
+        scaled_normals = getattr(cell, "scaledNormal", None)
+        if scaled_normals is None:
+            raise AttributeError("Cell missing scaled normal data")
+        dot = float(np.dot(flowAvg, scaled_normals[i]))
+        source_oil = cell.oil if dot > 0 else neighbor.oil
+        return source_oil * dot
+
+    # snake_case compatibility wrapper
+    def update_oil(self, *args, **kwargs):
+        return self.updateOil(*args, **kwargs)
+
+    def getOilVals(self):
+        # it reads through all cells each step. Can this be optimized? TODO
+        self._oilVals.append(
+            [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
+        )
+
+        self._fishingOil.append(
+            sum([cell.oil for cell in self._msh.cells if cell.isFishing])
+        )
+
+    def getFishing(self):
+        self._fish_vals.append(
+            [cell._isFishing for cell in self._msh.cells if cell.type == "triangle"]
+        )
+
+    def run_sim(
+        self,
+        runNumber: Optional[int] = None,
+        **kwargs,
+    ) -> Optional[str]:
+
+        # self.ship = OilSinkSource(self._msh,configuration=None) #TODO implement oil sink source class
+
+        createVideo = False
+        if int(self._config.IO.get("writeFrequency", 0)) != 0:
+            createVideo = True
+
+        videoFps: int = int(self._config.video.get("videoFPS", 30))
+
+        totalSteps = self._nSteps
+
+        start_time = time.perf_counter()
+        with tqdm(
+            total=totalSteps,
+            desc="Simulating oil dispersion",
+            unit="step",
+            colour="cyan",
+            ncols=100,
+            ascii="-#",
+            position=0,
+            leave=True,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+        ) as pbar:
+            for stepIdx in range(1, totalSteps + 1):
+                self.updateOil(self._dt)  # Pass dt argument
+                self._currentTime = self._timeStart + stepIdx * self._dt
+                self.getOilVals()
+
+                # Always write first image, last image, or at writeFrequency intervals
+                should_write = False
+                if self._writeFrequency != 0:
+                    should_write = (
+                        stepIdx == 1
+                        or stepIdx == totalSteps
+                        or stepIdx % self._writeFrequency == 0
+                    )
+
+                if should_write:
+                    logger.info(
+                        f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}"
+                    )
+                    self._visualizer.plotting(
+                        self._oilVals[-1],
+                        filepath=str(self._imageDir),
+                        run=runNumber,
+                        step=stepIdx,
+                        **kwargs,
+                    )
+                pbar.update(1)
+
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        print(f"Simulation completed in {elapsed_ms:.2f} ms")
+
+        videoPath: Optional[str] = None
+        if createVideo and runNumber is not None:
+            # Resolve VideoCreator at runtime so tests can monkeypatch `src.simulation.VideoCreator`
+            from importlib import import_module
+
+            try:
+                _shim = import_module("src.simulation")
+                vc_cls = getattr(_shim, "VideoCreator", None)
+            except Exception:
+                vc_cls = None
+
+            if vc_cls is None:
+                try:
+                    from src.IO.video import VideoCreator as vc_cls
+                except Exception:
+                    vc_cls = None
+
+            if vc_cls is None:
+                raise RuntimeError("No VideoCreator available to create video")
+
+            videoCreator = vc_cls(imageDir=self._imageDir, fps=videoFps)
+
+            if hasattr(videoCreator, "createVideo_from_run"):
+                videoPath = videoCreator.createVideo_from_run(runNumber)
+            else:
+                videoPath = videoCreator.createVideoFromRun(runNumber)
+
+        return videoPath
+
+    # getters/setters (grouped together)
+    @property
+    def config(self) -> Config:
+        return self._config
+
+    @property
+    def mesh(self) -> Mesh:
+        return self._msh
+
+    @property
+    def dt(self) -> float:
+        return self._dt
+
+    @property
+    def currentTime(self) -> float:
+        return self._currentTime
+
+    @currentTime.setter
+    def currentTime(self, value: float) -> None:
+        if not isinstance(value, (int, float)):
+            raise TypeError("currentTime must be numeric")
+        self._currentTime = float(value)
+
+    @property
+    def oilVals(self) -> List[float]:
+        # return a copy to avoid accidental external mutation
+        return list(self._oilVals)
+
+    @property
+    def fishingOil(self):
+        return self._fishingOil
+
     def _validate_config(self, config):
         """Validate that config is a Config instance."""
         # Require a Config instance (do not accept plain dicts)
@@ -234,201 +419,3 @@ class Simulation:
             summary_parts.append("0 sinks")
 
         logger.info(f"Configuration summary: {', '.join(summary_parts)}")
-
-    @staticmethod  # TODO: Move to LoadTOML?
-    def _validateConfig(config: Dict[str, Any]) -> None:
-        required = [
-            ("geometry", "meshName"),
-            ("settings", "tStart"),
-            ("settings", "tEnd"),
-            ("settings", "nSteps"),
-            ("IO", "writeFrequency"),
-        ]
-        for section, key in required:
-            if section not in config or key not in config[section]:
-                raise KeyError(f"Missing required config entry: {section}.{key}")
-
-    # getters/setters
-    @property
-    def config(self) -> Config:
-        return self._config
-
-    @property
-    def mesh(self) -> Mesh:
-        return self._msh
-
-    @property
-    def dt(self) -> float:
-        return self._dt
-
-    @property
-    def currentTime(self) -> float:
-        return self._currentTime
-
-    @currentTime.setter
-    def currentTime(self, value: float) -> None:
-        if not isinstance(value, (int, float)):
-            raise TypeError("currentTime must be numeric")
-        self._currentTime = float(value)
-
-    @property
-    def oilVals(self) -> List[float]:
-        # return a copy to avoid accidental external mutation
-        return list(self._oilVals)
-
-    @property
-    def fishingOil(self):
-        return self._fishingOil
-
-    def getOilVals(self):
-        # it reads through all cells each step. Can this be optimized? TODO
-        self._oilVals.append(
-            [cell.oil for cell in self._msh.cells if cell.type == "triangle"]
-        )
-
-        self._fishingOil.append(
-            sum([cell.oil for cell in self._msh.cells if cell.isFishing])
-        )
-
-    def getFishing(self):
-        self._fish_vals.append(
-            [cell._isFishing for cell in self._msh.cells if cell.type == "triangle"]
-        )
-
-    def _computeFlux(
-        self, i: int, cell: Any, ngb: int
-    ) -> float:  # TODO: other formulas from config
-
-        neighbor = self._msh.cells[ngb]
-        flowAvg = (cell.flow + neighbor.flow) / 2.0
-        scaled_normals = getattr(cell, "scaledNormal", None)
-        if scaled_normals is None:
-            raise AttributeError("Cell missing scaled normal data")
-        dot = float(np.dot(flowAvg, scaled_normals[i]))
-        source_oil = cell.oil if dot > 0 else neighbor.oil
-        return source_oil * dot
-
-    def updateOil(self, dt):
-        """Update oil concentration using predictor-corrector with sources/sinks."""
-        # Get source and sink coefficients
-        source_coeffs = self.oilSources if hasattr(self, "oilSources") else {}
-        sink_coeffs = self.oilSinks if hasattr(self, "oilSinks") else {}
-
-        oil_half = np.zeros(len(self._msh.cells))
-
-        # Predictor step
-        for cell in self._msh.cells:
-            if getattr(cell, "type", None) != "triangle":
-                continue
-            flux_sum = 0.0
-            for i, ngb in enumerate(cell.ngb):
-                neighbor = self._msh.cells[ngb]
-                if getattr(neighbor, "type", None) != "triangle":
-                    continue
-                flux_sum += -(dt / cell.area) * self._computeFlux(i, cell, ngb)
-            oil_half[cell.id] = cell.oil + flux_sum
-
-        # Corrector step with sources/sinks (spec-compliant)
-        for cell in self._msh.cells:
-            if getattr(cell, "type", None) != "triangle":
-                continue
-            S_plus = source_coeffs.get(cell.id, 0.0)  # Source term
-            S_minus = sink_coeffs.get(cell.id, 0.0)  # Sink term
-
-            # Apply spec: u_new = u_half / (1 + dt*S_minus - dt*S_plus)
-            denominator = 1.0 + dt * S_minus - dt * S_plus
-            if abs(denominator) > 1e-12:
-                cell.oil = oil_half[cell.id] / denominator
-            else:
-                cell.oil = oil_half[cell.id]
-
-    # snake_case compatibility wrapper
-    def update_oil(self, *args, **kwargs):
-        return self.updateOil(*args, **kwargs)
-
-    def run_sim(
-        self,
-        runNumber: Optional[int] = None,
-        **kwargs,
-    ) -> Optional[str]:
-
-        # self.ship = OilSinkSource(self._msh,configuration=None) #TODO implement oil sink source class
-
-        createVideo = False
-        if int(self._config.IO.get("writeFrequency", 0)) != 0:
-            createVideo = True
-
-        videoFps: int = int(self._config.video.get("videoFPS", 30))
-
-        totalSteps = self._nSteps
-
-        start_time = time.perf_counter()
-        with tqdm(
-            total=totalSteps,
-            desc="Simulating oil dispersion",
-            unit="step",
-            colour="cyan",
-            ncols=100,
-            ascii="-#",
-            position=0,
-            leave=True,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-        ) as pbar:
-            for stepIdx in range(1, totalSteps + 1):
-                self.updateOil(self._dt)  # Pass dt argument
-                self._currentTime = self._timeStart + stepIdx * self._dt
-                self.getOilVals()
-
-                # Always write first image, last image, or at writeFrequency intervals
-                should_write = False
-                if self._writeFrequency != 0:
-                    should_write = (
-                        stepIdx == 1
-                        or stepIdx == totalSteps
-                        or stepIdx % self._writeFrequency == 0
-                    )
-
-                if should_write:
-                    logger.info(
-                        f"total oil at time {self.currentTime}: {self.fishingOil[-1]:.5f}"
-                    )
-                    self._visualizer.plotting(
-                        self._oilVals[-1],
-                        filepath=str(self._imageDir),
-                        run=runNumber,
-                        step=stepIdx,
-                        **kwargs,
-                    )
-                pbar.update(1)
-
-        elapsed_ms = (time.perf_counter() - start_time) * 1000
-        print(f"Simulation completed in {elapsed_ms:.2f} ms")
-
-        videoPath: Optional[str] = None
-        if createVideo and runNumber is not None:
-            # Resolve VideoCreator at runtime so tests can monkeypatch `src.simulation.VideoCreator`
-            from importlib import import_module
-
-            try:
-                _shim = import_module("src.simulation")
-                vc_cls = getattr(_shim, "VideoCreator", None)
-            except Exception:
-                vc_cls = None
-
-            if vc_cls is None:
-                try:
-                    from src.IO.video import VideoCreator as vc_cls
-                except Exception:
-                    vc_cls = None
-
-            if vc_cls is None:
-                raise RuntimeError("No VideoCreator available to create video")
-
-            videoCreator = vc_cls(imageDir=self._imageDir, fps=videoFps)
-
-            if hasattr(videoCreator, "createVideo_from_run"):
-                videoPath = videoCreator.createVideo_from_run(runNumber)
-            else:
-                videoPath = videoCreator.createVideoFromRun(runNumber)
-
-        return videoPath
