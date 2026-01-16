@@ -52,11 +52,6 @@ def testGetterFlow(triangle):
     assert triangle.flow.all() == triangle._flow.all()
 
 
-def testGetterFlowNone(triangle):
-    triangle._flow = None
-    expextedFlow = triangle.findFlow()
-    assert triangle.flow.all() == expextedFlow.all()
-    
 
 def testGetterFlowNone(triangle):
     triangle._flow = None
@@ -104,10 +99,13 @@ def testOil(triangle):
 def testGetterIsFishing(triangle):
     assert triangle.isFishing == triangle._isFishing
 
-"""
-@pytest.mark.parametrize("x, y, bool",
-                         [(1, 1, False),
-                          (1, 1, True),])
-def testFishingCheck(triangle):
-    return True
-"""
+
+@pytest.mark.parametrize("cords, bool",
+                         [([[0.0],[0.0],[0.0]], True),
+                          ([[5.0],[5.0],[5.0]], False),
+                          ([[0.0],[0.0],[0.0]], False)])
+
+def testFishingCheck(triangle, cords, bool):
+    triangle._cords = cords
+    triangle._update_geometry()
+    assert triangle.isFishingCheck() == bool
