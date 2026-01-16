@@ -6,7 +6,7 @@ tEnd = 0.1 # End time of simulation
 
 [geometry]
 meshName = "test/utilitiesTests/simpleMesh.msh" # Path to mesh file
-borders = [[0, 0.45], [0.0, 0.2]] # Borders for Fish [x_min, x_max], [y_min, y_max]
+borders = [[-0.3, 0.3], [-0.3, 0.3]] # Borders for Fish [x_min, x_max], [y_min, y_max]
 ship = [0.45, 0.4] # Oil collection ship position [x, y]
 
 [IO]

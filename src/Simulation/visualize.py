@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import logging
-
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import PolyCollection
@@ -62,9 +60,13 @@ class Visualizer:
     def _draw_fishing_zones(self, ax):
         """Draw fishing zones as red transparent polygons."""
         fishing_triangles = [
-            cell.cords for cell in self.mesh.cells
-            if getattr(cell, "type", None) == "triangle" and cell.isFishing
+            getattr(cell, "cords", None)
+            for cell in self.mesh.cells
+            if getattr(cell, "type", None) == "triangle" and getattr(cell, "_isFishing", False)
         ]
+
+        # Filter out any None entries
+        fishing_triangles = [t for t in fishing_triangles if t is not None]
 
         if fishing_triangles:
             verts = [np.array(t)[:, :2] for t in fishing_triangles]
@@ -76,35 +78,30 @@ class Visualizer:
                 edgecolors="none",
                 linewidth=0,
                 antialiased=False,
-                zorder=5
             )
 
             ax.add_collection(coll)
 
-
     def _draw_ship_marker(self, ax, config):
         """Draw ship marker if configured."""
         if not isinstance(config, Config):
-            logging.info("No ship in config")
             return False
 
         geometry = config.geometry if isinstance(config, Config) else {}
-        ship_cfg = geometry.get("ship", []) if isinstance(geometry, dict) else []
+        ship_cfg = geometry.get("ship") if isinstance(geometry, dict) else None
 
-        if isinstance(ship_cfg, list) and ship_cfg:
-            for idx, ship_pos in enumerate(ship_cfg):
-                if isinstance(ship_pos, list) and len(ship_pos) >= 2:
-                    ax.plot(
-                        ship_pos[0],
-                        ship_pos[1],
-                        marker="s",
-                        markersize=12,
-                        color="red",
-                        markeredgecolor="white",
-                        markeredgewidth=2,
-                        label=f"Ship {idx+1}" if idx == 0 else "",
-                        zorder=10,
-                    )
+        if ship_cfg and isinstance(ship_cfg, list) and len(ship_cfg) >= 2:
+            ax.plot(
+                ship_cfg[0],
+                ship_cfg[1],
+                marker="s",
+                markersize=12,
+                color="red",
+                markeredgecolor="white",
+                markeredgewidth=2,
+                label="Ship (sink)",
+                zorder=10,
+            )
             return True
 
         return False
@@ -235,7 +232,7 @@ class Visualizer:
 
         config = self._get_config(kwargs)
 
-        cmap = plt.cm.get_cmap("viridis")
+        cmap = plt.get_cmap("viridis")
         fig, ax = self._create_base_plot(oil, cmap)
 
         self._draw_fishing_zones(ax)

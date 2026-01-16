@@ -3,11 +3,11 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from src.Cells.cellFactory import CellFactory
+from src.Geometry.cellFactory import CellFactory
 from src.IO.LoadTOML import LoadTOML
 
 configloader = LoadTOML()
-config = configloader.loadTomlFile("Input\BaseSimConfig.toml")
+config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
 
 @pytest.fixture

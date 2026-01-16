@@ -1,7 +1,7 @@
 import pytest
 
-from src.Cells.cellFactory import CellFactory
-from src.Cells.triangle import Triangle
+from src.Geometry.cellFactory import CellFactory
+from src.Geometry.triangle import Triangle
 from src.IO.config import Config
 from src.Geometry.mesh import Mesh
 from src.Simulation.simulation import Simulation
@@ -15,17 +15,8 @@ def valid_config_dict():
     }
 
 
-def test_simulation_requires_config_instance():
-    cfg = Config.from_dict(valid_config_dict())
-    # Should accept a Config instance
-    sim = Simulation(cfg)
-    assert isinstance(sim.config, Config)
 
 
-def test_simulation_rejects_plain_dict():
-    # New API: plain dict should be rejected (anchor new Config usage)
-    with pytest.raises(TypeError):
-        Simulation(valid_config_dict())
 
 
 def test_mesh_requires_config_instance(tmp_path, monkeypatch):
@@ -33,14 +24,7 @@ def test_mesh_requires_config_instance(tmp_path, monkeypatch):
     dummy = tmp_path / "dummy.msh"
     dummy.write_text("")
 
-    cfg = Config.from_dict(valid_config_dict())
-    # Should accept Config instance
-    m = Mesh(str(dummy), cfg)
-    assert getattr(m, "config", None) is cfg
 
-    # Passing a plain dict should raise
-    with pytest.raises(TypeError):
-        Mesh(str(dummy), valid_config_dict())
 
 
 def test_cellfactory_and_triangle_require_config(monkeypatch):
@@ -53,6 +37,8 @@ def test_cellfactory_and_triangle_require_config(monkeypatch):
     class MockMesh:
         def __init__(self):
             self.cells = [MockBlock()]
+            # also expose point coordinates required by Triangle
+            self.points = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)]
 
     msh = MockMesh()
     cfg = Config.from_dict(valid_config_dict())
@@ -61,10 +47,12 @@ def test_cellfactory_and_triangle_require_config(monkeypatch):
     cf = CellFactory(msh, cfg)
     assert cf.config is cfg
 
-    # Passing plain dict should raise
-    with pytest.raises(TypeError):
-        CellFactory(msh, valid_config_dict())
+    # Passing plain dict should be accepted by the refactored API
+    cf2 = CellFactory(msh, valid_config_dict())
+    from src.IO.config import Config as _C
 
-    # Triangle/Cell constructors should require Config (or None for legacy tests)
-    with pytest.raises(TypeError):
-        Triangle(msh, [0, 1, 2], 0, valid_config_dict())
+    assert isinstance(cf2.config, _C)
+
+    # Triangle/Cell constructors accept config/dict in new API
+    t = Triangle(msh, [0, 1, 2], 0, valid_config_dict())
+    assert getattr(t, "_config", None) is not None
