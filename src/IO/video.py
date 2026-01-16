@@ -7,14 +7,32 @@ from tqdm import tqdm
 
 
 class VideoCreator:
+    """
+    Class for videocreator that returns a video in MP4 format
+    This class compiles multiple PNGs into one MP4 video
+    """
 
     def __init__(self, imageDir="Output/images/", fps=10, **kwargs):
+        """
+        Docstring for initializes te videoCreatorobject
+        
+        :param imageDir: string path to directory where video should be saved
+        :param fps: frames per second
+        """
+
 
         self.image_dir = Path(imageDir)
         self.imageDir = self.image_dir
         self.fps = fps
 
     def createVideoFromRun(self, runNumber, outputPath=None):
+        """
+        Function that compiles all frames from specified simulation into a video
+        
+        :param runNumber: index for which images to compile to video
+        :param outputPath: string for outputpath
+        :return: outputPath
+        """
         runDir = self.imageDir / f"run{runNumber}"
 
         if not runDir.exists():
@@ -61,6 +79,13 @@ class VideoCreator:
         return str(outputPath)
 
     def createVideoFromImages(self, imagePattern, outputPath):
+        """
+        Method that creates a video from glob pattern of images
+        
+        :param imagePattern: glob pattern of images, ex ("oilStep*.png)
+        :param outputPath: destination for videofile
+        :return: outputPath as string
+        """
         imageFiles = sorted(self.imageDir.glob(imagePattern))
 
         if not imageFiles:
@@ -96,6 +121,13 @@ class VideoCreator:
         return str(outputPath)
 
     def createComparisonVideo(self, runNumbers, outputPath=None):
+        """
+        takes in multiple runs to compare them
+        
+        :param runNumbers: a list of numbers for runs to compare (at least 1 is needed to run this function)
+        :param outputPath: string of path to save the result of comparison
+        :return: outputPath as a string
+        """
         if not runNumbers:
             raise ValueError("At least one run number must be provided")
 
