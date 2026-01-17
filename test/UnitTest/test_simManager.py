@@ -106,7 +106,7 @@ def test_create_result_folder_allows_overwrite_result(tmp_path):
     (config_folder / "images").mkdir()
 
     result = Manager._create_result_folder("test_config", str(tmp_path))
-    assert result == str(config_folder)
+    assert result == str(config_folder) 
 
 
 def test_parse_arguments_correct_output_type(monkeypatch):
