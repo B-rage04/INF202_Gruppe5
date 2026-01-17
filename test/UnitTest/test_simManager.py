@@ -1,6 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -105,7 +106,7 @@ def test_create_result_folder_allows_overwrite_result(tmp_path):
     (config_folder / "images").mkdir()
 
     result = Manager._create_result_folder("test_config", str(tmp_path))
-    assert result == str(config_folder)
+    assert result == str(config_folder) 
 
 
 def test_parse_arguments_correct_output_type(monkeypatch):
@@ -201,3 +202,77 @@ def test_print_video_summary_empty_list(capsys):
 
     captured = capsys.readouterr()
     assert "All videos created" not in captured.out
+
+
+def test_run_single_simulation_returns_video(monkeypatch, tmp_path):
+    from src.IO.config import Config
+
+    cfg = Config.from_dict({
+        "geometry": {"meshName": "m.msh"},
+        "settings": {"tStart": 0, "tEnd": 0.1, "nSteps": 1},
+        "IO": {},
+    })
+
+    class FakeSim:
+        def __init__(self, c):
+            self.c = c
+
+        def run_sim(self, **kwargs):
+            return "video.mp4"
+
+    monkeypatch.setattr(Manager, "Simulation", lambda c: FakeSim(c))
+    monkeypatch.setattr(Manager, "_next_run_number", lambda *a, **k: 0)
+
+    path = Manager._run_single_simulation(cfg, "cfgpath")
+    assert path == "video.mp4"
+
+
+def test_process_single_config_uses_loader_and_runs(monkeypatch, tmp_path):
+    # fake loader returning a Config
+    from src.IO.config import Config
+
+    cfg = Config.from_dict({
+        "geometry": {"meshName": "m.msh"},
+        "settings": {"tStart": 0, "tEnd": 0.1, "nSteps": 1},
+        "IO": {},
+    })
+
+    class Loader:
+        def loadConfigFile(self, p):
+            return cfg
+
+    monkeypatch.setattr(Manager, "_setup_config_output", lambda c, n: str(tmp_path))
+    monkeypatch.setattr(Manager, "_run_single_simulation", lambda c, p, **k: "v.mp4")
+
+    res = Manager._process_single_config(Loader(), "some/config.toml")
+    assert res == "v.mp4"
+
+
+def test_process_all_configs_collects_video_paths(monkeypatch, tmp_path):
+    # create two dummy toml files
+    f1 = tmp_path / "a.toml"
+    f1.write_text("a=1")
+    f2 = tmp_path / "b.toml"
+    f2.write_text("b=2")
+
+    monkeypatch.setattr(Manager, "_get_config_files", lambda folder: [str(f1), str(f2)])
+
+    def fake_process(loader, path, **k):
+        if path.endswith("a.toml"):
+            return "v1"
+        return None
+
+    monkeypatch.setattr(Manager, "_process_single_config", fake_process)
+
+    res = Manager._process_all_configs(SimpleNamespace(), str(tmp_path))
+    assert res == ["v1"]
+
+
+def test_main_handles_missing_config(monkeypatch, capsys):
+    # Force _run_single_file_mode to raise FileNotFoundError
+    monkeypatch.setattr(sys, "argv", ["prog", "-c", "nope.toml"])
+    monkeypatch.setattr(Manager, "_run_single_file_mode", lambda loader, args, **k: (_ for _ in ()).throw(FileNotFoundError("miss")))
+
+    Manager.main()
+    out, err = capsys.readouterr()
+    assert "Config file not found" in out

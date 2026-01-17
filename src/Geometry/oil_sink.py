@@ -16,7 +16,7 @@ def _get_cells_from_mesh(msh) -> list:
 
 def _calculate_distance(cell_midpoint, position) -> float:
     """Calculate Euclidean distance between cell midpoint and position."""
-    return np.linalg.norm(np.array(cell_midpoint[:2]) - np.array(position))
+    return np.linalg.norm(np.array(cell_midpoint[:2]) - np.array(position[:2]))
 
 
 def _gaussian_coefficient(distance: float, sigma: float) -> float:
