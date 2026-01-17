@@ -77,6 +77,9 @@ def testSetterFLow(triangle):
     triangle.flow = [12, 2]
     assert triangle.flow.all() == triangle.flow.all()
 
+def testSetterFlowError(triangle):
+    with pytest.raises(TypeError):
+        triangle.flow = ["flow", 0, [1,2,3]]
 
 def testGetterOil(triangle):
     assert triangle.oil == triangle._oil
@@ -101,7 +104,6 @@ def testFindFlow(triangle):
     cx, cy = triangle.midPoint[0], triangle.midPoint[1]
     expectedFlow = np.array([cy - cx * 0.2, -cx])
     assert triangle.flow.all() == expectedFlow.all()
-
 
 def testOil(triangle):
     center = triangle.midPoint
