@@ -6,6 +6,3 @@ def meshTest():
     config = configTest()
     msh = Mesh("test/utilitiesTests/simpleMesh.msh", config)
     return msh
-
-
-msh = meshTest()

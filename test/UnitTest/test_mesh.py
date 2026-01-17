@@ -10,7 +10,17 @@ from src.Geometry.mesh import Mesh
 configloader = LoadTOML()
 config = configloader.loadConfigFile("Input\BaseSimConfig.toml")
 
+from test.utilitiesTests.MeshTest import meshTest
+from test.utilitiesTests.ConfigTest import configTest
 
+
+@pytest.fixture
+def tmpMsh():
+    msh = meshTest()
+    config = configTest()
+  
+
+    return msh, config
 class DummyMeshIO:
     def __init__(self):
         self.points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
@@ -39,7 +49,23 @@ def test_mesh_loads_points_and_triangles(
     npt.assert_array_equal(m.triangles, np.array([[0, 1, 2]]))
 
 
-def test_reload(tmp_mesh):
-    m = Mesh(tmp_mesh, config)
-    m.reload(tmp_mesh, config)
-    assert m is not FileNotFoundError
+#Tests for reload-method
+
+def testReload(tmpMsh):
+    msh, config = tmpMsh
+    file = "test/utilitiesTests/simpleMesh.msh"
+    msh.reload(file, config)
+    assert msh._cells == msh._cellFactory()
+
+def testReloadFileNotString(tmpMsh):
+    msh, config = tmpMsh
+    file = 0
+    with pytest.raises(TypeError):
+        msh.reload(file, config)
+
+def testReloadFilePathError(tmpMsh):
+    msh, config = tmpMsh
+    file = "test/utilitiesTests/doesntexist.msh"
+    with pytest.raises(FileNotFoundError):
+        msh.reload(file, config)
+ 
