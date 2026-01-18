@@ -61,7 +61,7 @@ class Mesh:
         return self._cells
 
     # --- Utility ---
-    def reload(self, file: str, config) -> (None):  # TODO: test this, with valid and invalid paths, With same path, different path
+    def reload(self, file: str) -> (None):  # TODO: test this, with valid and invalid paths, With same path, different path
         """Reload the mesh from a new file path."""
         if not isinstance(file, str):
             raise TypeError("file must be a path string")
